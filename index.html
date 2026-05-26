@@ -19,7 +19,7 @@
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Arial, sans-serif;
     }
 
-    /* ===================== CONTADOR ===================== */
+    /* ===================== CARD ===================== */
     #contador {
       width: clamp(280px, 90vw, 520px);
       background: #fff;
@@ -70,12 +70,13 @@
     @keyframes bgOvertimePulse { 0%{background:#aa0000} 100%{background:#e00000} }
     @keyframes blurOvertimePulse { 0%{opacity:0.6} 100%{opacity:1} }
 
-    /* ===================== RELÓGIO GRANDE ===================== */
+    /* ===================== BLOCO RELÓGIO ===================== */
+    /* Hora grande | lado direito: dia da semana + data (mesma altura total) */
     .clock-block {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      gap: clamp(4px, 1vh, 10px);
+      gap: clamp(10px, 2.5vw, 20px);
       position: relative;
       z-index: 1;
       width: 100%;
@@ -83,38 +84,59 @@
 
     /* HORA */
     #lineNow {
-      font-size: clamp(3.5rem, 14vw, 7rem);
+      font-size: clamp(3.2rem, 13vw, 6.5rem);
       font-weight: 800;
       color: inherit;
       line-height: 1;
       letter-spacing: -2px;
-      text-align: center;
+      flex-shrink: 0;
     }
 
-    /* DIA DA SEMANA */
-    #lineWeekday {
-      font-size: clamp(1.1rem, 4vw, 2.2rem);
-      font-weight: 700;
-      color: #555;
-      text-align: center;
-      line-height: 1;
-      text-transform: capitalize;
+    /* COLUNA: dia da semana + data */
+    .clock-date-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      /* mesma altura total da hora — usamos o line-height da hora como referência */
+      height: 1em; /* esticado pelo flex do pai */
+      flex: 1 1 auto;
+      min-width: 0;
+      overflow: hidden;
     }
-    #contador.running #lineWeekday,
-    #contador.overtime #lineWeekday { color: rgba(255,255,255,0.8); }
 
-    /* DATA */
+    #lineWeekday,
     #lineDate {
-      font-size: clamp(0.95rem, 3.2vw, 1.8rem);
-      font-weight: 600;
-      color: #888;
-      text-align: center;
+      /* cada linha ocupa metade da altura da hora */
+      flex: 1 1 50%;
+      display: flex;
+      align-items: center;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       line-height: 1;
     }
-    #contador.running #lineDate,
-    #contador.overtime #lineDate { color: rgba(255,255,255,0.65); }
 
-    /* Divisor */
+    #lineWeekday {
+      font-size: clamp(1rem, 3.5vw, 2rem);
+      color: #444;
+      text-transform: capitalize;
+      align-items: flex-end;
+      padding-bottom: 2px;
+    }
+    #lineDate {
+      font-size: clamp(1rem, 3.5vw, 2rem);
+      color: #888;
+      align-items: flex-start;
+      padding-top: 2px;
+    }
+
+    #contador.running #lineWeekday { color: rgba(255,255,255,0.85); }
+    #contador.running #lineDate    { color: rgba(255,255,255,0.65); }
+    #contador.overtime #lineWeekday { color: rgba(255,255,255,0.85); }
+    #contador.overtime #lineDate    { color: rgba(255,255,255,0.65); }
+
+    /* Divisor horizontal */
     .clock-divider {
       width: 100%;
       height: 1px;
@@ -175,34 +197,26 @@
       color: #fff;
     }
 
-    /* ===================== BOTÕES ===================== */
+    /* ===================== BOTÃO INICIAR (único, grosso) ===================== */
     .btn-row {
-      display: flex;
-      gap: clamp(6px, 1.5vw, 12px);
       width: 100%;
-      min-width: 0;
       position: relative;
       z-index: 1;
     }
     .btn-row button {
-      flex: 1 1 0;
-      min-width: 0;
-      font-size: clamp(0.78rem, 2vw, 0.92rem);
-      padding: clamp(8px, 2vh, 14px) 4px;
+      width: 100%;
+      font-size: clamp(0.9rem, 2.2vw, 1.05rem);
+      padding: clamp(12px, 2.5vh, 18px) 4px;
       border-radius: 8px;
-      font-weight: bold;
+      font-weight: 800;
+      letter-spacing: 0.05em;
       cursor: pointer;
       border: none;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
     }
     .btn-start { background: #c0392b; color: white; }
     .btn-start:hover { background: #e74c3c; }
     .btn-done  { background: #0984e3; color: white; display: none; }
     .btn-done:hover  { background: #74b9ff; }
-    .btn-reset { background: #e0e0e0; color: #333; }
-    .btn-reset:hover { background: #ccc; }
 
     /* ===================== TIMER ===================== */
     .timer-row {
@@ -260,113 +274,87 @@
       text-align: center;
     }
 
-    /* ===================== RESPONSIVO — TELA PEQUENA (≤400px) ===================== */
-    @media (max-width: 400px) {
-      #lineNow { font-size: clamp(3rem, 18vw, 4.5rem); }
-      #lineWeekday { font-size: clamp(0.95rem, 5vw, 1.4rem); }
-      #lineDate { font-size: clamp(0.8rem, 4vw, 1.1rem); }
-    }
-
     /* ===================== MODO JANELA PEQUENA 365×205 ===================== */
-    /* Ativa quando a janela for pequena e baixa — todo conteúdo precisa caber em ~205px de altura */
     @media (max-height: 260px) {
 
       html, body {
-        min-height: 100vh;
         align-items: center;
         justify-content: center;
       }
 
       #contador {
-        /* Ocupa toda a janela */
         width: 100vw;
         min-height: 100vh;
         border-radius: 0;
         box-shadow: none;
-
-        /* Layout: coluna compactíssima — tudo espremido verticalmente */
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        gap: 3px;
-        padding: 4px 10px;
+        gap: 5px;
+        padding: 6px 14px;
       }
 
-      /* ---- RELÓGIO: hora grande + dia/data em linha ---- */
+      /* ---- RELÓGIO: hora | dia+data lado a lado, maior ---- */
       .clock-block {
-        flex-direction: row;
-        align-items: baseline;
-        justify-content: center;
-        gap: 6px;
-        width: 100%;
-        flex-wrap: nowrap;
+        gap: 8px;
+        align-items: center;
       }
 
       #lineNow {
-        font-size: 1.9rem;
+        font-size: 2.6rem;
         letter-spacing: -1px;
         line-height: 1;
-        flex-shrink: 0;
       }
 
       #lineWeekday {
-        font-size: 0.65rem;
-        line-height: 1.1;
-        white-space: nowrap;
+        font-size: 0.9rem;
+        line-height: 1.2;
       }
 
       #lineDate {
-        font-size: 0.58rem;
-        line-height: 1.1;
-        white-space: nowrap;
+        font-size: 0.9rem;
+        line-height: 1.2;
       }
 
-      /* ---- DIVISOR: mais fino ---- */
+      /* ---- DIVISOR ---- */
       .clock-divider {
         height: 1px;
         width: 90%;
-        margin: 1px 0;
+        margin: 0;
       }
 
-      /* ---- INPUTS: em linha, bem compactos ---- */
+      /* ---- INPUTS ---- */
       .input-row {
-        gap: 4px;
-        flex-direction: row;
+        gap: 5px;
       }
 
       .input-row input[type="text"] {
-        font-size: 0.7rem;
-        padding: 3px 6px;
+        font-size: 0.82rem;
+        padding: 5px 8px;
         border-radius: 5px;
-        flex: 1 1 58%;
       }
 
       .input-row input[type="time"] {
-        font-size: 0.7rem;
-        padding: 3px 4px;
+        font-size: 0.82rem;
+        padding: 5px 6px;
         border-radius: 5px;
-        flex: 1 1 36%;
       }
 
-      /* ---- BOTÕES: em linha, mini ---- */
-      .btn-row {
-        gap: 4px;
-      }
-
+      /* ---- BOTÃO ---- */
       .btn-row button {
-        font-size: 0.65rem;
-        padding: 3px 4px;
-        border-radius: 5px;
+        font-size: 0.82rem;
+        padding: 6px 4px;
+        border-radius: 6px;
       }
 
-      /* ---- TIMER: menor, sem margin extra ---- */
+      /* ---- TIMER ---- */
       .timer-row {
-        gap: 2px;
+        gap: 3px;
       }
 
       #timer {
-        font-size: 1.5rem;
-        letter-spacing: 1px;
+        font-size: 1.8rem;
+        letter-spacing: 2px;
       }
 
       .progress-container {
@@ -374,7 +362,7 @@
       }
 
       #alarmMessage {
-        font-size: 0.65rem;
+        font-size: 0.75rem;
       }
     }
   </style>
@@ -383,11 +371,13 @@
 
   <div id="contador">
 
-    <!-- RELÓGIO GRANDE -->
+    <!-- RELÓGIO: hora grande + coluna dia/data -->
     <div class="clock-block">
       <div id="lineNow">--:--</div>
-      <div id="lineWeekday">...</div>
-      <div id="lineDate">...</div>
+      <div class="clock-date-col">
+        <div id="lineWeekday">...</div>
+        <div id="lineDate">...</div>
+      </div>
     </div>
 
     <div class="clock-divider"></div>
@@ -398,11 +388,10 @@
       <input type="time" id="targetTime">
     </div>
 
-    <!-- BOTÕES -->
+    <!-- BOTÃO ÚNICO -->
     <div class="btn-row">
       <button id="btnStart" class="btn-start" onclick="startTimer()">INICIAR</button>
       <button id="btnDone"  class="btn-done"  onclick="finishTask()">CONCLUIR</button>
-      <button class="btn-reset" onclick="resetTimer()">RESETAR</button>
     </div>
 
     <!-- TIMER -->
@@ -432,19 +421,24 @@
 
     function updateClock() {
       const now = new Date();
+
       // HORA
       document.getElementById("lineNow").textContent =
         now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
-      // DIA DA SEMANA
+
+      // DIA DA SEMANA — capitalizado
       const weekday = now.toLocaleDateString('pt-BR', {weekday: 'long'});
       document.getElementById("lineWeekday").textContent =
         weekday.charAt(0).toUpperCase() + weekday.slice(1);
-      // DATA
-      const day   = now.toLocaleDateString('pt-BR', {day: '2-digit'});
-      const month = now.toLocaleDateString('pt-BR', {month: 'long'});
-      const year  = now.getFullYear();
+
+      // DATA — formato 26/05 (Mai.)
+      const day   = String(now.getDate()).padStart(2, '0');
+      const month = String(now.getMonth() + 1).padStart(2, '0');
+      const monthShort = now.toLocaleDateString('pt-BR', {month: 'short'});
+      // capitaliza e remove ponto se vier no short
+      const monthLabel = monthShort.replace('.','').charAt(0).toUpperCase() + monthShort.replace('.','').slice(1) + '.';
       document.getElementById("lineDate").textContent =
-        day + ' de ' + month.charAt(0).toUpperCase() + month.slice(1) + ' de ' + year;
+        day + '/' + month + ' (' + monthLabel + ')';
     }
     setInterval(updateClock, 1000);
     updateClock();
