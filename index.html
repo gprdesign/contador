@@ -92,13 +92,12 @@
       flex-shrink: 0;
     }
 
-    /* COLUNA: dia da semana + data */
+    /* COLUNA: dia da semana + data — altura total = mesma da hora */
     .clock-date-col {
       display: flex;
       flex-direction: column;
       justify-content: center;
-      /* mesma altura total da hora — usamos o line-height da hora como referência */
-      height: 1em; /* esticado pelo flex do pai */
+      align-self: stretch;   /* estica até a altura do #lineNow */
       flex: 1 1 auto;
       min-width: 0;
       overflow: hidden;
@@ -106,8 +105,7 @@
 
     #lineWeekday,
     #lineDate {
-      /* cada linha ocupa metade da altura da hora */
-      flex: 1 1 50%;
+      flex: 1 1 50%;         /* cada linha = metade da altura da hora */
       display: flex;
       align-items: center;
       font-weight: 700;
@@ -115,17 +113,17 @@
       overflow: hidden;
       text-overflow: ellipsis;
       line-height: 1;
+      /* fonte proporcional à hora: hora usa ~6.5rem → cada linha ~45% disso */
+      font-size: clamp(0.75rem, 2.2vw, 1.35rem);
     }
 
     #lineWeekday {
-      font-size: clamp(1rem, 3.5vw, 2rem);
       color: #444;
       text-transform: capitalize;
       align-items: flex-end;
       padding-bottom: 2px;
     }
     #lineDate {
-      font-size: clamp(1rem, 3.5vw, 2rem);
       color: #888;
       align-items: flex-start;
       padding-top: 2px;
