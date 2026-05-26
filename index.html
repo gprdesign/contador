@@ -260,11 +260,135 @@
       text-align: center;
     }
 
-    /* ===================== RESPONSIVO ===================== */
+    /* ===================== RESPONSIVO — TELA PEQUENA ===================== */
     @media (max-width: 400px) {
       #lineNow { font-size: clamp(3rem, 18vw, 4.5rem); }
       #lineWeekday { font-size: clamp(0.95rem, 5vw, 1.4rem); }
       #lineDate { font-size: clamp(0.8rem, 4vw, 1.1rem); }
+    }
+
+    /* ===================== MODO ULTRAWIDE BAIXO (1900×245) ===================== */
+    /* Ativa quando a janela for muito larga e baixa — aspect ratio > 4:1 e altura < 320px */
+    @media (max-height: 320px) and (min-width: 800px) {
+
+      html, body {
+        align-items: stretch;
+        justify-content: stretch;
+      }
+
+      #contador {
+        /* Ocupa toda a janela */
+        width: 100vw;
+        min-height: 100vh;
+        border-radius: 0;
+        box-shadow: none;
+
+        /* Layout horizontal: relógio | divisor vertical | controles | timer */
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0;
+        padding: 6px 20px;
+      }
+
+      /* ---- BLOCO RELÓGIO ---- */
+      .clock-block {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0px;
+        width: auto;
+        flex: 0 0 auto;
+        white-space: nowrap;
+      }
+
+      #lineNow {
+        font-size: clamp(2rem, 7vh, 4rem);
+        letter-spacing: -1px;
+        line-height: 1;
+      }
+
+      #lineWeekday {
+        font-size: clamp(0.7rem, 2.2vh, 1.1rem);
+        line-height: 1.2;
+      }
+
+      #lineDate {
+        font-size: clamp(0.6rem, 1.8vh, 0.9rem);
+        line-height: 1.2;
+      }
+
+      /* ---- DIVISOR VIRA VERTICAL ---- */
+      .clock-divider {
+        width: 1px;
+        height: 70%;
+        align-self: center;
+        flex-shrink: 0;
+        margin: 0 14px;
+      }
+
+      /* ---- INPUTS + BOTÕES: coluna compacta ---- */
+      .input-row {
+        gap: 6px;
+        flex-direction: row;
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+
+      .input-row input[type="text"] {
+        font-size: 0.8rem;
+        padding: 5px 8px;
+        flex: 1 1 55%;
+      }
+
+      .input-row input[type="time"] {
+        font-size: 0.8rem;
+        padding: 5px 8px;
+        flex: 1 1 35%;
+      }
+
+      /* Wrapper dos controles (inputs + botões) em coluna */
+      .controls-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+        flex: 1 1 auto;
+        min-width: 0;
+        margin: 0 14px;
+      }
+
+      .btn-row {
+        gap: 6px;
+      }
+
+      .btn-row button {
+        font-size: 0.75rem;
+        padding: 5px 6px;
+        border-radius: 6px;
+      }
+
+      /* ---- TIMER: compacto à direita ---- */
+      .timer-row {
+        flex: 0 0 auto;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        width: auto;
+        white-space: nowrap;
+      }
+
+      #timer {
+        font-size: clamp(1.6rem, 5.5vh, 2.8rem);
+        letter-spacing: 2px;
+      }
+
+      .progress-container {
+        width: 140px;
+        height: 4px;
+      }
+
+      #alarmMessage {
+        font-size: 0.75rem;
+      }
     }
   </style>
 </head>
@@ -281,17 +405,20 @@
 
     <div class="clock-divider"></div>
 
-    <!-- INPUTS -->
-    <div class="input-row">
-      <input type="text" id="taskName" placeholder="Tarefa / etapa">
-      <input type="time" id="targetTime">
-    </div>
+    <!-- WRAPPER CONTROLES (inputs + botões) — reorganizado via JS no modo ultrawide -->
+    <div class="controls-wrap" id="controlsWrap">
+      <!-- INPUTS -->
+      <div class="input-row">
+        <input type="text" id="taskName" placeholder="Tarefa / etapa">
+        <input type="time" id="targetTime">
+      </div>
 
-    <!-- BOTÕES -->
-    <div class="btn-row">
-      <button id="btnStart" class="btn-start" onclick="startTimer()">INICIAR</button>
-      <button id="btnDone"  class="btn-done"  onclick="finishTask()">CONCLUIR</button>
-      <button class="btn-reset" onclick="resetTimer()">RESETAR</button>
+      <!-- BOTÕES -->
+      <div class="btn-row">
+        <button id="btnStart" class="btn-start" onclick="startTimer()">INICIAR</button>
+        <button id="btnDone"  class="btn-done"  onclick="finishTask()">CONCLUIR</button>
+        <button class="btn-reset" onclick="resetTimer()">RESETAR</button>
+      </div>
     </div>
 
     <!-- TIMER -->
