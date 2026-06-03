@@ -5,47 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Contador</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
-  <link rel="manifest" href="manifest.json">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="Contador">
-  <meta name="theme-color" content="#ffffff">
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
-  </script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
       width: 100%;
       height: 100%;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       background: #f0f0f0;
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Arial, sans-serif;
+      overflow: hidden;
     }
 
-    /* ===================== CONTADOR ===================== */
     #contador {
-      width: clamp(280px, 90vw, 520px);
+      width: 100vw;
+      height: 100vh;
+      max-width: 375px;
+      max-height: 210px;
+      margin: 0 auto;
       background: #fff;
       color: #111;
       display: flex;
       flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: clamp(10px, 2.5vh, 20px);
-      padding: clamp(20px, 5vw, 40px) clamp(16px, 4vw, 36px);
+      padding: 10px 15px;
       position: relative;
       overflow: hidden;
-      border-radius: clamp(12px, 2vw, 20px);
-      box-shadow: 0 4px 24px rgba(0,0,0,0.12);
       transition: background 0.4s ease, color 0.4s ease;
+      justify-content: space-between;
     }
 
     #contador::before {
@@ -59,378 +44,201 @@
       z-index: 0;
     }
 
-    #contador.running {
-      color: #fff;
-      animation: bgRedPulse 2s ease-in-out infinite alternate;
-    }
-    #contador.running::before {
-      opacity: 1;
-      animation: blurPulse 2s ease-in-out infinite alternate;
-    }
-    #contador.overtime {
-      color: #fff;
-      animation: bgOvertimePulse 1.2s ease-in-out infinite alternate;
-    }
-    #contador.overtime::before {
-      opacity: 1;
-      animation: blurOvertimePulse 1.2s ease-in-out infinite alternate;
-    }
+    #contador.running { color: #fff; animation: bgRedPulse 2s ease-in-out infinite alternate; }
+    #contador.running::before { opacity: 1; animation: blurPulse 2s ease-in-out infinite alternate; }
+    #contador.overtime { color: #fff; animation: bgOvertimePulse 1.2s ease-in-out infinite alternate; }
+    #contador.overtime::before { opacity: 1; animation: blurOvertimePulse 1.2s ease-in-out infinite alternate; }
 
     @keyframes bgRedPulse      { 0%{background:#7a0000} 100%{background:#b00000} }
     @keyframes blurPulse       { 0%{opacity:0.4} 100%{opacity:0.85} }
     @keyframes bgOvertimePulse { 0%{background:#aa0000} 100%{background:#e00000} }
     @keyframes blurOvertimePulse { 0%{opacity:0.6} 100%{opacity:1} }
 
-    /* ===================== RELÓGIO GRANDE ===================== */
+    /* RELÓGIO */
     .clock-block {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      gap: clamp(4px, 1vh, 10px);
+      gap: 10px;
       position: relative;
       z-index: 1;
-      width: 100%;
+      height: 45px;
     }
 
-    /* HORA */
     #lineNow {
-      font-size: clamp(3.5rem, 14vw, 7rem);
+      font-size: 2.8rem;
       font-weight: 800;
       color: inherit;
       line-height: 1;
-      letter-spacing: -2px;
-      text-align: center;
+      letter-spacing: -1px;
     }
 
-    /* DIA DA SEMANA */
-    #lineWeekday {
-      font-size: clamp(1.1rem, 4vw, 2.2rem);
+    .clock-date-col {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      flex: 1;
+    }
+
+    #lineWeekday, #lineDate {
       font-weight: 700;
-      color: #555;
-      text-align: center;
-      line-height: 1;
-      text-transform: capitalize;
+      font-size: 0.9rem;
+      line-height: 1.1;
+      white-space: nowrap;
     }
-    #contador.running #lineWeekday,
-    #contador.overtime #lineWeekday { color: rgba(255,255,255,0.8); }
 
-    /* DATA */
-    #lineDate {
-      font-size: clamp(0.95rem, 3.2vw, 1.8rem);
-      font-weight: 600;
-      color: #888;
-      text-align: center;
-      line-height: 1;
-    }
-    #contador.running #lineDate,
-    #contador.overtime #lineDate { color: rgba(255,255,255,0.65); }
+    #lineWeekday { color: #444; text-transform: capitalize; }
+    #lineDate { color: #888; }
+    #contador.running #lineWeekday, #contador.overtime #lineWeekday { color: rgba(255,255,255,0.85); }
+    #contador.running #lineDate, #contador.overtime #lineDate { color: rgba(255,255,255,0.65); }
 
-    /* Divisor */
-    .clock-divider {
-      width: 100%;
-      height: 1px;
-      background: rgba(0,0,0,0.07);
-      position: relative;
-      z-index: 1;
-    }
-    #contador.running .clock-divider,
-    #contador.overtime .clock-divider { background: rgba(255,255,255,0.18); }
-
-    /* ===================== INPUTS ===================== */
+    /* INPUTS */
     .input-row {
       display: flex;
-      gap: clamp(6px, 1.5vw, 12px);
-      width: 100%;
-      min-width: 0;
+      gap: 6px;
       position: relative;
       z-index: 1;
+      height: 32px;
     }
-    .input-row input[type="text"] {
-      flex: 1 1 60%;
-      min-width: 0;
-      font-size: clamp(0.78rem, 2vw, 0.95rem);
-      padding: clamp(7px, 1.5vh, 12px) clamp(8px, 1.5vw, 14px);
-      border-radius: 8px;
+    .input-row input {
+      border-radius: 6px;
       border: 1px solid #ccc;
       background: #f5f5f5;
       color: #111;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      font-size: 0.85rem;
+      padding: 0 8px;
     }
-    .input-row input[type="text"]::placeholder { color: #999; }
-    .input-row input[type="text"]:focus { border-color: #c0392b; outline: none; }
-    #contador.running .input-row input[type="text"],
-    #contador.overtime .input-row input[type="text"] {
-      background: rgba(255,255,255,0.12);
-      border-color: rgba(255,255,255,0.3);
-      color: #fff;
-    }
-    #contador.running .input-row input[type="text"]::placeholder,
-    #contador.overtime .input-row input[type="text"]::placeholder { color: rgba(255,255,255,0.5); }
-
-    .input-row input[type="time"] {
-      flex: 1 1 35%;
-      min-width: 0;
-      font-size: clamp(0.78rem, 2vw, 0.95rem);
-      padding: clamp(7px, 1.5vh, 12px) clamp(8px, 1.5vw, 14px);
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      background: #f5f5f5;
-      color: #111;
-    }
-    .input-row input[type="time"]:focus { border-color: #c0392b; outline: none; }
-    #contador.running .input-row input[type="time"],
-    #contador.overtime .input-row input[type="time"] {
+    #taskName { flex: 2; }
+    #targetTime { flex: 1; }
+    #contador.running input, #contador.overtime input {
       background: rgba(255,255,255,0.12);
       border-color: rgba(255,255,255,0.3);
       color: #fff;
     }
 
-    /* ===================== BOTÕES ===================== */
-    .btn-row {
-      display: flex;
-      gap: clamp(6px, 1.5vw, 12px);
-      width: 100%;
-      min-width: 0;
-      position: relative;
-      z-index: 1;
-    }
+    /* BOTÃO */
+    .btn-row { position: relative; z-index: 1; height: 35px; }
     .btn-row button {
-      flex: 1 1 0;
-      min-width: 0;
-      font-size: clamp(0.78rem, 2vw, 0.92rem);
-      padding: clamp(8px, 2vh, 14px) 4px;
-      border-radius: 8px;
-      font-weight: bold;
+      width: 100%;
+      height: 100%;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      font-weight: 800;
       cursor: pointer;
       border: none;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
     }
     .btn-start { background: #c0392b; color: white; }
-    .btn-start:hover { background: #e74c3c; }
-    .btn-done  { background: #0984e3; color: white; display: none; }
-    .btn-done:hover  { background: #74b9ff; }
-    .btn-reset { background: #e0e0e0; color: #333; }
-    .btn-reset:hover { background: #ccc; }
+    .btn-done { background: #0984e3; color: white; display: none; }
 
-    /* ===================== TIMER ===================== */
+    /* TIMER */
     .timer-row {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: clamp(6px, 1.5vh, 12px);
-      width: 100%;
       position: relative;
       z-index: 1;
     }
     #timer {
-      font-size: clamp(2rem, 8vw, 3.5rem);
+      font-size: 2.2rem;
       font-weight: bold;
-      color: inherit;
-      letter-spacing: clamp(2px, 0.5vw, 5px);
-      transition: color 0.3s;
-      text-align: center;
+      line-height: 1;
+      letter-spacing: 2px;
     }
-    .timer-running  { animation: glowRed 2s ease-in-out infinite alternate; }
-    .timer-overtime { color: #ff7675 !important; animation: glowOvertimeRed 1.2s ease-in-out infinite alternate; }
-
-    @keyframes glowRed {
-      0%   { text-shadow: 0 0 4px rgba(255,80,80,0.2); }
-      100% { text-shadow: 0 0 16px rgba(255,80,80,0.7), 0 0 28px rgba(255,80,80,0.3); }
-    }
-    @keyframes glowOvertimeRed {
-      0%   { text-shadow: 0 0 6px rgba(255,50,50,0.4); }
-      100% { text-shadow: 0 0 24px rgba(255,50,50,1), 0 0 40px rgba(255,50,50,0.5); }
-    }
-
     .progress-container {
       width: 100%;
-      height: clamp(4px, 1vh, 8px);
+      height: 4px;
       background: rgba(0,0,0,0.1);
-      border-radius: 4px;
+      border-radius: 2px;
+      margin-top: 4px;
       overflow: hidden;
     }
-    #contador.running .progress-container,
-    #contador.overtime .progress-container { background: rgba(255,255,255,0.2); }
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: #e55;
-      transition: width 1s linear;
-    }
+    #contador.running .progress-container, #contador.overtime .progress-container { background: rgba(255,255,255,0.2); }
+    .progress-bar { height: 100%; width: 0%; background: #e55; transition: width 1s linear; }
 
     #alarmMessage {
-      font-size: clamp(0.85rem, 2.5vw, 1.1rem);
+      font-size: 0.8rem;
       font-weight: bold;
       color: #ffeaa7;
       display: none;
-      position: relative;
-      z-index: 1;
-      text-align: center;
-    }
-
-    /* ===================== RESPONSIVO ===================== */
-    @media (max-width: 400px) {
-      #lineNow { font-size: clamp(3rem, 18vw, 4.5rem); }
-      #lineWeekday { font-size: clamp(0.95rem, 5vw, 1.4rem); }
-      #lineDate { font-size: clamp(0.8rem, 4vw, 1.1rem); }
+      margin-top: 2px;
     }
   </style>
 </head>
 <body>
-
   <div id="contador">
-
-    <!-- RELÓGIO GRANDE -->
     <div class="clock-block">
       <div id="lineNow">--:--</div>
-      <div id="lineWeekday">...</div>
-      <div id="lineDate">...</div>
+      <div class="clock-date-col">
+        <div id="lineWeekday">...</div>
+        <div id="lineDate">...</div>
+      </div>
     </div>
 
-    <div class="clock-divider"></div>
-
-    <!-- INPUTS -->
     <div class="input-row">
-      <input type="text" id="taskName" placeholder="Tarefa / etapa">
+      <input type="text" id="taskName" placeholder="Tarefa">
       <input type="time" id="targetTime">
     </div>
 
-    <!-- BOTÕES -->
     <div class="btn-row">
       <button id="btnStart" class="btn-start" onclick="startTimer()">INICIAR</button>
       <button id="btnDone"  class="btn-done"  onclick="finishTask()">CONCLUIR</button>
-      <button class="btn-reset" onclick="resetTimer()">RESETAR</button>
     </div>
 
-    <!-- TIMER -->
     <div class="timer-row">
       <div id="timer">00:00:00</div>
-      <div class="progress-container">
-        <div id="progressBar" class="progress-bar"></div>
-      </div>
+      <div class="progress-container"><div id="progressBar" class="progress-bar"></div></div>
       <div id="alarmMessage">⏰ TEMPO ESGOTADO!</div>
     </div>
-
   </div>
 
   <audio id="alarmSound" src="https://www.soundjay.com/buttons/sounds/button-35.mp3" onended="checkRepeat()"></audio>
 
   <script>
-    const timerEl     = document.getElementById("timer");
-    const progressBar = document.getElementById("progressBar");
-    const targetInput = document.getElementById("targetTime");
-    const taskInput   = document.getElementById("taskName");
-    const btnStart    = document.getElementById("btnStart");
-    const btnDone     = document.getElementById("btnDone");
-    const contEl      = document.getElementById("contador");
-
-    let interval, targetDate, startMoment, totalDuration;
-    let playCount = 0;
+    const timerEl = document.getElementById("timer"), progressBar = document.getElementById("progressBar"), targetInput = document.getElementById("targetTime"), taskInput = document.getElementById("taskName"), btnStart = document.getElementById("btnStart"), btnDone = document.getElementById("btnDone"), contEl = document.getElementById("contador");
+    let interval, targetDate, startMoment, totalDuration, playCount = 0;
 
     function updateClock() {
       const now = new Date();
-      // HORA
-      document.getElementById("lineNow").textContent =
-        now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
-      // DIA DA SEMANA
+      document.getElementById("lineNow").textContent = now.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'});
       const weekday = now.toLocaleDateString('pt-BR', {weekday: 'long'});
-      document.getElementById("lineWeekday").textContent =
-        weekday.charAt(0).toUpperCase() + weekday.slice(1);
-      // DATA
-      const day   = now.toLocaleDateString('pt-BR', {day: '2-digit'});
-      const month = now.toLocaleDateString('pt-BR', {month: 'long'});
-      const year  = now.getFullYear();
-      document.getElementById("lineDate").textContent =
-        day + ' de ' + month.charAt(0).toUpperCase() + month.slice(1) + ' de ' + year;
+      document.getElementById("lineWeekday").textContent = weekday.charAt(0).toUpperCase() + weekday.slice(1);
+      const day = String(now.getDate()).padStart(2, '0'), month = String(now.getMonth() + 1).padStart(2, '0'), monthShort = now.toLocaleDateString('pt-BR', {month: 'short'}).replace('.','');
+      document.getElementById("lineDate").textContent = day + '/' + month + ' (' + monthShort.charAt(0).toUpperCase() + monthShort.slice(1) + '.)';
     }
-    setInterval(updateClock, 1000);
-    updateClock();
-
-    document.getElementById("targetTime").addEventListener("keydown", function(e) {
-      if (e.key === "Enter") startTimer();
-    });
+    setInterval(updateClock, 1000); updateClock();
 
     function startTimer() {
-      const input = targetInput.value;
-      if (!input) return alert("Defina a hora alvo!");
-      const now = new Date();
-      const [h, m] = input.split(":").map(Number);
+      const input = targetInput.value; if (!input) return;
+      const now = new Date(), [h, m] = input.split(":").map(Number);
       targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
       if (targetDate <= now) targetDate.setDate(targetDate.getDate() + 1);
-      startMoment   = new Date();
-      totalDuration = targetDate - startMoment;
-      btnStart.style.display = "none";
-      btnDone.style.display  = "block";
-      timerEl.className      = "timer-running";
-      contEl.classList.add("running");
-      contEl.classList.remove("overtime");
-      interval = setInterval(tick, 1000);
+      startMoment = new Date(); totalDuration = targetDate - startMoment;
+      btnStart.style.display = "none"; btnDone.style.display = "block";
+      contEl.classList.add("running"); interval = setInterval(tick, 1000);
     }
 
     function tick() {
-      const now  = new Date();
-      const diff = targetDate - now;
+      const now = new Date(), diff = targetDate - now;
       if (diff <= 0) {
-        clearInterval(interval);
-        timerEl.textContent = "00:00:00";
-        timerEl.className   = "timer-overtime";
-        progressBar.style.width = "100%";
+        clearInterval(interval); timerEl.textContent = "00:00:00";
         document.getElementById("alarmMessage").style.display = "block";
-        contEl.classList.remove("running");
-        contEl.classList.add("overtime");
-        playCount = 0;
-        playAlarm();
-        return;
+        contEl.classList.replace("running", "overtime"); playCount = 0; playAlarm(); return;
       }
-      const hh = String(Math.floor(diff / 3600000)).padStart(2, '0');
-      const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-      const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+      const hh = String(Math.floor(diff / 3600000)).padStart(2, '0'), mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'), ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
       timerEl.textContent = hh + ":" + mm + ":" + ss;
-      const progress = ((now - startMoment) / totalDuration) * 100;
-      progressBar.style.width = Math.min(100, progress) + "%";
+      progressBar.style.width = Math.min(100, ((now - startMoment) / totalDuration) * 100) + "%";
     }
 
-    function finishTask() {
-      clearInterval(interval);
-      const history = JSON.parse(localStorage.getItem('contador_tasks') || '[]');
-      history.push({ name: taskInput.value || "Tarefa", time: new Date().toLocaleTimeString() });
-      localStorage.setItem('contador_tasks', JSON.stringify(history));
-      resetTimer();
-    }
-
+    function finishTask() { clearInterval(interval); resetTimer(); }
     function resetTimer() {
-      clearInterval(interval);
-      playCount = 3;
-      const sound = document.getElementById("alarmSound");
-      sound.pause();
-      sound.currentTime = 0;
-      timerEl.textContent = "00:00:00";
-      timerEl.className   = "";
-      progressBar.style.width = "0%";
-      btnStart.style.display = "block";
-      btnDone.style.display  = "none";
+      clearInterval(interval); const sound = document.getElementById("alarmSound"); sound.pause(); sound.currentTime = 0;
+      timerEl.textContent = "00:00:00"; progressBar.style.width = "0%";
+      btnStart.style.display = "block"; btnDone.style.display = "none";
       document.getElementById("alarmMessage").style.display = "none";
       contEl.classList.remove("running", "overtime");
     }
-
-    function playAlarm() {
-      if (playCount < 3) {
-        document.getElementById("alarmSound").play().catch(function(e) {});
-      }
-    }
-
-    function checkRepeat() {
-      playCount++;
-      if (playCount < 3) {
-        setTimeout(function() {
-          document.getElementById("alarmSound").currentTime = 0;
-          playAlarm();
-        }, 200);
-      }
-    }
+    function playAlarm() { if (playCount < 3) document.getElementById("alarmSound").play().catch(() => {}); }
+    function checkRepeat() { playCount++; if (playCount < 3) setTimeout(() => { document.getElementById("alarmSound").currentTime = 0; playAlarm(); }, 200); }
   </script>
 </body>
 </html>
