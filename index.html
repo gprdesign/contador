@@ -26,7 +26,7 @@
       color: #111;
       display: flex;
       flex-direction: column;
-      padding: 10px 15px;
+      padding: 12px 15px;
       position: relative;
       overflow: hidden;
       transition: background 0.4s ease, color 0.4s ease;
@@ -54,19 +54,27 @@
     @keyframes bgOvertimePulse { 0%{background:#aa0000} 100%{background:#e00000} }
     @keyframes blurOvertimePulse { 0%{opacity:0.6} 100%{opacity:1} }
 
-    /* RELÓGIO */
+    /* CABEÇALHO (Clock + Button) */
+    .header-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      z-index: 1;
+      height: 40px;
+      gap: 10px;
+    }
+
     .clock-block {
       display: flex;
       flex-direction: row;
       align-items: center;
       gap: 8px;
-      position: relative;
-      z-index: 1;
-      height: 38px;
     }
 
     #lineNow {
-      font-size: 2.2rem;
+      font-size: 2rem;
       font-weight: 800;
       color: inherit;
       line-height: 1;
@@ -77,12 +85,11 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      flex: 1;
     }
 
     #lineWeekday, #lineDate {
       font-weight: 700;
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       line-height: 1.1;
       white-space: nowrap;
     }
@@ -92,7 +99,59 @@
     #contador.running #lineWeekday, #contador.overtime #lineWeekday { color: rgba(255,255,255,0.85); }
     #contador.running #lineDate, #contador.overtime #lineDate { color: rgba(255,255,255,0.65); }
 
-    /* INPUTS */
+    /* BOTÃO NO CABEÇALHO */
+    .btn-container { width: 90px; height: 32px; }
+    .btn-container button {
+      width: 100%;
+      height: 100%;
+      font-size: 0.8rem;
+      border-radius: 6px;
+      font-weight: 800;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .btn-start { background: #c0392b; color: white; }
+    .btn-done { background: #0984e3; color: white; display: none; }
+
+    /* TIMER (CENTRO DAS ATENÇÕES) */
+    .timer-row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+      flex: 1;
+    }
+    #timer {
+      font-size: 3.2rem;
+      font-weight: 900;
+      line-height: 1;
+      letter-spacing: 1px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .progress-container {
+      width: 85%;
+      height: 5px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    #contador.running .progress-container, #contador.overtime .progress-container { background: rgba(255,255,255,0.2); }
+    .progress-bar { height: 100%; width: 0%; background: #e55; transition: width 1s linear; }
+
+    #alarmMessage {
+      font-size: 0.85rem;
+      font-weight: 900;
+      color: #ffeaa7;
+      display: none;
+      margin-top: 5px;
+      text-transform: uppercase;
+    }
+
+    /* INPUTS (RODAPÉ) */
     .input-row {
       display: flex;
       gap: 6px;
@@ -105,89 +164,43 @@
       border: 1px solid #ccc;
       background: #f5f5f5;
       color: #111;
-      font-size: 0.8rem;
+      font-size: 0.75rem;
       padding: 0 6px;
     }
     #taskName { flex: 2; }
-    #targetTime { flex: 1.2; }
+    #targetTime { width: 75px; }
     #contador.running input, #contador.overtime input {
       background: rgba(255,255,255,0.12);
       border-color: rgba(255,255,255,0.3);
       color: #fff;
     }
-
-    /* BOTÃO */
-    .btn-row { position: relative; z-index: 1; height: 32px; }
-    .btn-row button {
-      width: 100%;
-      height: 100%;
-      font-size: 0.85rem;
-      border-radius: 4px;
-      font-weight: 800;
-      cursor: pointer;
-      border: none;
-    }
-    .btn-start { background: #c0392b; color: white; }
-    .btn-done { background: #0984e3; color: white; display: none; }
-
-    /* TIMER */
-    .timer-row {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      position: relative;
-      z-index: 1;
-    }
-    #timer {
-      font-size: 1.8rem;
-      font-weight: bold;
-      line-height: 1;
-      letter-spacing: 1px;
-    }
-    .progress-container {
-      width: 100%;
-      height: 3px;
-      background: rgba(0,0,0,0.1);
-      border-radius: 2px;
-      margin-top: 2px;
-      overflow: hidden;
-    }
-    #contador.running .progress-container, #contador.overtime .progress-container { background: rgba(255,255,255,0.2); }
-    .progress-bar { height: 100%; width: 0%; background: #e55; transition: width 1s linear; }
-
-    #alarmMessage {
-      font-size: 0.8rem;
-      font-weight: bold;
-      color: #ffeaa7;
-      display: none;
-      margin-top: 2px;
-    }
   </style>
 </head>
 <body>
   <div id="contador">
-    <div class="clock-block">
-      <div id="lineNow">--:--</div>
-      <div class="clock-date-col">
-        <div id="lineWeekday">...</div>
-        <div id="lineDate">...</div>
+    <div class="header-row">
+      <div class="clock-block">
+        <div id="lineNow">--:--</div>
+        <div class="clock-date-col">
+          <div id="lineWeekday">...</div>
+          <div id="lineDate">...</div>
+        </div>
       </div>
-    </div>
-
-    <div class="input-row">
-      <input type="text" id="taskName" placeholder="Tarefa">
-      <input type="time" id="targetTime">
-    </div>
-
-    <div class="btn-row">
-      <button id="btnStart" class="btn-start" onclick="startTimer()">INICIAR</button>
-      <button id="btnDone"  class="btn-done"  onclick="finishTask()">CONCLUIR</button>
+      <div class="btn-container">
+        <button id="btnStart" class="btn-start" onclick="startTimer()">INICIAR</button>
+        <button id="btnDone"  class="btn-done"  onclick="finishTask()">CONCLUIR</button>
+      </div>
     </div>
 
     <div class="timer-row">
       <div id="timer">00:00:00</div>
       <div class="progress-container"><div id="progressBar" class="progress-bar"></div></div>
       <div id="alarmMessage">⏰ TEMPO ESGOTADO!</div>
+    </div>
+
+    <div class="input-row">
+      <input type="text" id="taskName" placeholder="Tarefa">
+      <input type="time" id="targetTime">
     </div>
   </div>
 
