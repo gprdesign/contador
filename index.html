@@ -52,27 +52,22 @@
       z-index: 2;
     }
 
-    #contador.running { color: #fff; background: #111; }
-    #contador.running::after {
-      border: 3px solid rgba(255, 255, 0, 0.5);
-      box-shadow: inset 0 0 12px rgba(255, 255, 0, 0.3);
-      animation: blurPulse 1s ease-in-out infinite alternate;
-    }
+    #contador.running { color: #fff; background: #111; animation: fullPulseYellow 1s ease-in-out infinite alternate; }
+    #contador.running::after { border: none; }
 
-    #contador.overtime { color: #fff; background: #b00000; }
-    #contador.overtime::after {
-      border: 4px solid rgba(255, 255, 255, 0.6);
-      box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.4);
-      animation: blurOvertimePulse 0.5s ease-in-out infinite alternate;
-    }
+    #contador.warning { color: #fff; background: #cc0000; animation: fullPulseRed 0.7s ease-in-out infinite alternate; }
+    #contador.warning::after { border: none; }
 
-    @keyframes blurPulse {
-      0% { box-shadow: inset 0 0 5px rgba(255, 255, 0, 0.2); border-color: rgba(255, 255, 0, 0.3); }
-      100% { box-shadow: inset 0 0 15px rgba(255, 255, 0, 0.6); border-color: rgba(255, 255, 0, 0.8); }
+    #contador.overtime { color: #fff; background: #b00000; animation: fullPulseRed 0.4s ease-in-out infinite alternate; }
+    #contador.overtime::after { border: none; }
+
+    @keyframes fullPulseYellow {
+      0%  { background: #111111; }
+      100% { background: #4a4300; box-shadow: inset 0 0 60px rgba(255, 230, 0, 0.55); }
     }
-    @keyframes blurOvertimePulse {
-      0% { box-shadow: inset 0 0 8px rgba(255, 255, 255, 0.3); border-color: rgba(255, 255, 255, 0.4); }
-      100% { box-shadow: inset 0 0 25px rgba(255, 255, 255, 0.8); border-color: rgba(255, 255, 255, 0.9); }
+    @keyframes fullPulseRed {
+      0%  { background: #cc0000; }
+      100% { background: #7a0000; box-shadow: inset 0 0 60px rgba(255, 0, 0, 0.5); }
     }
 
     .header-row {
@@ -255,8 +250,17 @@
       if (diff <= 0) {
         clearInterval(interval); timerEl.textContent = "00:00:00";
         document.getElementById("alarmMessage").style.display = "block";
-        contEl.classList.replace("running", "overtime"); playCount = 0; playAlarm(); return;
+        contEl.classList.remove("running", "warning");
+        contEl.classList.add("overtime"); playCount = 0; playAlarm(); return;
       }
+
+      // Alerta vermelho quando faltar 1h ou menos
+      if (diff <= 3600000) {
+        if (!contEl.classList.contains("warning") && !contEl.classList.contains("overtime")) {
+          contEl.classList.replace("running", "warning");
+        }
+      }
+
       const hh = String(Math.floor(diff / 3600000)).padStart(2, '0'), mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0'), ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
       timerEl.textContent = hh + ":" + mm + ":" + ss;
     }
@@ -267,7 +271,7 @@
       timerEl.textContent = "00:00:00"; progressBar.style.width = "0%";
       btnStart.style.display = "block"; btnDone.style.display = "none";
       document.getElementById("alarmMessage").style.display = "none";
-      contEl.classList.remove("running", "overtime");
+      contEl.classList.remove("running", "warning", "overtime");
     }
     function playAlarm() { if (playCount < 3) document.getElementById("alarmSound").play().catch(() => {}); }
     function checkRepeat() { playCount++; if (playCount < 3) setTimeout(() => { document.getElementById("alarmSound").currentTime = 0; playAlarm(); }, 200); }
