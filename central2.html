@@ -114,13 +114,30 @@
       position: relative; z-index: 1;
     }
 
-    .footer {
-      font-size: 0.58rem;
-      color: var(--sub);
-      opacity: 0.3;
-      text-align: center;
-      flex-shrink: 0;
+    /* Notificações dentro do card status */
+    .notif-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      margin-top: 8px;
+      position: relative; z-index: 1;
+      max-height: 90px;
+      overflow: hidden;
     }
+    .notif-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+      background: rgba(255,255,255,0.07);
+      border-radius: 8px;
+      padding: 5px 8px;
+    }
+    .notif-app  { font-size: 0.65rem; font-weight: 800; color: rgba(255,255,255,0.5); flex-shrink: 0; white-space: nowrap; }
+    .notif-text { font-size: 0.72rem; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .notif-empty { font-size: 0.65rem; color: rgba(255,255,255,0.3); font-style: italic; }
+
+    .footer {
 
     /* ── LANDSCAPE mobile ── */
     @media (orientation: landscape) and (max-height: 500px) {
@@ -171,6 +188,10 @@
       <div class="status-label">agora · toque p/ atualizar</div>
       <div class="status-time" id="s-time">--:--</div>
       <div class="status-bat"  id="s-bat">🔋 --</div>
+      <!-- notificações -->
+      <div class="notif-list" id="notif-list">
+        <div class="notif-empty">carregando…</div>
+      </div>
     </div>
 
     <!-- Col 2 linha 1 -->
@@ -226,6 +247,34 @@
       bat.addEventListener('chargingchange', updateBat);
     });
   }
+
+  /* Notificações — lê do Gist a cada 30s */
+  const NOTIFS_URL = 'https://gist.githubusercontent.com/gprdesign/42fc7f8c34f1f29a73c48462f6d9c537/raw/notifs.json';
+
+  function loadNotifs() {
+    fetch(NOTIFS_URL + '?t=' + Date.now())
+      .then(r => r.json())
+      .then(data => {
+        const list = document.getElementById('notif-list');
+        const notifs = (data.notifs || []).slice(0, 4); // máx 4
+        if (notifs.length === 0) {
+          list.innerHTML = '<div class="notif-empty">sem notificações</div>';
+          return;
+        }
+        list.innerHTML = notifs.map(n =>
+          `<div class="notif-item">
+            <span class="notif-app">${n.app || '?'}</span>
+            <span class="notif-text">${n.title ? n.title + ': ' : ''}${n.text || ''}</span>
+          </div>`
+        ).join('');
+      })
+      .catch(() => {
+        document.getElementById('notif-list').innerHTML =
+          '<div class="notif-empty">—</div>';
+      });
+  }
+  loadNotifs();
+  setInterval(loadNotifs, 30000);
 </script>
 </body>
 </html>
