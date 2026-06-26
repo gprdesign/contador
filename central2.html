@@ -109,12 +109,12 @@
       flex-shrink: 0;
     }
     .soccer-title {
-      font-size: clamp(0.52rem, 1.6vw, 0.68rem);
+      font-size: clamp(0.676rem, 2.08vw, 0.884rem);
       font-weight: 900; color: rgba(0,210,100,0.85);
       text-transform: uppercase; letter-spacing: 1px;
     }
     .soccer-updated {
-      font-size: clamp(0.45rem, 1.1vw, 0.55rem);
+      font-size: clamp(0.585rem, 1.43vw, 0.715rem);
       color: rgba(255,255,255,0.25);
     }
     .soccer-list {
@@ -138,29 +138,29 @@
     .match-row.ft   { opacity: 0.45; }
     .team-side      { display: flex; align-items: center; gap: 4px; overflow: hidden; }
     .team-side.away { flex-direction: row-reverse; }
-    .team-crest     { width: clamp(10px,2.5vw,14px); height: clamp(10px,2.5vw,14px); object-fit: contain; flex-shrink: 0; }
-    .team-name      { font-size: clamp(0.55rem, 1.7vw, 0.72rem); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .team-crest     { width: clamp(13px,3.25vw,18px); height: clamp(13px,3.25vw,18px); object-fit: contain; flex-shrink: 0; }
+    .team-name      { font-size: clamp(0.715rem, 2.21vw, 0.936rem); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .match-score    { text-align: center; flex-shrink: 0; line-height: 1; }
-    .score-nums     { font-size: clamp(0.65rem, 2.2vw, 0.88rem); font-weight: 900; letter-spacing: 1px; display: block; }
-    .score-status   { font-size: clamp(0.4rem, 1vw, 0.52rem); color: rgba(255,255,255,0.4); display: block; }
+    .score-nums     { font-size: clamp(0.845rem, 2.86vw, 1.144rem); font-weight: 900; letter-spacing: 1px; display: block; }
+    .score-status   { font-size: clamp(0.52rem, 1.3vw, 0.676rem); color: rgba(255,255,255,0.4); display: block; }
     .score-status.live-dot { color: #00d264; font-weight: 800; }
-    .soccer-empty   { font-size: clamp(0.55rem, 1.5vw, 0.7rem); color: rgba(255,255,255,0.3); font-style: italic; }
+    .soccer-empty   { font-size: clamp(0.715rem, 1.95vw, 0.91rem); color: rgba(255,255,255,0.3); font-style: italic; }
 
-    /* ── cards menores: relógio, contador, cazetv, /hj (-25%) ── */
+    /* ── cards menores: relógio, contador, cazetv, /hj (-40% total) ── */
     .card[data-c="teal"]   .card-icon,
     .card[data-c="blue"]   .card-icon,
     .card[data-c="purple"] .card-icon,
-    .card[data-c="orange"] .card-icon { font-size: clamp(1.65rem, 6.75vw, 3.375rem); }
+    .card[data-c="orange"] .card-icon { font-size: clamp(1.4025rem, 5.7375vw, 2.8687rem); }
 
     .card[data-c="teal"]   .card-name,
     .card[data-c="blue"]   .card-name,
     .card[data-c="purple"] .card-name,
-    .card[data-c="orange"] .card-name { font-size: clamp(1.05rem, 4.125vw, 2.25rem); }
+    .card[data-c="orange"] .card-name { font-size: clamp(0.8925rem, 3.5063vw, 1.9125rem); }
 
     .card[data-c="teal"]   .card-desc,
     .card[data-c="blue"]   .card-desc,
     .card[data-c="purple"] .card-desc,
-    .card[data-c="orange"] .card-desc { font-size: clamp(0.75rem, 2.625vw, 1.35rem); }
+    .card[data-c="orange"] .card-desc { font-size: clamp(0.6375rem, 2.2312vw, 1.1475rem); }
 
     .footer { font-size: clamp(0.7rem, 2vw, 0.9rem); color: var(--sub); opacity: 0.3; text-align: center; flex-shrink: 0; }
 
@@ -188,21 +188,21 @@
       .card-name   { font-size: clamp(1.2rem, 3.5vw, 2.5rem); }
       .card-desc   { font-size: clamp(0.9rem, 2.5vw, 1.8rem); }
 
-      /* -25% nos 4 cards menores no landscape também */
+      /* -40% total nos 4 cards menores no landscape */
       .card[data-c="teal"]   .card-icon,
       .card[data-c="blue"]   .card-icon,
       .card[data-c="purple"] .card-icon,
-      .card[data-c="orange"] .card-icon { font-size: clamp(1.35rem, 3.75vw, 2.625rem); }
+      .card[data-c="orange"] .card-icon { font-size: clamp(1.1475rem, 3.1875vw, 2.2312rem); }
 
       .card[data-c="teal"]   .card-name,
       .card[data-c="blue"]   .card-name,
       .card[data-c="purple"] .card-name,
-      .card[data-c="orange"] .card-name { font-size: clamp(0.9rem, 2.625vw, 1.875rem); }
+      .card[data-c="orange"] .card-name { font-size: clamp(0.765rem, 2.2312vw, 1.5938rem); }
 
       .card[data-c="teal"]   .card-desc,
       .card[data-c="blue"]   .card-desc,
       .card[data-c="purple"] .card-desc,
-      .card[data-c="orange"] .card-desc { font-size: clamp(0.675rem, 1.875vw, 1.35rem); }
+      .card[data-c="orange"] .card-desc { font-size: clamp(0.5737rem, 1.5938vw, 1.1475rem); }
 
       /* STATUS: hora ~3x card-name: 3.5vw × 3 ≈ 10-11vw */
       .status-time  { font-size: clamp(2.9rem, 9.9vw, 6.3rem); letter-spacing: -2px; }
