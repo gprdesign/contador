@@ -86,16 +86,16 @@
     /* ── STATUS portrait: banner row ── */
     .status-left  { display: flex; flex-direction: column; justify-content: center; flex-shrink: 0; gap: 1px; }
     .status-right { display: flex; flex-direction: column; justify-content: center; flex: 1; min-width: 0; gap: 3px; border-left: 1px solid rgba(255,255,255,0.1); padding-left: clamp(8px,2.5vw,16px); overflow: hidden; }
-    .status-label { font-size: clamp(0.5rem, 1.8vw, 0.72rem); text-transform: uppercase; letter-spacing: 2px; color: var(--sub); }
-    .status-time  { font-size: clamp(2.4rem, 10vw, 5.5rem); font-weight: 900; letter-spacing: -2px; line-height: 1; }
-    .status-bat   { font-size: clamp(0.85rem, 3.5vw, 1.8rem); font-weight: 800; color: rgba(255,255,255,0.85); }
+    .status-label { font-size: clamp(0.375rem, 1.35vw, 0.54rem); text-transform: uppercase; letter-spacing: 2px; color: var(--sub); }
+    .status-time  { font-size: clamp(1.8rem, 7.5vw, 4.125rem); font-weight: 900; letter-spacing: -2px; line-height: 1; }
+    .status-bat   { font-size: clamp(0.6375rem, 2.625vw, 1.35rem); font-weight: 800; color: rgba(255,255,255,0.85); }
 
     /* Notificações */
     .notif-list  { width: 100%; display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
     .notif-item  { display: flex; align-items: flex-start; gap: 5px; background: rgba(255,255,255,0.07); border-radius: 7px; padding: 4px 8px; }
-    .notif-app   { font-size: clamp(0.6rem, 2vw, 0.85rem); font-weight: 800; color: rgba(255,255,255,0.45); flex-shrink: 0; white-space: nowrap; }
-    .notif-text  { font-size: clamp(0.65rem, 2.2vw, 0.95rem); color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
-    .notif-empty { font-size: clamp(0.6rem, 2vw, 0.85rem); color: rgba(255,255,255,0.3); font-style: italic; }
+    .notif-app   { font-size: clamp(0.45rem, 1.5vw, 0.6375rem); font-weight: 800; color: rgba(255,255,255,0.45); flex-shrink: 0; white-space: nowrap; }
+    .notif-text  { font-size: clamp(0.4875rem, 1.65vw, 0.7125rem); color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+    .notif-empty { font-size: clamp(0.45rem, 1.5vw, 0.6375rem); color: rgba(255,255,255,0.3); font-style: italic; }
 
     /* ── CARD FUTEBOL — compacto, altura de ~1 card ── */
     .card[data-c="soccer"] {
@@ -195,34 +195,34 @@
       .status-right { border-left: none; border-top: 1px solid rgba(255,255,255,0.1); padding-left: 0; padding-top: clamp(5px,1vh,10px); }
       .card[data-c="soccer"] { grid-column: span 3; }
 
-      /* Landscape: vw é a dimensão GRANDE (~700-900px) — usar vw */
-      .card-icon   { font-size: clamp(1.8rem, 5vw,   3.5rem); }
-      .card-name   { font-size: clamp(1.2rem, 3.5vw, 2.5rem); }
-      .card-desc   { font-size: clamp(0.9rem, 2.5vw, 1.8rem); }
+      /* Landscape: -25% em tudo exceto copa e hora */
+      .card-icon   { font-size: clamp(1.35rem, 3.75vw, 2.625rem); }
+      .card-name   { font-size: clamp(0.9rem, 2.625vw, 1.875rem); }
+      .card-desc   { font-size: clamp(0.675rem, 1.875vw, 1.35rem); }
 
-      /* -40% total nos 4 cards menores no landscape */
+      /* -25% adicional nos 4 cards menores no landscape */
       .card[data-c="teal"]   .card-icon,
       .card[data-c="blue"]   .card-icon,
       .card[data-c="purple"] .card-icon,
-      .card[data-c="orange"] .card-icon { font-size: clamp(1.1475rem, 3.1875vw, 2.2312rem); }
+      .card[data-c="orange"] .card-icon { font-size: clamp(0.8606rem, 2.3906vw, 1.6734rem); }
 
       .card[data-c="teal"]   .card-name,
       .card[data-c="blue"]   .card-name,
       .card[data-c="purple"] .card-name,
-      .card[data-c="orange"] .card-name { font-size: clamp(0.765rem, 2.2312vw, 1.5938rem); }
+      .card[data-c="orange"] .card-name { font-size: clamp(0.5737rem, 1.6734vw, 1.1954rem); }
 
       .card[data-c="teal"]   .card-desc,
       .card[data-c="blue"]   .card-desc,
       .card[data-c="purple"] .card-desc,
-      .card[data-c="orange"] .card-desc { font-size: clamp(0.5737rem, 1.5938vw, 1.1475rem); }
+      .card[data-c="orange"] .card-desc { font-size: clamp(0.4303rem, 1.1954vw, 0.8606rem); }
 
-      /* STATUS: hora ~3x card-name: 3.5vw × 3 ≈ 10-11vw */
-      .status-time  { font-size: clamp(2.9rem, 9.9vw, 6.3rem); letter-spacing: -2px; }
-      .status-bat   { font-size: clamp(1.4rem, 4.5vw, 3rem); }
-      .status-label { font-size: clamp(0.7rem,  1.8vw, 1.2rem); }
-      .notif-app    { font-size: clamp(0.7rem,  1.8vw, 1rem); }
-      .notif-text   { font-size: clamp(0.75rem, 2vw,   1.1rem); }
-      .notif-empty  { font-size: clamp(0.7rem,  1.8vw, 1rem); }
+      /* Landscape: hora mantida, notif -25% */
+      .status-time  { font-size: clamp(2.175rem, 7.425vw, 4.725rem); letter-spacing: -2px; }
+      .status-bat   { font-size: clamp(1.05rem, 3.375vw, 2.25rem); }
+      .status-label { font-size: clamp(0.525rem, 1.35vw, 0.9rem); }
+      .notif-app    { font-size: clamp(0.525rem, 1.35vw, 0.75rem); }
+      .notif-text   { font-size: clamp(0.5625rem, 1.5vw, 0.825rem); }
+      .notif-empty  { font-size: clamp(0.525rem, 1.35vw, 0.75rem); }
 
       .footer { display: none; }
     }
