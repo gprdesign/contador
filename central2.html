@@ -87,10 +87,10 @@
       pointer-events: none;
     }
 
-    /* fontes base +25% em relação à versão anterior */
-    .card-icon { font-size: 2.75rem; position: relative; z-index: 1; }
-    .card-name { font-size: 1.44rem; font-weight: 900; line-height: 1.2; position: relative; z-index: 1; }
-    .card-desc { font-size: 1.02rem; color: var(--sub); line-height: 1.3; position: relative; z-index: 1; }
+    /* fontes dos cards +25% sobre versão anterior (1.44/1.02) */
+    .card-icon { font-size: 3.44rem; position: relative; z-index: 1; }
+    .card-name { font-size: 1.8rem;  font-weight: 900; line-height: 1.2; position: relative; z-index: 1; }
+    .card-desc { font-size: 1.28rem; color: var(--sub); line-height: 1.3; position: relative; z-index: 1; }
 
     /* Status card — hora e bateria grandes */
     .status-label {
@@ -101,14 +101,14 @@
       position: relative; z-index: 1;
     }
     .status-time {
-      font-size: 3.8rem;    /* 2.8 × 1.25 + span 2 = mais espaço */
+      font-size: 5.7rem;    /* 3.8 × 1.5 */
       font-weight: 900;
-      letter-spacing: -3px;
+      letter-spacing: -4px;
       line-height: 1;
       position: relative; z-index: 1;
     }
     .status-bat {
-      font-size: 1.7rem;
+      font-size: 2.55rem;   /* 1.7 × 1.5 */
       font-weight: 800;
       color: rgba(255,255,255,0.9);
       position: relative; z-index: 1;
@@ -150,12 +150,12 @@
       }
 
       .card { border-radius: 13px; padding: 10px 13px; gap: 4px; }
-      .card-icon { font-size: 1.88rem; }
-      .card-name { font-size: 1.13rem; }
-      .card-desc { font-size: 0.82rem; }
+      .card-icon { font-size: 2.35rem; }
+      .card-name { font-size: 1.42rem; }
+      .card-desc { font-size: 1.02rem; }
 
-      .status-time  { font-size: 2.6rem; }
-      .status-bat   { font-size: 1.25rem; }
+      .status-time  { font-size: 3.2rem; }
+      .status-bat   { font-size: 1.56rem; }
       .status-label { font-size: 0.62rem; }
 
       .footer { display: none; }
@@ -166,9 +166,9 @@
 <div class="wrapper">
   <div class="grid">
 
-    <!-- STATUS: hora + bateria — span 2 linhas (25% maior) -->
-    <div class="card" data-c="status">
-      <div class="status-label">agora</div>
+    <!-- STATUS: hora + bateria — span 2 linhas — clique recarrega -->
+    <div class="card" data-c="status" onclick="location.reload()" style="cursor:pointer">
+      <div class="status-label">agora · toque p/ atualizar</div>
       <div class="status-time" id="s-time">--:--</div>
       <div class="status-bat"  id="s-bat">🔋 --</div>
     </div>
