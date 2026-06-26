@@ -26,34 +26,34 @@
       color: #f0f0f0;
       position: relative;
       overflow: hidden;
-      transition: background 0.3s;
+      /* sem transition — conflita com animation */
     }
 
-    /* ── PISCADA AMARELA (running) — fundo, não borda ── */
+    /* ── PISCADA AMARELA (running) ── */
     #barra.running {
-      animation: pulseYellow 1s ease-in-out infinite alternate;
+      animation: pulseYellow 0.9s ease-in-out infinite alternate;
     }
     @keyframes pulseYellow {
-      from { background: #111; }
-      to   { background: #2a2200; }
+      from { background: #111111; }
+      to   { background: #6b5500; }
     }
 
     /* ── PISCADA VERMELHA a partir de 30min (warning) ── */
     #barra.warning {
-      animation: pulseWarn 0.7s ease-in-out infinite alternate;
+      animation: pulseWarn 0.6s ease-in-out infinite alternate;
     }
     @keyframes pulseWarn {
-      from { background: #1a0000; }
-      to   { background: #5a0000; }
+      from { background: #2a0000; }
+      to   { background: #7a0000; }
     }
 
     /* ── OVERTIME ── */
     #barra.overtime {
-      animation: pulseRed 0.5s ease-in-out infinite alternate;
+      animation: pulseRed 0.4s ease-in-out infinite alternate;
     }
     @keyframes pulseRed {
-      from { background: #5a0000; }
-      to   { background: #cc0000; }
+      from { background: #7a0000; }
+      to   { background: #ee0000; }
     }
 
     /* ── SEPARADOR ── */
