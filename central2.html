@@ -392,26 +392,23 @@
           return;
         }
 
-        // Separa: encerrados/ao vivo × futuros
-        const done = ms.filter(m => m.status === 'FINISHED' || m.status === 'IN_PLAY' || m.status === 'PAUSED');
-        const next = ms.filter(m => m.status === 'TIMED' || m.status === 'SCHEDULED');
-
-        // portrait: tudo junto (past), next some
-        // landscape: left=done, right=next — controlado pelo CSS
-        listPast.innerHTML = (done.length ? done : [{status:'empty'}])
-          .map(m => m.status === 'empty'
-            ? '<div class="soccer-empty">Sem jogos encerrados</div>'
-            : matchRow(m)).join('');
-
-        if (next.length) {
-          listNext.innerHTML = next.slice(0, 6).map(matchRow).join('');
-        } else {
-          listNext.innerHTML = '<div class="soccer-empty">Sem próximos jogos</div>';
-        }
-
-        // Portrait: coloca tudo no past, esconde next
         const isLandscape = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
-        if (!isLandscape) {
+
+        if (isLandscape) {
+          // landscape: col esquerda = hoje, col direita = amanhã (pela date_br do gist)
+          const today    = data.date; // ex: "26/06"
+          const todayMs  = ms.filter(m => m.date_br === today);
+          const otherMs  = ms.filter(m => m.date_br !== today);
+
+          listPast.innerHTML = todayMs.length
+            ? todayMs.map(matchRow).join('')
+            : '<div class="soccer-empty">Sem jogos hoje</div>';
+
+          listNext.innerHTML = otherMs.length
+            ? otherMs.map(matchRow).join('')
+            : '<div class="soccer-empty">Sem próximos</div>';
+        } else {
+          // portrait: tudo junto, máx 5
           listPast.innerHTML = ms.slice(0, 5).map(matchRow).join('');
           listNext.innerHTML = '';
         }
