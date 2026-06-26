@@ -28,7 +28,7 @@
       display: grid;
       grid-template-columns: 1fr 1fr;
       grid-template-rows: 1fr 1fr 1fr auto;
-      gap: clamp(8px, 2.5vw, 14px);
+      gap: clamp(6px, 2vw, 12px);
       flex: 1;
       min-height: 0;
     }
@@ -38,8 +38,8 @@
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
-      gap: clamp(5px, 1.5vh, 10px);
-      padding: clamp(14px, 4vw, 24px) clamp(14px, 4vw, 24px);
+      gap: clamp(3px, 1vh, 8px);
+      padding: clamp(8px, 2.5vw, 18px) clamp(10px, 3vw, 20px);
       border-radius: clamp(14px, 4vw, 22px);
       text-decoration: none;
       color: var(--text);
@@ -55,13 +55,13 @@
     .card[data-c="teal"]   { background: linear-gradient(135deg, rgba(0,200,180,0.22),   rgba(0,200,180,0.07));   border: 1px solid rgba(0,200,180,0.38);   }
     .card[data-c="orange"] { background: linear-gradient(135deg, rgba(255,140,66,0.22),  rgba(255,140,66,0.07));  border: 1px solid rgba(255,140,66,0.38);  }
 
-    /* Card STATUS — span 2 linhas */
+    /* Card STATUS — portrait: span 2 linhas, landscape: idem */
     .card[data-c="status"] {
       background: linear-gradient(135deg, rgba(176,125,255,0.22), rgba(112,184,255,0.12));
       border: 1px solid rgba(176,125,255,0.4);
       justify-content: center;
       align-items: flex-start;
-      gap: clamp(5px, 1.5vh, 10px);
+      gap: clamp(3px, 1vh, 8px);
       grid-row: span 2;
       cursor: pointer;
     }
@@ -81,9 +81,9 @@
     .card-desc { font-size: clamp(1rem, 3.5vw, 1.8rem); color: var(--sub); line-height: 1.3; position: relative; z-index: 1; }
 
     /* Status — hora 3× card-name: 5.5vw × 3 = ~16vw */
-    .status-label { font-size: clamp(0.75rem, 2.8vw, 1.2rem); text-transform: uppercase; letter-spacing: 2px; color: var(--sub); position: relative; z-index: 1; }
-    .status-time  { font-size: clamp(4rem, 16.2vw, 9rem); font-weight: 900; letter-spacing: -3px; line-height: 1; position: relative; z-index: 1; }
-    .status-bat   { font-size: clamp(1.8rem, 8vw, 4rem); font-weight: 800; color: rgba(255,255,255,0.9); position: relative; z-index: 1; }
+    .status-label { font-size: clamp(0.55rem, 2vw, 0.85rem); text-transform: uppercase; letter-spacing: 2px; color: var(--sub); position: relative; z-index: 1; }
+    .status-time  { font-size: clamp(2.2rem, 9vw, 5rem); font-weight: 900; letter-spacing: -2px; line-height: 1; position: relative; z-index: 1; }
+    .status-bat   { font-size: clamp(1rem, 4.5vw, 2.2rem); font-weight: 800; color: rgba(255,255,255,0.9); position: relative; z-index: 1; }
 
     /* Notificações */
     .notif-list  { width: 100%; display: flex; flex-direction: column; gap: 4px; margin-top: 4px; position: relative; z-index: 1; overflow: hidden; max-height: 30%; }
