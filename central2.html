@@ -122,12 +122,9 @@
       font-size: clamp(0.585rem, 1.43vw, 0.715rem);
       color: rgba(255,255,255,0.25);
     }
-    .soccer-list {
-      display: flex; flex-direction: column;
-      gap: clamp(2px, 0.5vh, 4px);
-      overflow: hidden;
-      flex: 1; min-height: 0;
-    }
+    .soccer-cols      { display: flex; flex-direction: column; flex: 1; min-height: 0; gap: clamp(3px,0.8vh,6px); overflow: hidden; }
+    .soccer-list      { display: flex; flex-direction: column; gap: clamp(2px,0.5vh,4px); overflow: hidden; flex-shrink: 0; }
+    .soccer-list-next { border-top: 1px solid rgba(255,255,255,0.08); padding-top: clamp(3px,0.8vh,6px); }
     /* linha compacta: time — placar — time tudo numa linha só */
     .match-row {
       display: grid;
@@ -224,6 +221,11 @@
       .notif-text   { font-size: clamp(0.5625rem, 1.5vw, 0.825rem); }
       .notif-empty  { font-size: clamp(0.525rem, 1.35vw, 0.75rem); }
 
+      /* Landscape: copa em 2 colunas */
+      .soccer-cols      { flex-direction: row; gap: clamp(6px,1.5vw,12px); }
+      .soccer-list      { flex: 1; min-width: 0; }
+      .soccer-list-next { border-top: none; border-left: 1px solid rgba(255,255,255,0.08); padding-top: 0; padding-left: clamp(6px,1.5vw,12px); }
+
       .footer { display: none; }
     }
   </style>
@@ -278,8 +280,12 @@
         <span class="soccer-title">⚽ Copa do Mundo 2026</span>
         <span class="soccer-updated" id="soccer-updated">--</span>
       </div>
-      <div class="soccer-list" id="soccer-list">
-        <div class="soccer-empty">carregando…</div>
+      <div class="soccer-cols" id="soccer-cols">
+        <!-- portrait: lista única; landscape: 2 colunas via JS -->
+        <div class="soccer-list" id="soccer-list-past">
+          <div class="soccer-empty">carregando…</div>
+        </div>
+        <div class="soccer-list soccer-list-next" id="soccer-list-next"></div>
       </div>
     </div>
 
@@ -343,49 +349,76 @@
     'SCHEDULED':{ txt: null, cls: '' },
   };
 
+  function matchRow(m) {
+    const sl     = STATUS_LABEL[m.status] || { txt: m.status, cls: '' };
+    const isLive = m.status === 'IN_PLAY' || m.status === 'PAUSED';
+    const isFt   = m.status === 'FINISHED';
+    const sh     = m.score_h !== null ? m.score_h : '-';
+    const sa     = m.score_a !== null ? m.score_a : '-';
+    // label: ao vivo → status; futuro → data+hora se dia diferente, senão só hora
+    const todayDate = new Date().toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'});
+    const timeLabel = sl.txt || (m.date_br && m.date_br !== todayDate ? m.date_br + ' ' + m.time_br : m.time_br);
+    const rowCls = isLive ? 'match-row live' : isFt ? 'match-row ft' : 'match-row';
+    return `<div class="${rowCls}">
+      <div class="team-side">
+        <img class="team-crest" src="${m.home_crest}" onerror="this.style.display='none'">
+        <span class="team-name">${m.home}</span>
+      </div>
+      <div class="match-score">
+        <span class="score-nums">${sh} – ${sa}</span>
+        <span class="score-status ${sl.cls}">${timeLabel}</span>
+      </div>
+      <div class="team-side away">
+        <img class="team-crest" src="${m.away_crest}" onerror="this.style.display='none'">
+        <span class="team-name">${m.away}</span>
+      </div>
+    </div>`;
+  }
+
   function loadMatches() {
     fetch(MATCHES_URL + '?t=' + Date.now())
       .then(r => r.json())
       .then(data => {
-        const list = document.getElementById('soccer-list');
-        const upd  = document.getElementById('soccer-updated');
-        const ms   = (data.matches || []).slice(0, 4); // máx 4 jogos visíveis
+        const listPast = document.getElementById('soccer-list-past');
+        const listNext = document.getElementById('soccer-list-next');
+        const upd      = document.getElementById('soccer-updated');
+        const ms       = data.matches || [];
 
-        upd.textContent = data.date + ' · atualizado ' + (data.updated || '--');
+        upd.textContent = data.date + ' · ' + (data.updated || '--');
 
         if (!ms.length) {
-          list.innerHTML = '<div class="soccer-empty">Sem jogos hoje 🤷</div>';
+          listPast.innerHTML = '<div class="soccer-empty">Sem jogos 🤷</div>';
+          listNext.innerHTML = '';
           return;
         }
 
-        list.innerHTML = ms.map(m => {
-          const sl  = STATUS_LABEL[m.status] || { txt: m.status, cls: '' };
-          const isLive = m.status === 'IN_PLAY' || m.status === 'PAUSED';
-          const isFt   = m.status === 'FINISHED';
-          const sh = m.score_h !== null ? m.score_h : '-';
-          const sa = m.score_a !== null ? m.score_a : '-';
-          const statusTxt = sl.txt || m.time_br;
-          const rowCls = isLive ? 'match-row live' : isFt ? 'match-row ft' : 'match-row';
+        // Separa: encerrados/ao vivo × futuros
+        const done = ms.filter(m => m.status === 'FINISHED' || m.status === 'IN_PLAY' || m.status === 'PAUSED');
+        const next = ms.filter(m => m.status === 'TIMED' || m.status === 'SCHEDULED');
 
-          return `<div class="${rowCls}">
-            <div class="team-side">
-              <img class="team-crest" src="${m.home_crest}" onerror="this.style.display='none'">
-              <span class="team-name">${m.home}</span>
-            </div>
-            <div class="match-score">
-              <span class="score-nums">${sh} – ${sa}</span>
-              <span class="score-status ${sl.cls}">${statusTxt}</span>
-            </div>
-            <div class="team-side away">
-              <img class="team-crest" src="${m.away_crest}" onerror="this.style.display='none'">
-              <span class="team-name">${m.away}</span>
-            </div>
-          </div>`;
-        }).join('');
+        // portrait: tudo junto (past), next some
+        // landscape: left=done, right=next — controlado pelo CSS
+        listPast.innerHTML = (done.length ? done : [{status:'empty'}])
+          .map(m => m.status === 'empty'
+            ? '<div class="soccer-empty">Sem jogos encerrados</div>'
+            : matchRow(m)).join('');
+
+        if (next.length) {
+          listNext.innerHTML = next.slice(0, 6).map(matchRow).join('');
+        } else {
+          listNext.innerHTML = '<div class="soccer-empty">Sem próximos jogos</div>';
+        }
+
+        // Portrait: coloca tudo no past, esconde next
+        const isLandscape = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
+        if (!isLandscape) {
+          listPast.innerHTML = ms.slice(0, 5).map(matchRow).join('');
+          listNext.innerHTML = '';
+        }
       })
       .catch(() => {
-        document.getElementById('soccer-list').innerHTML =
-          '<div class="soccer-empty">Erro ao carregar jogos</div>';
+        document.getElementById('soccer-list-past').innerHTML =
+          '<div class="soccer-empty">Erro ao carregar</div>';
       });
   }
   loadMatches();
