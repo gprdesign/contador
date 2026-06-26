@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="60">
+  <!-- refresh via JS pra não perder estado -->
   <title>Central — Gio</title>
   <style>
     :root {
@@ -109,12 +109,12 @@
       flex-shrink: 0;
     }
     .soccer-title {
-      font-size: clamp(0.6rem, 2vw, 0.8rem);
+      font-size: clamp(0.52rem, 1.6vw, 0.68rem);
       font-weight: 900; color: rgba(0,210,100,0.85);
       text-transform: uppercase; letter-spacing: 1px;
     }
     .soccer-updated {
-      font-size: clamp(0.5rem, 1.3vw, 0.62rem);
+      font-size: clamp(0.45rem, 1.1vw, 0.55rem);
       color: rgba(255,255,255,0.25);
     }
     .soccer-list {
@@ -138,13 +138,13 @@
     .match-row.ft   { opacity: 0.45; }
     .team-side      { display: flex; align-items: center; gap: 4px; overflow: hidden; }
     .team-side.away { flex-direction: row-reverse; }
-    .team-crest     { width: clamp(12px,3vw,16px); height: clamp(12px,3vw,16px); object-fit: contain; flex-shrink: 0; }
-    .team-name      { font-size: clamp(0.6rem, 2vw, 0.82rem); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .team-crest     { width: clamp(10px,2.5vw,14px); height: clamp(10px,2.5vw,14px); object-fit: contain; flex-shrink: 0; }
+    .team-name      { font-size: clamp(0.55rem, 1.7vw, 0.72rem); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .match-score    { text-align: center; flex-shrink: 0; line-height: 1; }
-    .score-nums     { font-size: clamp(0.75rem, 2.8vw, 1.05rem); font-weight: 900; letter-spacing: 1px; display: block; }
-    .score-status   { font-size: clamp(0.45rem, 1.2vw, 0.58rem); color: rgba(255,255,255,0.4); display: block; }
+    .score-nums     { font-size: clamp(0.65rem, 2.2vw, 0.88rem); font-weight: 900; letter-spacing: 1px; display: block; }
+    .score-status   { font-size: clamp(0.4rem, 1vw, 0.52rem); color: rgba(255,255,255,0.4); display: block; }
     .score-status.live-dot { color: #00d264; font-weight: 800; }
-    .soccer-empty   { font-size: clamp(0.6rem, 1.8vw, 0.8rem); color: rgba(255,255,255,0.3); font-style: italic; }
+    .soccer-empty   { font-size: clamp(0.55rem, 1.5vw, 0.7rem); color: rgba(255,255,255,0.3); font-style: italic; }
 
     .footer { font-size: clamp(0.7rem, 2vw, 0.9rem); color: var(--sub); opacity: 0.3; text-align: center; flex-shrink: 0; }
 
@@ -189,7 +189,7 @@
   <div class="grid">
 
     <!-- STATUS: hora + bateria — span 2 linhas — clique recarrega -->
-    <div class="card" data-c="status" onclick="location.reload()">
+    <div class="card" data-c="status" onclick="refreshAll()">
       <div class="status-label">agora · toque p/ atualizar</div>
       <div class="status-time" id="s-time">--:--</div>
       <div class="status-bat"  id="s-bat">🔋 --</div>
@@ -279,6 +279,10 @@
   }
   loadNotifs();
   setInterval(loadNotifs, 30000);
+
+  /* ── refresh geral a cada 60s + botão de relógio ── */
+  function refreshAll() { loadNotifs(); loadMatches(); }
+  setInterval(refreshAll, 60000);
 
   /* ═══ COPA DO MUNDO — jogos do dia ═══ */
   const MATCHES_URL = 'https://gist.githubusercontent.com/gprdesign/b0c5e0453069a01d36cbdd6a860a7e29/raw/matches.json';
