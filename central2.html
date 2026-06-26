@@ -146,6 +146,22 @@
     .score-status.live-dot { color: #00d264; font-weight: 800; }
     .soccer-empty   { font-size: clamp(0.55rem, 1.5vw, 0.7rem); color: rgba(255,255,255,0.3); font-style: italic; }
 
+    /* ── cards menores: relógio, contador, cazetv, /hj (-25%) ── */
+    .card[data-c="teal"]   .card-icon,
+    .card[data-c="blue"]   .card-icon,
+    .card[data-c="purple"] .card-icon,
+    .card[data-c="orange"] .card-icon { font-size: clamp(1.65rem, 6.75vw, 3.375rem); }
+
+    .card[data-c="teal"]   .card-name,
+    .card[data-c="blue"]   .card-name,
+    .card[data-c="purple"] .card-name,
+    .card[data-c="orange"] .card-name { font-size: clamp(1.05rem, 4.125vw, 2.25rem); }
+
+    .card[data-c="teal"]   .card-desc,
+    .card[data-c="blue"]   .card-desc,
+    .card[data-c="purple"] .card-desc,
+    .card[data-c="orange"] .card-desc { font-size: clamp(0.75rem, 2.625vw, 1.35rem); }
+
     .footer { font-size: clamp(0.7rem, 2vw, 0.9rem); color: var(--sub); opacity: 0.3; text-align: center; flex-shrink: 0; }
 
     /* ── LANDSCAPE mobile ── */
@@ -171,6 +187,22 @@
       .card-icon   { font-size: clamp(1.8rem, 5vw,   3.5rem); }
       .card-name   { font-size: clamp(1.2rem, 3.5vw, 2.5rem); }
       .card-desc   { font-size: clamp(0.9rem, 2.5vw, 1.8rem); }
+
+      /* -25% nos 4 cards menores no landscape também */
+      .card[data-c="teal"]   .card-icon,
+      .card[data-c="blue"]   .card-icon,
+      .card[data-c="purple"] .card-icon,
+      .card[data-c="orange"] .card-icon { font-size: clamp(1.35rem, 3.75vw, 2.625rem); }
+
+      .card[data-c="teal"]   .card-name,
+      .card[data-c="blue"]   .card-name,
+      .card[data-c="purple"] .card-name,
+      .card[data-c="orange"] .card-name { font-size: clamp(0.9rem, 2.625vw, 1.875rem); }
+
+      .card[data-c="teal"]   .card-desc,
+      .card[data-c="blue"]   .card-desc,
+      .card[data-c="purple"] .card-desc,
+      .card[data-c="orange"] .card-desc { font-size: clamp(0.675rem, 1.875vw, 1.35rem); }
 
       /* STATUS: hora ~3x card-name: 3.5vw × 3 ≈ 10-11vw */
       .status-time  { font-size: clamp(2.9rem, 9.9vw, 6.3rem); letter-spacing: -2px; }
