@@ -16,52 +16,47 @@
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Arial, sans-serif;
     }
 
-    /* ── BARRA PRINCIPAL ─────────────────────────────── */
     #barra {
       width: 1330px;
       height: 80px;
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 0;
       background: #111;
       color: #f0f0f0;
-      transition: background 0.4s, color 0.4s;
       position: relative;
       overflow: hidden;
+      transition: background 0.3s;
     }
 
-    #barra::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border: 0px solid transparent;
-      pointer-events: none;
-      z-index: 10;
-      transition: border 0.4s;
+    /* ── PISCADA AMARELA (running) — fundo, não borda ── */
+    #barra.running {
+      animation: pulseYellow 1s ease-in-out infinite alternate;
     }
-    #barra.running::after {
-      border: 3px solid rgba(255,255,0,0.55);
-      box-shadow: inset 0 0 18px rgba(255,255,0,0.25);
-      animation: pulse 1s ease-in-out infinite alternate;
+    @keyframes pulseYellow {
+      from { background: #111; }
+      to   { background: #2a2200; }
     }
-    #barra.overtime { background: #8b0000; }
-    #barra.overtime::after {
-      border: 4px solid rgba(255,255,255,0.7);
-      box-shadow: inset 0 0 22px rgba(255,255,255,0.35);
+
+    /* ── PISCADA VERMELHA a partir de 30min (warning) ── */
+    #barra.warning {
+      animation: pulseWarn 0.7s ease-in-out infinite alternate;
+    }
+    @keyframes pulseWarn {
+      from { background: #1a0000; }
+      to   { background: #5a0000; }
+    }
+
+    /* ── OVERTIME ── */
+    #barra.overtime {
       animation: pulseRed 0.5s ease-in-out infinite alternate;
     }
-
-    @keyframes pulse {
-      from { box-shadow: inset 0 0 8px rgba(255,255,0,0.2);  border-color: rgba(255,255,0,0.4); }
-      to   { box-shadow: inset 0 0 22px rgba(255,255,0,0.6); border-color: rgba(255,255,0,0.9); }
-    }
     @keyframes pulseRed {
-      from { box-shadow: inset 0 0 10px rgba(255,255,255,0.3); border-color: rgba(255,255,255,0.5); }
-      to   { box-shadow: inset 0 0 28px rgba(255,255,255,0.8); border-color: rgba(255,255,255,0.95); }
+      from { background: #5a0000; }
+      to   { background: #cc0000; }
     }
 
-    /* ── SEPARADOR ───────────────────────────────────── */
+    /* ── SEPARADOR ── */
     .sep {
       width: 1px;
       height: 46px;
@@ -69,7 +64,7 @@
       flex-shrink: 0;
     }
 
-    /* ── RELÓGIO ─────────────────────────────────────── */
+    /* ── RELÓGIO ── */
     .block-clock {
       display: flex;
       flex-direction: column;
@@ -85,15 +80,11 @@
       letter-spacing: -1.5px;
       line-height: 1;
     }
-    .clock-meta {
-      display: flex;
-      gap: 6px;
-      align-items: center;
-    }
+    .clock-meta { display: flex; gap: 6px; align-items: center; }
     #lineWeekday { font-size: 0.65rem; font-weight: 700; color: rgba(255,255,255,0.65); }
     #lineDate    { font-size: 0.65rem; color: rgba(255,255,255,0.4); }
 
-    /* ── TIMER ───────────────────────────────────────── */
+    /* ── TIMER ── */
     .block-timer {
       display: flex;
       flex-direction: column;
@@ -133,7 +124,7 @@
       letter-spacing: 1px;
     }
 
-    /* ── CONTROLES ───────────────────────────────────── */
+    /* ── CONTROLES ── */
     .block-controls {
       display: flex;
       flex-direction: column;
@@ -144,43 +135,24 @@
       flex-shrink: 0;
       width: 270px;
     }
-    .ctrl-row {
-      display: flex;
-      gap: 7px;
-      align-items: center;
-    }
+    .ctrl-row { display: flex; gap: 7px; align-items: center; }
     .ctrl-row input[type="text"] {
-      flex: 1;
-      height: 28px;
-      border-radius: 6px;
+      flex: 1; height: 28px; border-radius: 6px;
       border: 1px solid rgba(255,255,255,0.18);
       background: rgba(255,255,255,0.08);
-      color: #f0f0f0;
-      font-size: 0.75rem;
-      padding: 0 9px;
-      outline: none;
+      color: #f0f0f0; font-size: 0.75rem; padding: 0 9px; outline: none;
     }
     .ctrl-row input[type="time"] {
-      width: 86px;
-      height: 28px;
-      border-radius: 6px;
+      width: 86px; height: 28px; border-radius: 6px;
       border: 1px solid rgba(255,255,255,0.18);
       background: rgba(255,255,255,0.08);
-      color: #f0f0f0;
-      font-size: 0.75rem;
-      padding: 0 7px;
-      outline: none;
+      color: #f0f0f0; font-size: 0.75rem; padding: 0 7px; outline: none;
       color-scheme: dark;
     }
     button {
-      height: 28px;
-      border-radius: 6px;
-      font-weight: 800;
-      font-size: 0.68rem;
-      cursor: pointer;
-      border: none;
-      letter-spacing: 0.5px;
-      transition: filter 0.15s;
+      height: 28px; border-radius: 6px; font-weight: 800;
+      font-size: 0.68rem; cursor: pointer; border: none;
+      letter-spacing: 0.5px; transition: filter 0.15s;
     }
     button:active { filter: brightness(1.2); }
     .btn-start { background: #c0392b; color: #fff; width: 100%; }
@@ -188,57 +160,13 @@
     .btn-reset {
       background: rgba(255,255,255,0.1);
       color: rgba(255,255,255,0.6);
-      width: 28px;
-      flex-shrink: 0;
-      font-size: 0.85rem;
-    }
-
-    /* ── CONTADOR DE CLIQUES ─────────────────────────── */
-    .block-click {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 0 26px;
-      flex-shrink: 0;
-      gap: 3px;
-    }
-    .click-label {
-      font-size: 0.55rem;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      color: rgba(255,255,255,0.4);
-    }
-    #clickCount {
-      font-size: 1.8rem;
-      font-weight: 900;
-      letter-spacing: -1px;
-      line-height: 1;
-      color: #70b8ff;
-      cursor: pointer;
-      user-select: none;
-      transition: transform 0.08s, color 0.08s;
-    }
-    #clickCount:active { transform: scale(0.88); color: #fff; }
-    .click-btns {
-      display: flex;
-      gap: 4px;
-      margin-top: 2px;
-    }
-    .click-btns button {
-      height: 20px;
-      font-size: 0.58rem;
-      padding: 0 7px;
-      background: rgba(255,255,255,0.08);
-      color: rgba(255,255,255,0.5);
-      border-radius: 4px;
+      width: 28px; flex-shrink: 0; font-size: 0.85rem;
     }
   </style>
 </head>
 <body>
 <div id="barra">
 
-  <!-- RELÓGIO -->
   <div class="block-clock">
     <div id="lineNow">--:--</div>
     <div class="clock-meta">
@@ -249,7 +177,6 @@
 
   <div class="sep"></div>
 
-  <!-- TIMER COUNTDOWN -->
   <div class="block-timer">
     <div id="timer">00:00:00</div>
     <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
@@ -258,7 +185,6 @@
 
   <div class="sep"></div>
 
-  <!-- CONTROLES -->
   <div class="block-controls">
     <div class="ctrl-row">
       <input type="text" id="taskName" placeholder="Nome da tarefa…">
@@ -271,41 +197,26 @@
     </div>
   </div>
 
-  <div class="sep"></div>
-
-  <!-- CONTADOR DE CLIQUES -->
-  <div class="block-click">
-    <div class="click-label">cliques</div>
-    <div id="clickCount" onclick="addClick()">0</div>
-    <div class="click-btns">
-      <button onclick="addClick()">+1</button>
-      <button onclick="subClick()">−1</button>
-      <button onclick="resetClicks()">✕</button>
-    </div>
-  </div>
-
 </div>
 
 <audio id="alarmSound" src="https://www.soundjay.com/buttons/sounds/button-35.mp3" onended="checkRepeat()"></audio>
 
 <script>
-  /* ── RELÓGIO ── */
+  /* RELÓGIO */
   function updateClock() {
     const now = new Date();
     document.getElementById('lineNow').textContent =
       now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     const wd = now.toLocaleDateString('pt-BR', { weekday: 'long' });
-    document.getElementById('lineWeekday').textContent =
-      wd.charAt(0).toUpperCase() + wd.slice(1);
+    document.getElementById('lineWeekday').textContent = wd.charAt(0).toUpperCase() + wd.slice(1);
     const d  = String(now.getDate()).padStart(2,'0');
     const m  = String(now.getMonth()+1).padStart(2,'0');
     const ms = now.toLocaleDateString('pt-BR',{month:'short'}).replace('.','');
-    document.getElementById('lineDate').textContent =
-      d + '/' + m + ' (' + ms.charAt(0).toUpperCase() + ms.slice(1) + '.)';
+    document.getElementById('lineDate').textContent = d+'/'+m+' ('+ms.charAt(0).toUpperCase()+ms.slice(1)+'.)';
   }
   setInterval(updateClock, 1000); updateClock();
 
-  /* ── TIMER ── */
+  /* TIMER */
   const barra = document.getElementById('barra');
   let interval, targetDate, playCount = 0;
 
@@ -318,7 +229,7 @@
     if (targetDate <= now) targetDate.setDate(targetDate.getDate() + 1);
     document.getElementById('btnStart').style.display = 'none';
     document.getElementById('btnDone').style.display  = 'block';
-    barra.classList.add('running');
+    barra.className = 'running';
     clearInterval(interval);
     interval = setInterval(tick, 1000); tick();
   }
@@ -337,9 +248,15 @@
       clearInterval(interval);
       document.getElementById('timer').textContent = '00:00:00';
       document.getElementById('alarmMsg').style.display = 'block';
-      barra.classList.replace('running', 'overtime');
+      barra.className = 'overtime';
       playCount = 0; playAlarm(); return;
     }
+
+    /* Piscada amarela → vermelha quando <= 30 minutos */
+    const mins = diff / 60000;
+    if (mins <= 30) { barra.className = 'warning'; }
+    else            { barra.className = 'running'; }
+
     const hh = String(Math.floor(diff / 3600000)).padStart(2,'0');
     const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
     const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
@@ -356,7 +273,7 @@
     document.getElementById('btnStart').style.display = 'block';
     document.getElementById('btnDone').style.display  = 'none';
     document.getElementById('alarmMsg').style.display = 'none';
-    barra.classList.remove('running','overtime');
+    barra.className = '';
   }
 
   function playAlarm() {
@@ -364,16 +281,8 @@
   }
   function checkRepeat() {
     playCount++;
-    if (playCount < 3) setTimeout(() => {
-      document.getElementById('alarmSound').currentTime = 0; playAlarm();
-    }, 200);
+    if (playCount < 3) setTimeout(() => { document.getElementById('alarmSound').currentTime = 0; playAlarm(); }, 200);
   }
-
-  /* ── CONTADOR DE CLIQUES ── */
-  let clicks = 0;
-  function addClick()   { clicks++; document.getElementById('clickCount').textContent = clicks; }
-  function subClick()   { if (clicks > 0) { clicks--; document.getElementById('clickCount').textContent = clicks; } }
-  function resetClicks(){ clicks = 0; document.getElementById('clickCount').textContent = 0; }
 </script>
 </body>
 </html>
