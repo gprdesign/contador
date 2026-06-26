@@ -23,7 +23,7 @@
       gap: clamp(8px, 2.5vw, 14px);
     }
 
-    /* ── GRID portrait: 2 col × 4 linhas ── */
+    /* ── GRID portrait: 2 col × 3 linhas + row auto p/ futebol ── */
     .grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -92,56 +92,59 @@
     .notif-text  { font-size: clamp(0.8rem, 2.8vw, 1.2rem); color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
     .notif-empty { font-size: clamp(0.75rem, 2.5vw, 1rem); color: rgba(255,255,255,0.3); font-style: italic; }
 
-    /* ── CARD FUTEBOL ── */
+    /* ── CARD FUTEBOL — compacto, altura de ~1 card ── */
     .card[data-c="soccer"] {
-      background: linear-gradient(135deg, rgba(0,210,100,0.18), rgba(0,210,100,0.05));
-      border: 1px solid rgba(0,210,100,0.35);
+      background: linear-gradient(135deg, rgba(0,210,100,0.15), rgba(0,210,100,0.04));
+      border: 1px solid rgba(0,210,100,0.3);
       grid-column: span 2;
       flex-direction: column;
-      justify-content: flex-start;
-      gap: 0;
-      padding: clamp(8px, 2.5vw, 14px) clamp(10px, 3vw, 18px);
+      justify-content: center;
+      gap: clamp(3px, 0.8vh, 6px);
+      padding: clamp(6px, 1.8vw, 12px) clamp(8px, 2.5vw, 14px);
       cursor: default;
       min-height: 0;
     }
     .soccer-header {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: clamp(4px, 1vh, 8px);
+      flex-shrink: 0;
     }
     .soccer-title {
-      font-size: clamp(0.7rem, 2.5vw, 1rem);
-      font-weight: 900; color: rgba(0,210,100,0.9);
+      font-size: clamp(0.6rem, 2vw, 0.8rem);
+      font-weight: 900; color: rgba(0,210,100,0.85);
       text-transform: uppercase; letter-spacing: 1px;
     }
     .soccer-updated {
-      font-size: clamp(0.55rem, 1.5vw, 0.7rem);
-      color: rgba(255,255,255,0.3);
+      font-size: clamp(0.5rem, 1.3vw, 0.62rem);
+      color: rgba(255,255,255,0.25);
     }
     .soccer-list {
       display: flex; flex-direction: column;
-      gap: clamp(3px, 0.8vh, 6px);
+      gap: clamp(2px, 0.5vh, 4px);
       overflow: hidden;
+      flex: 1; min-height: 0;
     }
+    /* linha compacta: time — placar — time tudo numa linha só */
     .match-row {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       align-items: center;
-      gap: 6px;
-      padding: clamp(3px, 0.8vh, 5px) clamp(5px, 1.5vw, 10px);
-      border-radius: 8px;
+      gap: 4px;
+      padding: clamp(2px, 0.5vh, 4px) clamp(4px, 1vw, 8px);
+      border-radius: 6px;
       background: rgba(255,255,255,0.04);
+      flex-shrink: 0;
     }
-    .match-row.live   { background: rgba(0,210,100,0.12); border-left: 2px solid #00d264; }
-    .match-row.ft     { opacity: 0.55; }
-    .team-side        { display: flex; align-items: center; gap: 5px; }
-    .team-side.away   { flex-direction: row-reverse; }
-    .team-crest       { width: clamp(14px,4vw,22px); height: clamp(14px,4vw,22px); object-fit: contain; flex-shrink: 0; }
-    .team-name        { font-size: clamp(0.65rem, 2.2vw, 0.95rem); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: clamp(60px,18vw,120px); }
-    .match-score      { text-align: center; flex-shrink: 0; }
-    .score-nums       { font-size: clamp(0.9rem, 3.5vw, 1.4rem); font-weight: 900; letter-spacing: 1px; }
-    .score-status     { font-size: clamp(0.5rem, 1.5vw, 0.65rem); color: rgba(255,255,255,0.45); display: block; }
+    .match-row.live { background: rgba(0,210,100,0.1); border-left: 2px solid #00d264; }
+    .match-row.ft   { opacity: 0.45; }
+    .team-side      { display: flex; align-items: center; gap: 4px; overflow: hidden; }
+    .team-side.away { flex-direction: row-reverse; }
+    .team-crest     { width: clamp(12px,3vw,16px); height: clamp(12px,3vw,16px); object-fit: contain; flex-shrink: 0; }
+    .team-name      { font-size: clamp(0.6rem, 2vw, 0.82rem); font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .match-score    { text-align: center; flex-shrink: 0; line-height: 1; }
+    .score-nums     { font-size: clamp(0.75rem, 2.8vw, 1.05rem); font-weight: 900; letter-spacing: 1px; display: block; }
+    .score-status   { font-size: clamp(0.45rem, 1.2vw, 0.58rem); color: rgba(255,255,255,0.4); display: block; }
     .score-status.live-dot { color: #00d264; font-weight: 800; }
-    .soccer-empty     { font-size: clamp(0.7rem, 2vw, 0.9rem); color: rgba(255,255,255,0.3); font-style: italic; padding: 6px 0; }
+    .soccer-empty   { font-size: clamp(0.6rem, 1.8vw, 0.8rem); color: rgba(255,255,255,0.3); font-style: italic; }
 
     .footer { font-size: clamp(0.7rem, 2vw, 0.9rem); color: var(--sub); opacity: 0.3; text-align: center; flex-shrink: 0; }
 
@@ -294,7 +297,7 @@
       .then(data => {
         const list = document.getElementById('soccer-list');
         const upd  = document.getElementById('soccer-updated');
-        const ms   = data.matches || [];
+        const ms   = (data.matches || []).slice(0, 4); // máx 4 jogos visíveis
 
         upd.textContent = data.date + ' · atualizado ' + (data.updated || '--');
 
