@@ -356,8 +356,7 @@
     const sh     = m.score_h !== null ? m.score_h : '-';
     const sa     = m.score_a !== null ? m.score_a : '-';
     // label: ao vivo → status; futuro → data+hora se dia diferente, senão só hora
-    const todayDate = new Date().toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'});
-    const timeLabel = sl.txt || (m.date_br && m.date_br !== todayDate ? m.date_br + ' ' + m.time_br : m.time_br);
+    const timeLabel = sl.txt || m.time_br;
     const rowCls = isLive ? 'match-row live' : isFt ? 'match-row ft' : 'match-row';
     return `<div class="${rowCls}">
       <div class="team-side">
@@ -395,18 +394,20 @@
         const isLandscape = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
 
         if (isLandscape) {
-          // landscape: col esquerda = hoje, col direita = amanhã (pela date_br do gist)
-          const today    = data.date; // ex: "26/06"
-          const todayMs  = ms.filter(m => m.date_br === today);
-          const otherMs  = ms.filter(m => m.date_br !== today);
+          // landscape: col esquerda = slot "today", col direita = slot "tomorrow"
+          const todayMs    = ms.filter(m => m.slot === 'today');
+          const tomorrowMs = ms.filter(m => m.slot === 'tomorrow');
+
+          const todayLabel    = data.date_today    ? 'Hoje ' + data.date_today    : 'Hoje';
+          const tomorrowLabel = data.date_tomorrow ? 'Amanhã ' + data.date_tomorrow : 'Amanhã';
 
           listPast.innerHTML = todayMs.length
             ? todayMs.map(matchRow).join('')
-            : '<div class="soccer-empty">Sem jogos hoje</div>';
+            : `<div class="soccer-empty">${todayLabel} sem jogos</div>`;
 
-          listNext.innerHTML = otherMs.length
-            ? otherMs.map(matchRow).join('')
-            : '<div class="soccer-empty">Sem próximos</div>';
+          listNext.innerHTML = tomorrowMs.length
+            ? tomorrowMs.map(matchRow).join('')
+            : `<div class="soccer-empty">${tomorrowLabel} sem jogos</div>`;
         } else {
           // portrait: tudo junto, máx 5
           listPast.innerHTML = ms.slice(0, 5).map(matchRow).join('');
