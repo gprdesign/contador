@@ -22,25 +22,28 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: center;
+      justify-content: space-evenly;
       background: #111;
       color: #f0f0f0;
       position: fixed;
       top: 0;
       left: 0;
       overflow: hidden;
-      padding: clamp(5px, 2vh, 15px);
-      gap: clamp(5px, 2vw, 15px);
+      padding: clamp(2px, 1.5vh, 10px);
+      gap: clamp(5px, 2vw, 20px);
     }
 
-    /* Ajuste responsivo agressivo para janelas mini */
-    @media (max-width: 500px), (max-height: 250px) {
+    /* Layout vertical apenas em telas realmente estreitas (celular em pé) */
+    @media (max-width: 480px) {
+      #barra { flex-direction: column; justify-content: center; }
       .sep { display: none; }
-      #barra { flex-direction: column; padding: 5px; gap: 5px; }
-      .block-controls { width: 100% !important; max-width: 100%; padding: 0 !important; }
-      .block-timer { flex: 1; width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); min-width: 0 !important; padding: 0 !important; }
-      .block-clock { display: none; }
-      #timer { font-size: clamp(1.5rem, 25vh, 6rem) !important; }
+      .block-controls { width: 100% !important; max-width: 100%; }
+      .block-timer { width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    }
+
+    /* Ocultar date/relógio em janelas muito baixas para priorizar o timer */
+    @media (max-height: 220px) {
+      .block-clock, .sep { display: none; }
     }
 
     /* ── PISCADA AMARELA (running) ── */
@@ -89,18 +92,18 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex: 1;
+      flex: 1.5;
       min-width: 0;
-      gap: clamp(2px, 1vh, 5px);
+      gap: 4px;
       padding: 0;
       position: relative;
       z-index: 1;
     }
     #timer {
-      font-size: clamp(1.8rem, 15vw, 10rem);
+      font-size: clamp(1.5rem, min(18vw, 55vh), 12rem);
       font-weight: 900;
-      letter-spacing: -0.04em;
-      line-height: 1;
+      letter-spacing: -0.05em;
+      line-height: 0.85;
     }
     .progress-wrap {
       width: 80%;
@@ -130,10 +133,11 @@
       flex-direction: column;
       align-items: stretch;
       justify-content: center;
-      gap: clamp(4px, 1vh, 7px);
+      gap: 6px;
       padding: 0;
-      flex-shrink: 1;
-      width: clamp(160px, 25vw, 280px);
+      flex: 1;
+      max-width: 320px;
+      min-width: 140px;
     }
     .ctrl-row { display: flex; gap: 6px; align-items: center; }
     .ctrl-row input[type="text"] {
