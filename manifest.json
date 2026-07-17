@@ -1,16 +1,16 @@
 {
-  "name": "Contador",
+  "name": "Contador Zapia",
   "short_name": "Contador",
-  "description": "Temporizador para tarefas e foco",
-  "start_url": "/",
+  "description": "Contador regressivo ultra-responsivo para produtividade.",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#ffffff",
+  "background_color": "#111111",
+  "theme_color": "#111111",
   "icons": [
     {
-      "src": "icon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
+      "src": "https://cdn-icons-png.flaticon.com/512/3652/3652191.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "any maskable"
     }
   ]
