@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Contador</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
   <style>
@@ -25,26 +25,24 @@
       align-items: center;
       justify-content: space-between;
       padding: 0 15px;
-      gap: 20px;
+      gap: 15px;
       position: fixed;
       top: 0; left: 0;
-      z-index: 999;
+      transition: background 0.3s ease;
     }
 
-    /* BLOCO 1: Cabeçalho (Data/Hora) */
+    /* BLOCO 1: Relógio */
     .block-clock {
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
       flex-shrink: 0;
-      min-width: fit-content;
     }
     #lineNow {
-      font-size: clamp(1.2rem, 4vh, 2rem);
+      font-size: clamp(1rem, 3.5vh, 1.8rem);
       font-weight: 800;
       font-variant-numeric: tabular-nums;
-      letter-spacing: -0.02em;
     }
     .clock-meta {
       display: flex;
@@ -53,10 +51,10 @@
       padding-left: 10px;
       line-height: 1.1;
     }
-    #lineWeekday { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.8); }
-    #lineDate { font-size: 0.65rem; color: rgba(255,255,255,0.5); }
+    #lineWeekday { font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.7); }
+    #lineDate { font-size: 0.6rem; color: rgba(255,255,255,0.4); }
 
-    /* BLOCO 2: Contador Regressivo */
+    /* BLOCO 2: Timer */
     .block-timer {
       display: flex;
       flex-direction: column;
@@ -64,21 +62,20 @@
       justify-content: center;
       flex: 2;
       min-width: 0;
-      text-align: center;
     }
     #timer {
-      font-size: clamp(1.8rem, 10vw, 8rem);
+      font-size: clamp(1.5rem, 12vw, 7rem);
       font-weight: 900;
       letter-spacing: -0.05em;
-      line-height: 0.9;
+      line-height: 0.85;
       font-variant-numeric: tabular-nums;
     }
     .progress-wrap {
       width: 100%;
-      max-width: 400px;
-      height: 4px;
+      max-width: 350px;
+      height: 3px;
       background: rgba(255,255,255,0.1);
-      margin-top: 6px;
+      margin-top: 5px;
       border-radius: 2px;
       overflow: hidden;
     }
@@ -87,20 +84,13 @@
       background: #ccff00;
       transition: width 0.5s ease;
     }
-    #alarmMsg {
-      font-size: 0.7rem;
-      font-weight: 800;
-      color: #ffeaa7;
-      margin-top: 4px;
-      display: none;
-    }
 
-    /* BLOCO 3: Campos + Botões */
+    /* BLOCO 3: Controles */
     .block-controls {
       display: flex;
       flex-direction: row;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       flex: 1;
       justify-content: flex-end;
       min-width: fit-content;
@@ -112,32 +102,31 @@
       gap: 6px;
     }
     input {
-      background: rgba(255,255,255,0.1);
+      background: rgba(255,255,255,0.12);
       border: 1px solid rgba(255,255,255,0.15);
       color: #fff;
       border-radius: 6px;
-      height: 34px;
-      padding: 0 10px;
+      height: 32px;
+      padding: 0 8px;
       outline: none;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
     }
-    #taskName { width: clamp(120px, 15vw, 220px); }
-    #targetTime { width: 90px; }
+    #taskName { width: clamp(80px, 12vw, 180px); }
+    #targetTime { width: 85px; }
 
     button {
-      height: 34px;
+      height: 32px;
       border-radius: 6px;
       border: none;
       font-weight: 700;
       cursor: pointer;
-      padding: 0 15px;
-      font-size: 0.75rem;
-      transition: opacity 0.2s;
+      padding: 0 12px;
+      font-size: 0.7rem;
+      white-space: nowrap;
     }
-    button:hover { opacity: 0.8; }
     .btn-start { background: #00b894; color: #fff; }
     .btn-done { background: #0984e3; color: #fff; display: none; }
-    .btn-reset { background: rgba(255,255,255,0.15); color: #fff; width: 34px; padding: 0; }
+    .btn-reset { background: rgba(255,255,255,0.2); color: #fff; width: 32px; padding: 0; }
 
     .sep {
       width: 1px;
@@ -146,16 +135,45 @@
       flex-shrink: 0;
     }
 
-    /* Estados de Alerta */
-    #barra.running { background: #111; }
-    #barra.warning { background: #e67e22; } /* Laranja */
-    #barra.overtime { background: #c0392b; animation: blink 0.5s infinite alternate; } /* Vermelho */
-    @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
+    /* Estados */
+    #barra.warning { background: #d35400; }
+    #barra.overtime { background: #c0392b; animation: blink 0.5s infinite alternate; }
+    @keyframes blink { from { opacity: 1; } to { opacity: 0.8; } }
+    #alarmMsg { font-size: 0.6rem; font-weight: 800; color: #ffeaa7; display: none; margin-top: 2px; }
 
-    /* Responsividade Celular */
-    @media (max-width: 750px) {
-      .block-clock { display: none; }
+    /* RESPONSIVIDADE AGRESSIVA (Stacked on Mobile) */
+    @media (max-width: 780px) {
+      #barra {
+        flex-direction: column;
+        justify-content: center;
+        gap: 20px;
+        padding: 20px;
+      }
+      .block-clock { flex-direction: column; text-align: center; gap: 4px; }
+      .clock-meta { border-left: none; padding-left: 0; align-items: center; }
       .sep { display: none; }
+      
+      .block-timer { flex: none; width: 100%; order: -1; } /* Timer no topo no celular */
+      #timer { font-size: clamp(3.5rem, 25vw, 6rem); }
+      
+      .block-controls {
+        flex: none;
+        width: 100%;
+        flex-direction: column;
+        gap: 12px;
+        align-items: center;
+        justify-content: center;
+      }
+      .ctrl-row { width: 100%; justify-content: center; }
+      #taskName { width: 100%; max-width: 250px; }
+      #targetTime { width: 100px; }
+    }
+    
+    /* Caso a janela seja muito curta (Desktop Bar mode) mas larga */
+    @media (max-height: 200px) and (min-width: 781px) {
+      .clock-meta { display: none; }
+      #timer { font-size: clamp(1.5rem, 6vw, 3rem); }
+      input, button { height: 28px; font-size: 0.7rem; }
     }
   </style>
 </head>
@@ -232,7 +250,6 @@
     const now = new Date();
     const diff = targetDate - now;
 
-    // Barra de progresso baseada no dia (09:00 até target)
     const base = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0);
     if (base > targetDate) base.setDate(base.getDate() - 1);
     const total = targetDate - base;
