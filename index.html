@@ -13,6 +13,7 @@
       height: 100dvh;
       overflow: hidden;
       background: #111;
+      color: #f0f0f0;
       font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Arial, sans-serif;
     }
 
@@ -22,174 +23,148 @@
       display: flex;
       flex-direction: row;
       align-items: center;
-      justify-content: space-evenly;
-      background: #111;
-      color: #f0f0f0;
+      justify-content: space-between;
+      padding: 0 15px;
+      gap: 20px;
       position: fixed;
-      top: 0;
-      left: 0;
-      overflow: hidden;
-      padding: clamp(2px, 1.5vh, 10px);
-      gap: clamp(5px, 2vw, 20px);
+      top: 0; left: 0;
+      z-index: 999;
     }
 
-    /* Layout vertical apenas em telas realmente estreitas (celular em pé) */
-    @media (max-width: 480px) {
-      #barra { flex-direction: column; justify-content: center; }
-      .sep { display: none; }
-      .block-controls { width: 100% !important; max-width: 100%; }
-      .block-timer { width: 100%; border-bottom: 1px solid rgba(255,255,255,0.05); }
-    }
-
-    /* Ocultar date/relógio em janelas muito baixas para priorizar o timer */
-    @media (max-height: 220px) {
-      .block-clock, .sep { display: none; }
-    }
-
-    /* ── PISCADA AMARELA (running) ── */
-    #barra.running  { animation: pulseYellow 0.9s ease-in-out infinite alternate; }
-    @keyframes pulseYellow { from { background: #111111; } to { background: #e6ac00; } }
-
-    /* ── PISCADA VERMELHA <= 30min ── */
-    #barra.warning  { animation: pulseWarn 0.6s ease-in-out infinite alternate; }
-    @keyframes pulseWarn { from { background: #2a0000; } to { background: #7a0000; } }
-
-    /* ── OVERTIME ── */
-    #barra.overtime { animation: pulseRed 0.4s ease-in-out infinite alternate; }
-    @keyframes pulseRed { from { background: #7a0000; } to { background: #ee0000; } }
-
-    /* ── SEPARADOR ── */
-    .sep {
-      width: 1px;
-      height: 58%;
-      background: rgba(255,255,255,0.1);
-      flex-shrink: 0;
-    }
-
-    /* ── RELÓGIO ── */
+    /* BLOCO 1: Cabeçalho (Data/Hora) */
     .block-clock {
       display: flex;
-      flex-direction: column;
+      flex-direction: row;
       align-items: center;
-      justify-content: center;
-      padding: 0 clamp(10px, 2vw, 28px);
+      gap: 12px;
       flex-shrink: 0;
-      gap: 2px;
+      min-width: fit-content;
     }
     #lineNow {
-      font-size: clamp(1.2rem, 3.5vw, 2.2rem);
-      font-weight: 900;
-      letter-spacing: -1px;
-      line-height: 1;
+      font-size: clamp(1.2rem, 4vh, 2rem);
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
     }
-    .clock-meta { display: flex; gap: 6px; align-items: center; }
-    #lineWeekday { font-size: clamp(0.45rem, 1vw, 0.65rem); font-weight: 700; color: rgba(255,255,255,0.65); }
-    #lineDate    { font-size: clamp(0.45rem, 1vw, 0.65rem); color: rgba(255,255,255,0.4); }
+    .clock-meta {
+      display: flex;
+      flex-direction: column;
+      border-left: 1px solid rgba(255,255,255,0.2);
+      padding-left: 10px;
+      line-height: 1.1;
+    }
+    #lineWeekday { font-size: 0.75rem; font-weight: 600; color: rgba(255,255,255,0.8); }
+    #lineDate { font-size: 0.65rem; color: rgba(255,255,255,0.5); }
 
-    /* ── TIMER ── */
+    /* BLOCO 2: Contador Regressivo */
     .block-timer {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex: 1.5;
+      flex: 2;
       min-width: 0;
-      gap: 4px;
-      padding: 0;
-      position: relative;
-      z-index: 1;
+      text-align: center;
     }
     #timer {
-      font-size: clamp(1.5rem, min(18vw, 55vh), 12rem);
+      font-size: clamp(1.8rem, 10vw, 8rem);
       font-weight: 900;
       letter-spacing: -0.05em;
-      line-height: 0.85;
+      line-height: 0.9;
+      font-variant-numeric: tabular-nums;
     }
     .progress-wrap {
-      width: 80%;
-      height: clamp(2px, 0.5vh, 4px);
-      background: rgba(255,255,255,0.12);
-      border-radius: 3px;
+      width: 100%;
+      max-width: 400px;
+      height: 4px;
+      background: rgba(255,255,255,0.1);
+      margin-top: 6px;
+      border-radius: 2px;
       overflow: hidden;
     }
     .progress-bar {
-      height: 100%;
-      width: 0%;
+      height: 100%; width: 0%;
       background: #ccff00;
-      box-shadow: 0 0 6px #ccff00;
-      transition: width 0.6s ease;
+      transition: width 0.5s ease;
     }
     #alarmMsg {
-      font-size: clamp(0.5rem, 1.2vw, 0.72rem);
-      font-weight: 900;
+      font-size: 0.7rem;
+      font-weight: 800;
       color: #ffeaa7;
+      margin-top: 4px;
       display: none;
-      letter-spacing: 1px;
     }
 
-    /* ── CONTROLES ── */
+    /* BLOCO 3: Campos + Botões */
     .block-controls {
       display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: center;
+      flex-direction: row;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      justify-content: flex-end;
+      min-width: fit-content;
+    }
+    .ctrl-row {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
       gap: 6px;
-      padding: 0;
-      flex: 1;
-      max-width: 320px;
-      min-width: 140px;
     }
-    .ctrl-row { display: flex; gap: 6px; align-items: center; }
-    .ctrl-row input[type="text"] {
-      flex: 1;
-      height: clamp(22px, 3.5vh, 30px);
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.08);
-      color: #f0f0f0;
-      font-size: clamp(0.55rem, 1.2vw, 0.76rem);
-      padding: 0 8px;
-      outline: none;
-    }
-    .ctrl-row input[type="time"] {
-      width: clamp(70px, 7vw, 90px);
-      height: clamp(22px, 3.5vh, 30px);
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.08);
-      color: #f0f0f0;
-      font-size: clamp(0.55rem, 1.2vw, 0.76rem);
-      padding: 0 6px;
-      outline: none;
-      color-scheme: dark;
-    }
-    button {
-      height: clamp(22px, 3.5vh, 30px);
-      border-radius: 6px;
-      font-weight: 800;
-      font-size: clamp(0.5rem, 1.1vw, 0.7rem);
-      cursor: pointer;
-      border: none;
-      letter-spacing: 0.4px;
-      transition: filter 0.15s;
-    }
-    button:active { filter: brightness(1.2); }
-    .btn-start { background: #c0392b; color: #fff; width: 100%; }
-    .btn-done  { background: #0984e3; color: #fff; width: 100%; display: none; }
-    .btn-reset {
+    input {
       background: rgba(255,255,255,0.1);
-      color: rgba(255,255,255,0.6);
-      width: clamp(24px, 3vh, 30px);
+      border: 1px solid rgba(255,255,255,0.15);
+      color: #fff;
+      border-radius: 6px;
+      height: 34px;
+      padding: 0 10px;
+      outline: none;
+      font-size: 0.85rem;
+    }
+    #taskName { width: clamp(120px, 15vw, 220px); }
+    #targetTime { width: 90px; }
+
+    button {
+      height: 34px;
+      border-radius: 6px;
+      border: none;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0 15px;
+      font-size: 0.75rem;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.8; }
+    .btn-start { background: #00b894; color: #fff; }
+    .btn-done { background: #0984e3; color: #fff; display: none; }
+    .btn-reset { background: rgba(255,255,255,0.15); color: #fff; width: 34px; padding: 0; }
+
+    .sep {
+      width: 1px;
+      height: 30px;
+      background: rgba(255,255,255,0.15);
       flex-shrink: 0;
-      font-size: clamp(0.7rem, 1.5vh, 0.9rem);
+    }
+
+    /* Estados de Alerta */
+    #barra.running { background: #111; }
+    #barra.warning { background: #e67e22; } /* Laranja */
+    #barra.overtime { background: #c0392b; animation: blink 0.5s infinite alternate; } /* Vermelho */
+    @keyframes blink { from { opacity: 1; } to { opacity: 0.7; } }
+
+    /* Responsividade Celular */
+    @media (max-width: 750px) {
+      .block-clock { display: none; }
+      .sep { display: none; }
     }
   </style>
 </head>
 <body>
-<div id="barra">
 
+<div id="barra">
+  <!-- BLOCO 1 -->
   <div class="block-clock">
-    <div id="lineNow">--:--</div>
+    <div id="lineNow">00:00</div>
     <div class="clock-meta">
       <span id="lineWeekday">...</span>
       <span id="lineDate">...</span>
@@ -198,6 +173,7 @@
 
   <div class="sep"></div>
 
+  <!-- BLOCO 2 -->
   <div class="block-timer">
     <div id="timer">00:00:00</div>
     <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
@@ -206,61 +182,60 @@
 
   <div class="sep"></div>
 
+  <!-- BLOCO 3 -->
   <div class="block-controls">
     <div class="ctrl-row">
-      <input type="text" id="taskName" placeholder="Nome da tarefa…">
+      <input type="text" id="taskName" placeholder="O que está fazendo?">
       <input type="time" id="targetTime">
     </div>
     <div class="ctrl-row">
-      <button id="btnStart" class="btn-start" onclick="startTimer()">▶ INICIAR</button>
-      <button id="btnDone"  class="btn-done"  onclick="finishTask()">✓ CONCLUIR</button>
-      <button class="btn-reset" onclick="resetTimer()" title="Resetar">↺</button>
+      <button id="btnStart" class="btn-start" onclick="startTimer()">INICIAR</button>
+      <button id="btnDone" class="btn-done" onclick="finishTask()">CONCLUIR</button>
+      <button class="btn-reset" onclick="resetTimer()">↺</button>
     </div>
   </div>
-
 </div>
 
-<audio id="alarmSound" src="https://www.soundjay.com/buttons/sounds/button-35.mp3" onended="checkRepeat()"></audio>
+<audio id="alarmSound" src="https://www.soundjay.com/buttons/sounds/button-35.mp3"></audio>
 
 <script>
-  /* RELÓGIO */
   function updateClock() {
     const now = new Date();
-    document.getElementById('lineNow').textContent =
-      now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    document.getElementById('lineNow').textContent = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     const wd = now.toLocaleDateString('pt-BR', { weekday: 'long' });
     document.getElementById('lineWeekday').textContent = wd.charAt(0).toUpperCase() + wd.slice(1);
-    const d  = String(now.getDate()).padStart(2,'0');
-    const m  = String(now.getMonth()+1).padStart(2,'0');
-    const ms = now.toLocaleDateString('pt-BR',{month:'short'}).replace('.','');
-    document.getElementById('lineDate').textContent = d+'/'+m+' ('+ms.charAt(0).toUpperCase()+ms.slice(1)+'.)';
+    const d = String(now.getDate()).padStart(2, '0');
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    document.getElementById('lineDate').textContent = d + '/' + m;
   }
   setInterval(updateClock, 1000); updateClock();
 
-  /* TIMER */
+  let interval, targetDate;
   const barra = document.getElementById('barra');
-  let interval, targetDate, playCount = 0;
 
   function startTimer() {
     const val = document.getElementById('targetTime').value;
     if (!val) return;
-    const now = new Date();
     const [h, m] = val.split(':').map(Number);
+    const now = new Date();
     targetDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
     if (targetDate <= now) targetDate.setDate(targetDate.getDate() + 1);
+
     document.getElementById('btnStart').style.display = 'none';
-    document.getElementById('btnDone').style.display  = 'block';
-    barra.className = 'running';
+    document.getElementById('btnDone').style.display = 'block';
+    
     clearInterval(interval);
     interval = setInterval(tick, 1000); tick();
   }
 
   function tick() {
-    const now  = new Date();
+    const now = new Date();
     const diff = targetDate - now;
+
+    // Barra de progresso baseada no dia (09:00 até target)
     const base = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0);
     if (base > targetDate) base.setDate(base.getDate() - 1);
-    const total   = targetDate - base;
+    const total = targetDate - base;
     const elapsed = now - base;
     const pct = Math.max(0, Math.min(100, (elapsed / total) * 100));
     document.getElementById('progressBar').style.width = pct + '%';
@@ -270,15 +245,16 @@
       document.getElementById('timer').textContent = '00:00:00';
       document.getElementById('alarmMsg').style.display = 'block';
       barra.className = 'overtime';
-      playCount = 0; playAlarm(); return;
+      document.getElementById('alarmSound').play();
+      return;
     }
 
     const mins = diff / 60000;
     barra.className = mins <= 30 ? 'warning' : 'running';
 
-    const hh = String(Math.floor(diff / 3600000)).padStart(2,'0');
-    const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2,'0');
-    const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2,'0');
+    const hh = String(Math.floor(diff / 3600000)).padStart(2, '0');
+    const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
+    const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
     document.getElementById('timer').textContent = hh + ':' + mm + ':' + ss;
   }
 
@@ -286,21 +262,13 @@
 
   function resetTimer() {
     clearInterval(interval);
-    const s = document.getElementById('alarmSound'); s.pause(); s.currentTime = 0;
+    document.getElementById('alarmSound').pause();
     document.getElementById('timer').textContent = '00:00:00';
     document.getElementById('progressBar').style.width = '0%';
     document.getElementById('btnStart').style.display = 'block';
-    document.getElementById('btnDone').style.display  = 'none';
+    document.getElementById('btnDone').style.display = 'none';
     document.getElementById('alarmMsg').style.display = 'none';
     barra.className = '';
-  }
-
-  function playAlarm() {
-    if (playCount < 3) document.getElementById('alarmSound').play().catch(()=>{});
-  }
-  function checkRepeat() {
-    playCount++;
-    if (playCount < 3) setTimeout(() => { document.getElementById('alarmSound').currentTime = 0; playAlarm(); }, 200);
   }
 </script>
 </body>
