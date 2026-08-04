@@ -130,6 +130,10 @@
     notificationUpdateInFlight = true;
     try {
       const registration = await navigator.serviceWorker.ready;
+      // Alguns navegadores não substituem corretamente uma notificação com a mesma tag.
+      // Fecha apenas a versão anterior para publicar a atualização do minuto.
+      const previous = await registration.getNotifications({ tag: NOTIFICATION_TAG });
+      previous.forEach((notification) => notification.close());
       await registration.showNotification('⏱️ Contador ativo', {
         body: text,
         tag: NOTIFICATION_TAG,
