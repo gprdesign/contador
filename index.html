@@ -104,6 +104,7 @@
   setInterval(updateClock, 1000); updateClock();
 
   let interval, targetDate;
+  const TIMER_STORAGE_KEY = 'contador-active-timer';
   const barra = document.getElementById('barra');
 
   function startTimer() {
@@ -116,12 +117,12 @@
 
     document.getElementById('btnStart').style.display = 'none';
     document.getElementById('btnDone').style.display = 'block';
-    
+    saveTimerState();
     clearInterval(interval);
     interval = setInterval(tick, 1000); tick();
   }
 
-  function tick() {
+  function tick(playAlarm = true) {
     const now = new Date();
     const diff = targetDate - now;
 
@@ -137,7 +138,7 @@
       document.getElementById('timer').textContent = '00:00:00';
       document.getElementById('alarmMsg').style.display = 'block';
       barra.className = 'overtime';
-      document.getElementById('alarmSound').play();
+      if (playAlarm) document.getElementById('alarmSound').play();
       return;
     }
 
@@ -164,7 +165,39 @@
     document.getElementById('btnDone').style.display = 'none';
     document.getElementById('alarmMsg').style.display = 'none';
     barra.className = '';
+    localStorage.removeItem(TIMER_STORAGE_KEY);
   }
+
+  function saveTimerState() {
+    if (!targetDate) return;
+    localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify({
+      targetDate: targetDate.getTime(),
+      targetTime: document.getElementById('targetTime').value,
+      taskName: document.getElementById('taskName').value
+    }));
+  }
+
+  function restoreTimerState() {
+    const saved = localStorage.getItem(TIMER_STORAGE_KEY);
+    if (!saved) return;
+    try {
+      const state = JSON.parse(saved);
+      if (!state.targetDate) return;
+      targetDate = new Date(state.targetDate);
+      document.getElementById('targetTime').value = state.targetTime || '';
+      document.getElementById('taskName').value = state.taskName || '';
+      document.getElementById('btnStart').style.display = 'none';
+      document.getElementById('btnDone').style.display = 'block';
+      tick(false);
+      if (targetDate > new Date()) interval = setInterval(() => tick(false), 1000);
+    } catch (error) {
+      localStorage.removeItem(TIMER_STORAGE_KEY);
+    }
+  }
+
+  document.getElementById('taskName').addEventListener('input', saveTimerState);
+  document.getElementById('targetTime').addEventListener('change', saveTimerState);
+  restoreTimerState();
 
   async function refreshPage() {
     try {
