@@ -27,7 +27,6 @@ self.addEventListener('fetch', (event) => {
 
 
 self.addEventListener('notificationclick', (event) => {
-  event.notification.close();
   event.waitUntil(
     clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       const current = clientList.find((client) => client.url.startsWith(self.registration.scope));
