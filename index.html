@@ -24,7 +24,7 @@
     .block-timer { grid-area:timer; min-width:0; min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:clamp(24px,4vw,56px); border-color:rgba(56,189,248,.28); background:linear-gradient(145deg,rgba(56,189,248,.13),rgba(129,140,248,.08) 55%,rgba(20,30,52,.62)); box-shadow:0 30px 90px rgba(56,189,248,.11),inset 0 1px rgba(255,255,255,.1); }
     #timer { width:100%; text-align:center; font-size:clamp(4rem,10vw,10rem); font-weight:900; line-height:.9; letter-spacing:-.025em; font-weight:750; font-variant-numeric:tabular-nums; text-shadow:0 0 18px rgba(56,189,248,.10); white-space:nowrap; }
     .progress-wrap { width:min(100%,520px); height:5px; background:rgba(255,255,255,.1); margin-top:22px; border-radius:99px; overflow:hidden; }
-    .progress-bar { height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--violet)); box-shadow:0 0 15px rgba(56,189,248,.75); transition:width .5s ease; }
+    .progress-bar { height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--violet)); box-shadow:0 0 18px rgba(56,189,248,.95); transition:width .5s ease; animation:progressPulse .8s ease-in-out infinite; }
     .block-controls { grid-area:controls; display:flex; flex-direction:column; align-items:stretch; justify-content:center; gap:14px; padding:clamp(22px,3vw,34px); }
     .ctrl-row { display:flex; align-items:center; gap:8px; width:100%; }
     input { width:100%; height:44px; background:rgba(15,23,42,.65); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:12px; padding:0 12px; outline:none; font:inherit; font-size:.82rem; }
@@ -32,7 +32,7 @@
     button { height:44px; border-radius:12px; border:1px solid transparent; font-weight:800; cursor:pointer; padding:0 16px; font-size:.75rem; white-space:nowrap; transition:transform .2s,filter .2s; }
     button:hover { transform:translateY(-2px); filter:brightness(1.1); } .btn-start { flex:1; background:linear-gradient(135deg,#22c55e,#0ea5a4); color:#fff; } .btn-done { flex:1; background:linear-gradient(135deg,#38bdf8,#6366f1); color:#fff; display:none; } .btn-reset { background:rgba(255,255,255,.1); color:#fff; width:44px; padding:0; flex-shrink:0; border-color:rgba(255,255,255,.12); } .btn-refresh { width:100%; background:rgba(255,255,255,.06); color:#cbd5e1; border-color:rgba(255,255,255,.12); }
     .sep { display:none; } #alarmMsg { font-size:.75rem; font-weight:800; color:#fde68a; display:none; margin-top:12px; }
-    #barra.warning .block-timer { border-color:rgba(245,158,11,.7); box-shadow:0 0 70px rgba(245,158,11,.14),inset 0 1px rgba(255,255,255,.1); } #barra.overtime .block-timer { border-color:rgba(239,68,68,.75); box-shadow:0 0 80px rgba(239,68,68,.2),inset 0 1px rgba(255,255,255,.1); animation:blink .5s infinite alternate; } @keyframes blink { from{opacity:1} to{opacity:.82} }
+    #barra.warning .block-timer { border-color:rgba(245,158,11,.7); box-shadow:0 0 70px rgba(245,158,11,.14),inset 0 1px rgba(255,255,255,.1); } #barra.overtime .block-timer { border-color:rgba(239,68,68,.75); box-shadow:0 0 80px rgba(239,68,68,.2),inset 0 1px rgba(255,255,255,.1); animation:blink .5s infinite alternate; } @keyframes blink { from{opacity:1} to{opacity:.82} } @keyframes progressPulse { 0%,100%{opacity:.45;filter:brightness(.85);box-shadow:0 0 8px rgba(56,189,248,.45)} 50%{opacity:1;filter:brightness(1.55);box-shadow:0 0 24px rgba(56,189,248,1),0 0 42px rgba(129,140,248,.65)} }
     @media (max-width:1050px) { #barra { grid-template-columns:1fr 1.4fr; grid-template-areas:'clock clock' 'timer controls'; } .block-clock { min-height:150px; flex-direction:row; align-items:center; justify-content:space-between; } .block-timer { min-height:300px; } #timer { font-size:clamp(4rem,11vw,7rem); } }
     @media (max-width:650px) { #barra { min-height:100dvh; grid-template-columns:1fr; grid-template-rows:auto minmax(290px,1fr) auto; grid-template-areas:'clock' 'timer' 'controls'; align-content:stretch; gap:14px; padding:14px 12px 18px; } .block-clock,.block-timer,.block-controls { border-radius:18px; } .block-clock { min-height:86px; padding:20px 22px; flex-direction:row; align-items:center; justify-content:space-between; gap:14px; } #lineNow { font-size:clamp(2.4rem,14vw,3.5rem); } .clock-meta { padding-left:10px; gap:3px; } #lineWeekday { font-size:.86rem; } #lineDate { font-size:.76rem; } .block-timer { min-height:290px; padding:34px 12px; } #timer { font-size:clamp(3.8rem,19vw,6rem); } .progress-wrap { margin-top:16px; } .block-controls { padding:20px; gap:12px; } .ctrl-row { gap:10px; } input { height:48px; font-size:.95rem; } button { height:48px; font-size:.8rem; } #targetTime { width:116px; } }
     @media (max-height:500px) and (min-width:651px) { #barra { padding:12px 20px; gap:12px; } .block-clock,.block-timer,.block-controls { min-height:0; padding:18px; } #timer { font-size:clamp(3rem,8vw,6rem); } }
@@ -131,10 +131,13 @@
     const mins = diff / 60000;
     barra.className = mins <= 30 ? 'warning' : 'running';
 
-    const hh = String(Math.floor(diff / 3600000)).padStart(2, '0');
-    const mm = String(Math.floor((diff % 3600000) / 60000)).padStart(2, '0');
-    const ss = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
-    document.getElementById('timer').textContent = hh + ':' + mm + ':' + ss;
+    const hours = Math.floor(diff / 3600000);
+    const minutes = Math.floor((diff % 3600000) / 60000);
+    const seconds = String(Math.floor((diff % 60000) / 1000)).padStart(2, '0');
+    const display = hours > 0
+      ? String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + seconds
+      : String(minutes) + ':' + seconds;
+    document.getElementById('timer').textContent = display;
   }
 
   function finishTask() { resetTimer(); }
