@@ -11,250 +11,31 @@
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⏱️</text></svg>">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html, body {
-      width: 100%;
-      height: 100dvh;
-      overflow: hidden;
-      background: #111;
-      color: #f0f0f0;
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Arial, sans-serif;
-    }
-
-    #barra {
-      width: 100%;
-      min-height: 100dvh;
-      display: grid;
-      grid-template-columns: minmax(150px, 1fr) minmax(280px, 2fr) minmax(280px, 1.5fr);
-      grid-template-areas: "clock timer controls";
-      align-items: center;
-      gap: clamp(20px, 4vw, 60px);
-      padding: clamp(20px, 4vw, 60px);
-      transition: background 0.3s ease;
-    }
-
-    /* BLOCO 1: Relógio */
-    .block-clock {
-      grid-area: clock;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      min-width: 0;
-    }
-    #lineNow {
-      font-size: clamp(1rem, 3.5vh, 1.8rem);
-      font-weight: 800;
-      font-variant-numeric: tabular-nums;
-    }
-    .clock-meta {
-      display: flex;
-      flex-direction: column;
-      border-left: 1px solid rgba(255,255,255,0.2);
-      padding-left: 10px;
-      line-height: 1.1;
-    }
-    #lineWeekday { font-size: 0.7rem; font-weight: 600; color: rgba(255,255,255,0.7); }
-    #lineDate { font-size: 0.6rem; color: rgba(255,255,255,0.4); }
-
-    /* BLOCO 2: Timer */
-    .block-timer {
-      grid-area: timer;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-width: 0;
-    }
-    #timer {
-      font-size: clamp(1.5rem, 12vw, 7rem);
-      font-weight: 900;
-      letter-spacing: -0.05em;
-      line-height: 0.85;
-      font-variant-numeric: tabular-nums;
-    }
-    .progress-wrap {
-      width: 100%;
-      max-width: 350px;
-      height: 3px;
-      background: rgba(255,255,255,0.1);
-      margin-top: 5px;
-      border-radius: 2px;
-      overflow: hidden;
-    }
-    .progress-bar {
-      height: 100%; width: 0%;
-      background: #ccff00;
-      transition: width 0.5s ease;
-    }
-
-    /* BLOCO 3: Controles */
-    .block-controls {
-      grid-area: controls;
-      display: flex;
-      flex-direction: column;
-      align-items: stretch;
-      justify-content: center;
-      gap: 12px;
-      min-width: 0;
-    }
-    .ctrl-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 6px;
-    }
-    input {
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.15);
-      color: #fff;
-      border-radius: 6px;
-      height: 32px;
-      padding: 0 8px;
-      outline: none;
-      font-size: 0.8rem;
-    }
-    #taskName { width: clamp(80px, 12vw, 180px); }
-    #targetTime { width: 85px; }
-
-    button {
-      height: 32px;
-      border-radius: 6px;
-      border: none;
-      font-weight: 700;
-      cursor: pointer;
-      padding: 0 12px;
-      font-size: 0.7rem;
-      white-space: nowrap;
-    }
-    .btn-start { background: #00b894; color: #fff; }
-    .btn-done { background: #0984e3; color: #fff; display: none; }
-    .btn-reset { background: rgba(255,255,255,0.2); color: #fff; width: 32px; padding: 0; }
-
-    .sep {
-      display: none;
-    }
-
-    /* Estados */
-    #barra.warning { background: #d35400; }
-    #barra.overtime { background: #c0392b; animation: blink 0.5s infinite alternate; }
-    @keyframes blink { from { opacity: 1; } to { opacity: 0.8; } }
-    #alarmMsg { font-size: 0.6rem; font-weight: 800; color: #ffeaa7; display: none; margin-top: 2px; }
-
-    /* Layout responsivo: desktop, tablet e celular */
-    @media (max-width: 1100px) {
-      #barra {
-        grid-template-columns: 1fr 1fr;
-        grid-template-areas:
-          "clock clock"
-          "timer controls";
-        gap: 24px 36px;
-      }
-
-      #timer {
-        font-size: clamp(4rem, 14vw, 7rem);
-      }
-
-      .block-clock {
-        justify-content: center;
-      }
-
-      .block-controls {
-        width: 100%;
-      }
-
-      .ctrl-row {
-        width: 100%;
-      }
-
-      #taskName {
-        flex: 1;
-        width: auto;
-        min-width: 0;
-      }
-    }
-
-    @media (max-width: 600px) {
-      #barra {
-        min-height: 100dvh;
-        grid-template-columns: 1fr;
-        grid-template-areas:
-          "clock"
-          "timer"
-          "controls";
-        align-content: start;
-        gap: 18px;
-        padding: 28px 16px 20px;
-      }
-
-      #timer {
-        width: 100%;
-        text-align: center;
-        font-size: clamp(3rem, 17vw, 5rem);
-        letter-spacing: -0.07em;
-      }
-
-      .progress-wrap {
-        width: min(100%, 330px);
-      }
-
-      .block-clock {
-        flex-direction: column;
-        gap: 5px;
-        text-align: center;
-      }
-
-      .clock-meta {
-        border-left: none;
-        padding-left: 0;
-        align-items: center;
-      }
-
-      .block-controls {
-        width: 100%;
-        max-width: 420px;
-        margin: 0 auto;
-      }
-
-      .ctrl-row {
-        display: flex;
-        width: 100%;
-        gap: 8px;
-      }
-
-      #taskName {
-        flex: 1;
-        width: auto;
-        min-width: 0;
-      }
-
-      #targetTime {
-        width: 105px;
-        flex-shrink: 0;
-      }
-
-      button {
-        flex: 1;
-      }
-
-      .btn-reset {
-        flex: 0 0 38px;
-      }
-    }
-
-    /* Janelas desktop muito baixas */
-    @media (max-height: 200px) and (min-width: 1101px) {
-      #barra {
-        min-height: 100dvh;
-        padding: 12px 20px;
-        gap: 20px;
-      }
-
-      .clock-meta { display: none; }
-      #timer { font-size: clamp(1.5rem, 6vw, 3rem); }
-      input, button { height: 28px; font-size: 0.7rem; }
-    }
+    :root { --bg:#0b1120; --panel:rgba(20,30,52,.58); --line:rgba(255,255,255,.11); --muted:#94a3b8; --cyan:#38bdf8; --violet:#818cf8; }
+    html,body { width:100%; min-height:100%; background:var(--bg); color:#f8fafc; font-family:Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+    body { min-height:100dvh; overflow-x:hidden; background:radial-gradient(ellipse at 15% 20%,rgba(56,189,248,.13),transparent 38%),radial-gradient(ellipse at 85% 80%,rgba(129,140,248,.12),transparent 40%),linear-gradient(135deg,#0b1120 0%,#111827 50%,#0b1120 100%); }
+    #barra { width:100%; min-height:100dvh; display:grid; grid-template-columns:minmax(210px,.8fr) minmax(390px,1.8fr) minmax(300px,1fr); grid-template-areas:'clock timer controls'; align-items:stretch; gap:clamp(14px,2vw,28px); padding:clamp(16px,3vw,42px); transition:background .3s ease; position:relative; isolation:isolate; }
+    #barra::before { content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(120deg,rgba(255,255,255,.025),transparent 45%,rgba(255,255,255,.02)); z-index:-1; }
+    .block-clock,.block-timer,.block-controls { background:var(--panel); border:1px solid var(--line); border-radius:24px; backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); box-shadow:0 24px 70px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.05); }
+    .block-clock { grid-area:clock; display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-start; gap:18px; padding:clamp(22px,3vw,34px); }
+    #lineNow { font-size:clamp(2.2rem,4vw,4.4rem); line-height:.95; font-weight:800; letter-spacing:-.07em; font-variant-numeric:tabular-nums; color:#f8fafc; }
+    .clock-meta { display:flex; flex-direction:column; gap:5px; border-left:2px solid var(--cyan); padding-left:14px; line-height:1.2; }
+    #lineWeekday { font-size:1rem; font-weight:700; color:#e2e8f0; } #lineDate { font-size:.85rem; color:var(--muted); }
+    .block-timer { grid-area:timer; min-width:0; min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:clamp(24px,4vw,56px); border-color:rgba(56,189,248,.28); background:linear-gradient(145deg,rgba(56,189,248,.13),rgba(129,140,248,.08) 55%,rgba(20,30,52,.62)); box-shadow:0 30px 90px rgba(56,189,248,.11),inset 0 1px rgba(255,255,255,.1); }
+    #timer { width:100%; text-align:center; font-size:clamp(4rem,10vw,10rem); font-weight:900; line-height:.9; letter-spacing:-.085em; font-variant-numeric:tabular-nums; text-shadow:0 0 35px rgba(56,189,248,.18); white-space:nowrap; }
+    .progress-wrap { width:min(100%,520px); height:5px; background:rgba(255,255,255,.1); margin-top:22px; border-radius:99px; overflow:hidden; }
+    .progress-bar { height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--violet)); box-shadow:0 0 15px rgba(56,189,248,.75); transition:width .5s ease; }
+    .block-controls { grid-area:controls; display:flex; flex-direction:column; align-items:stretch; justify-content:center; gap:14px; padding:clamp(22px,3vw,34px); }
+    .ctrl-row { display:flex; align-items:center; gap:8px; width:100%; }
+    input { width:100%; height:44px; background:rgba(15,23,42,.65); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:12px; padding:0 12px; outline:none; font:inherit; font-size:.82rem; }
+    input:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(56,189,248,.12); } #targetTime { width:116px; flex-shrink:0; }
+    button { height:44px; border-radius:12px; border:1px solid transparent; font-weight:800; cursor:pointer; padding:0 16px; font-size:.75rem; white-space:nowrap; transition:transform .2s,filter .2s; }
+    button:hover { transform:translateY(-2px); filter:brightness(1.1); } .btn-start { flex:1; background:linear-gradient(135deg,#22c55e,#0ea5a4); color:#fff; } .btn-done { flex:1; background:linear-gradient(135deg,#38bdf8,#6366f1); color:#fff; display:none; } .btn-reset { background:rgba(255,255,255,.1); color:#fff; width:44px; padding:0; flex-shrink:0; border-color:rgba(255,255,255,.12); }
+    .sep { display:none; } #alarmMsg { font-size:.75rem; font-weight:800; color:#fde68a; display:none; margin-top:12px; }
+    #barra.warning .block-timer { border-color:rgba(245,158,11,.7); box-shadow:0 0 70px rgba(245,158,11,.14),inset 0 1px rgba(255,255,255,.1); } #barra.overtime .block-timer { border-color:rgba(239,68,68,.75); box-shadow:0 0 80px rgba(239,68,68,.2),inset 0 1px rgba(255,255,255,.1); animation:blink .5s infinite alternate; } @keyframes blink { from{opacity:1} to{opacity:.82} }
+    @media (max-width:1050px) { #barra { grid-template-columns:1fr 1.4fr; grid-template-areas:'clock clock' 'timer controls'; } .block-clock { min-height:150px; flex-direction:row; align-items:center; justify-content:space-between; } .block-timer { min-height:300px; } #timer { font-size:clamp(4rem,11vw,7rem); } }
+    @media (max-width:650px) { #barra { min-height:100dvh; grid-template-columns:1fr; grid-template-areas:'clock' 'timer' 'controls'; align-content:start; gap:12px; padding:12px; } .block-clock,.block-timer,.block-controls { border-radius:18px; } .block-clock { min-height:0; padding:18px 20px; flex-direction:row; align-items:center; justify-content:space-between; gap:12px; } #lineNow { font-size:clamp(2rem,12vw,3rem); } .clock-meta { padding-left:10px; gap:3px; } #lineWeekday { font-size:.78rem; } #lineDate { font-size:.7rem; } .block-timer { min-height:240px; padding:28px 12px; } #timer { font-size:clamp(3.2rem,17vw,5.2rem); } .progress-wrap { margin-top:16px; } .block-controls { padding:16px; gap:9px; } input,button { height:42px; } #targetTime { width:108px; } }
+    @media (max-height:500px) and (min-width:651px) { #barra { padding:12px 20px; gap:12px; } .block-clock,.block-timer,.block-controls { min-height:0; padding:18px; } #timer { font-size:clamp(3rem,8vw,6rem); } }
   </style>
 </head>
 <body>
