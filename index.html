@@ -22,26 +22,26 @@
     }
 
     #barra {
-      width: 100vw;
-      height: 100dvh;
-      display: flex;
-      flex-direction: row;
+      width: 100%;
+      min-height: 100dvh;
+      display: grid;
+      grid-template-columns: minmax(150px, 1fr) minmax(280px, 2fr) minmax(280px, 1.5fr);
+      grid-template-areas: "clock timer controls";
       align-items: center;
-      justify-content: space-between;
-      padding: 0 15px;
-      gap: 15px;
-      position: fixed;
-      top: 0; left: 0;
+      gap: clamp(20px, 4vw, 60px);
+      padding: clamp(20px, 4vw, 60px);
       transition: background 0.3s ease;
     }
 
     /* BLOCO 1: Relógio */
     .block-clock {
+      grid-area: clock;
       display: flex;
       flex-direction: row;
       align-items: center;
+      justify-content: center;
       gap: 10px;
-      flex-shrink: 0;
+      min-width: 0;
     }
     #lineNow {
       font-size: clamp(1rem, 3.5vh, 1.8rem);
@@ -60,11 +60,11 @@
 
     /* BLOCO 2: Timer */
     .block-timer {
+      grid-area: timer;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      flex: 2;
       min-width: 0;
     }
     #timer {
@@ -91,13 +91,13 @@
 
     /* BLOCO 3: Controles */
     .block-controls {
+      grid-area: controls;
       display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 8px;
-      flex: 1;
-      justify-content: flex-end;
-      min-width: fit-content;
+      flex-direction: column;
+      align-items: stretch;
+      justify-content: center;
+      gap: 12px;
+      min-width: 0;
     }
     .ctrl-row {
       display: flex;
@@ -145,36 +145,111 @@
     @keyframes blink { from { opacity: 1; } to { opacity: 0.8; } }
     #alarmMsg { font-size: 0.6rem; font-weight: 800; color: #ffeaa7; display: none; margin-top: 2px; }
 
-    /* RESPONSIVIDADE AGRESSIVA (Stacked on Mobile) */
-    @media (max-width: 780px) {
+    /* Layout responsivo: desktop, tablet e celular */
+    @media (max-width: 1100px) {
       #barra {
-        flex-direction: column;
-        justify-content: center;
-        gap: 20px;
-        padding: 20px;
+        grid-template-columns: 1fr 1fr;
+        grid-template-areas:
+          "timer timer"
+          "clock controls";
+        gap: 28px;
       }
-      .block-clock { flex-direction: column; text-align: center; gap: 4px; }
-      .clock-meta { border-left: none; padding-left: 0; align-items: center; }
-      .sep { display: none; }
-      
-      .block-timer { flex: none; width: 100%; order: -1; } /* Timer no topo no celular */
-      #timer { font-size: clamp(3.5rem, 25vw, 6rem); }
-      
+
+      #timer {
+        font-size: clamp(4rem, 14vw, 7rem);
+      }
+
       .block-controls {
-        flex: none;
         width: 100%;
-        flex-direction: column;
-        gap: 12px;
-        align-items: center;
-        justify-content: center;
       }
-      .ctrl-row { width: 100%; justify-content: center; }
-      #taskName { width: 100%; max-width: 250px; }
-      #targetTime { width: 100px; }
+
+      .ctrl-row {
+        width: 100%;
+      }
+
+      #taskName {
+        flex: 1;
+        width: auto;
+        min-width: 0;
+      }
     }
-    
-    /* Caso a janela seja muito curta (Desktop Bar mode) mas larga */
-    @media (max-height: 200px) and (min-width: 781px) {
+
+    @media (max-width: 600px) {
+      #barra {
+        min-height: 100dvh;
+        grid-template-columns: 1fr;
+        grid-template-areas:
+          "timer"
+          "clock"
+          "controls";
+        align-content: center;
+        gap: 28px;
+        padding: 24px 16px;
+      }
+
+      #timer {
+        width: 100%;
+        text-align: center;
+        font-size: clamp(3.2rem, 18vw, 5rem);
+        letter-spacing: -0.07em;
+      }
+
+      .progress-wrap {
+        width: min(100%, 330px);
+      }
+
+      .block-clock {
+        flex-direction: column;
+        gap: 5px;
+        text-align: center;
+      }
+
+      .clock-meta {
+        border-left: none;
+        padding-left: 0;
+        align-items: center;
+      }
+
+      .block-controls {
+        width: 100%;
+        max-width: 420px;
+        margin: 0 auto;
+      }
+
+      .ctrl-row {
+        display: flex;
+        width: 100%;
+        gap: 8px;
+      }
+
+      #taskName {
+        flex: 1;
+        width: auto;
+        min-width: 0;
+      }
+
+      #targetTime {
+        width: 105px;
+        flex-shrink: 0;
+      }
+
+      button {
+        flex: 1;
+      }
+
+      .btn-reset {
+        flex: 0 0 38px;
+      }
+    }
+
+    /* Janelas desktop muito baixas */
+    @media (max-height: 200px) and (min-width: 1101px) {
+      #barra {
+        min-height: 100dvh;
+        padding: 12px 20px;
+        gap: 20px;
+      }
+
       .clock-meta { display: none; }
       #timer { font-size: clamp(1.5rem, 6vw, 3rem); }
       input, button { height: 28px; font-size: 0.7rem; }
