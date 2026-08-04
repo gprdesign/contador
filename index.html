@@ -134,7 +134,9 @@
       // Fecha apenas a versão anterior para publicar a atualização do minuto.
       const previous = await registration.getNotifications({ tag: NOTIFICATION_TAG });
       previous.forEach((notification) => notification.close());
-      await registration.showNotification('⏱️ Contador ativo', {
+      const taskTitle = document.getElementById('taskName').value.trim();
+      const notificationTitle = taskTitle ? '⏱️ ' + taskTitle : '⏱️ Contador ativo';
+      await registration.showNotification(notificationTitle, {
         body: text,
         tag: NOTIFICATION_TAG,
         renotify: false,
