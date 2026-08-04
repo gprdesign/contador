@@ -107,6 +107,8 @@
   const TIMER_STORAGE_KEY = 'contador-active-timer';
   let notificationEnabled = false;
   const NOTIFICATION_TAG = 'contador-ativo';
+  let lastNotificationUpdate = 0;
+  let notificationUpdateInFlight = false;
   const barra = document.getElementById('barra');
 
   async function requestNotificationPermission() {
@@ -116,12 +118,15 @@
         ? await Notification.requestPermission()
         : Notification.permission;
       notificationEnabled = permission === 'granted';
-      if (notificationEnabled) updateAndroidNotification('Contador iniciado');
+      if (notificationEnabled) updateAndroidNotification('Contador iniciado', true);
     } catch (error) { notificationEnabled = false; }
   }
 
-  async function updateAndroidNotification(text) {
-    if (!notificationEnabled || !targetDate) return;
+  async function updateAndroidNotification(text, force = false) {
+    if (!notificationEnabled || !targetDate || notificationUpdateInFlight) return;
+    const now = Date.now();
+    if (!force && now - lastNotificationUpdate < 10000) return;
+    notificationUpdateInFlight = true;
     try {
       const registration = await navigator.serviceWorker.ready;
       await registration.showNotification('⏱️ Contador ativo', {
@@ -133,7 +138,9 @@
         icon: 'icon.svg',
         badge: 'icon.svg'
       });
+      lastNotificationUpdate = now;
     } catch (error) { /* navegador pode bloquear atualizacoes em segundo plano */ }
+    finally { notificationUpdateInFlight = false; }
   }
 
   async function closeAndroidNotification() {
