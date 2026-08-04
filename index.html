@@ -107,7 +107,7 @@
   const TIMER_STORAGE_KEY = 'contador-active-timer';
   let notificationEnabled = false;
   const NOTIFICATION_TAG = 'contador-ativo';
-  let lastNotificationUpdate = 0;
+  let lastNotificationMinute = -1;
   let notificationUpdateInFlight = false;
   const barra = document.getElementById('barra');
 
@@ -125,7 +125,8 @@
   async function updateAndroidNotification(text, force = false) {
     if (!notificationEnabled || !targetDate || notificationUpdateInFlight) return;
     const now = Date.now();
-    if (!force && now - lastNotificationUpdate < 10000) return;
+    const currentMinute = Math.floor(now / 60000);
+    if (!force && currentMinute === lastNotificationMinute) return;
     notificationUpdateInFlight = true;
     try {
       const registration = await navigator.serviceWorker.ready;
@@ -138,7 +139,7 @@
         icon: 'icon.svg',
         badge: 'icon.svg'
       });
-      lastNotificationUpdate = now;
+      lastNotificationMinute = currentMinute;
     } catch (error) { /* navegador pode bloquear atualizacoes em segundo plano */ }
     finally { notificationUpdateInFlight = false; }
   }
@@ -197,7 +198,13 @@
       ? String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + seconds
       : String(minutes) + ':' + seconds;
     document.getElementById('timer').textContent = display;
-    updateAndroidNotification('Restam ' + display);
+    const totalMinutes = Math.ceil(diff / 60000);
+    const noticeHours = Math.floor(totalMinutes / 60);
+    const noticeMinutes = totalMinutes % 60;
+    const noticeText = noticeHours > 0
+      ? 'Restam ' + noticeHours + 'h' + (noticeMinutes ? ' ' + noticeMinutes + 'min' : '')
+      : 'Restam ' + (noticeMinutes || 1) + 'min';
+    updateAndroidNotification(noticeText);
   }
 
   function finishTask() { resetTimer(); }
