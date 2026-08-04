@@ -30,7 +30,7 @@
     input { width:100%; height:44px; background:rgba(15,23,42,.65); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:12px; padding:0 12px; outline:none; font:inherit; font-size:.82rem; }
     input:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(56,189,248,.12); } #targetTime { width:116px; flex-shrink:0; text-align:center; }
     button { height:44px; border-radius:12px; border:1px solid transparent; font-weight:800; cursor:pointer; padding:0 16px; font-size:.75rem; white-space:nowrap; transition:transform .2s,filter .2s; }
-    button:hover { transform:translateY(-2px); filter:brightness(1.1); } .btn-start { flex:1; background:linear-gradient(135deg,#22c55e,#0ea5a4); color:#fff; } .btn-done { flex:1; background:linear-gradient(135deg,#38bdf8,#6366f1); color:#fff; display:none; } .btn-reset { background:rgba(255,255,255,.1); color:#fff; width:44px; padding:0; flex-shrink:0; border-color:rgba(255,255,255,.12); }
+    button:hover { transform:translateY(-2px); filter:brightness(1.1); } .btn-start { flex:1; background:linear-gradient(135deg,#22c55e,#0ea5a4); color:#fff; } .btn-done { flex:1; background:linear-gradient(135deg,#38bdf8,#6366f1); color:#fff; display:none; } .btn-reset { background:rgba(255,255,255,.1); color:#fff; width:44px; padding:0; flex-shrink:0; border-color:rgba(255,255,255,.12); } .btn-refresh { width:100%; background:rgba(255,255,255,.06); color:#cbd5e1; border-color:rgba(255,255,255,.12); }
     .sep { display:none; } #alarmMsg { font-size:.75rem; font-weight:800; color:#fde68a; display:none; margin-top:12px; }
     #barra.warning .block-timer { border-color:rgba(245,158,11,.7); box-shadow:0 0 70px rgba(245,158,11,.14),inset 0 1px rgba(255,255,255,.1); } #barra.overtime .block-timer { border-color:rgba(239,68,68,.75); box-shadow:0 0 80px rgba(239,68,68,.2),inset 0 1px rgba(255,255,255,.1); animation:blink .5s infinite alternate; } @keyframes blink { from{opacity:1} to{opacity:.82} }
     @media (max-width:1050px) { #barra { grid-template-columns:1fr 1.4fr; grid-template-areas:'clock clock' 'timer controls'; } .block-clock { min-height:150px; flex-direction:row; align-items:center; justify-content:space-between; } .block-timer { min-height:300px; } #timer { font-size:clamp(4rem,11vw,7rem); } }
@@ -72,6 +72,7 @@
       <button id="btnDone" class="btn-done" onclick="finishTask()">CONCLUIR</button>
       <button class="btn-reset" onclick="resetTimer()">↺</button>
     </div>
+    <button class="btn-refresh" onclick="window.location.reload()">↻ ATUALIZAR PÁGINA</button>
   </div>
 </div>
 
