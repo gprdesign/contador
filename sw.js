@@ -24,3 +24,15 @@ self.addEventListener('fetch', (event) => {
     }).catch(() => caches.match(event.request))
   );
 });
+
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+      const current = clientList.find((client) => client.url.startsWith(self.registration.scope));
+      if (current) return current.focus();
+      return clients.openWindow(new URL('./index.html', self.registration.scope).href);
+    })
+  );
+});
