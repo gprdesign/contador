@@ -72,7 +72,7 @@
       <button id="btnDone" class="btn-done" onclick="finishTask()">CONCLUIR</button>
       <button class="btn-reset" onclick="resetTimer()">↺</button>
     </div>
-    <button class="btn-refresh" onclick="window.location.reload()">↻ ATUALIZAR PÁGINA</button>
+    <button class="btn-refresh" onclick="refreshPage()">↻ ATUALIZAR PÁGINA</button>
   </div>
 </div>
 
@@ -148,6 +148,19 @@
     document.getElementById('btnDone').style.display = 'none';
     document.getElementById('alarmMsg').style.display = 'none';
     barra.className = '';
+  }
+
+  async function refreshPage() {
+    try {
+      if ('serviceWorker' in navigator) {
+        const registrations = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(registrations.map((registration) => registration.unregister()));
+      }
+      if ('caches' in window) {
+        const cacheNames = await caches.keys();
+        await Promise.all(cacheNames.map((name) => caches.delete(name)));
+      }
+    } finally { window.location.reload(); }
   }
 
   // Registra Service Worker para PWA
