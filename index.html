@@ -34,9 +34,9 @@
     .sep { display:none; } #alarmMsg { font-size:.75rem; font-weight:800; color:#fde68a; display:none; margin-top:12px; }
     #barra.warning .block-timer { border-color:rgba(245,158,11,.7); box-shadow:0 0 70px rgba(245,158,11,.14),inset 0 1px rgba(255,255,255,.1); } #barra.overtime .block-timer { border-color:rgba(239,68,68,.75); box-shadow:0 0 80px rgba(239,68,68,.2),inset 0 1px rgba(255,255,255,.1); animation:blink .5s infinite alternate; } @keyframes blink { from{opacity:1} to{opacity:.82} } @keyframes progressPulse { 0%,100%{opacity:.45;filter:brightness(.85);box-shadow:0 0 8px rgba(56,189,248,.45)} 50%{opacity:1;filter:brightness(1.55);box-shadow:0 0 24px rgba(56,189,248,1),0 0 42px rgba(129,140,248,.65)} }
     @media (max-width:1050px) { #barra { grid-template-columns:1fr 1.4fr; grid-template-areas:'clock clock' 'timer controls'; } .block-clock { min-height:150px; flex-direction:row; align-items:center; justify-content:space-between; } .block-timer { min-height:300px; } #timer { font-size:clamp(4rem,11vw,7rem); } }
-    @media (max-width:650px) { #barra { min-height:100dvh; grid-template-columns:1fr; grid-template-rows:auto minmax(0,1fr) auto; grid-template-areas:'clock' 'timer' 'controls'; align-content:stretch; gap:12px; --nav-bottom:max(64px,env(safe-area-inset-bottom,0px)); padding:calc(var(--nav-bottom) / 2) calc(var(--nav-bottom) / 2) calc(var(--nav-bottom) + 16px); } .block-clock,.block-timer,.block-controls { border-radius:18px; } .block-clock { min-height:86px; padding:20px 22px; flex-direction:row; align-items:center; justify-content:space-between; gap:14px; } #lineNow { font-size:clamp(2.4rem,14vw,3.5rem); } .clock-meta { padding-left:10px; gap:3px; } #lineWeekday { font-size:.86rem; } #lineDate { font-size:.76rem; } .block-timer { min-height:0; padding:24px 12px; } #timer { font-size:clamp(3.8rem,19vw,6rem); } .progress-wrap { margin-top:16px; } .block-controls { min-height:0; padding:16px 20px; gap:10px; } .ctrl-row { gap:10px; } input { height:48px; font-size:.95rem; } button { height:48px; font-size:.8rem; } #targetTime { width:116px; } }
+    @media (max-width:650px) { #barra { min-height:100dvh; grid-template-columns:1fr; grid-template-rows:auto minmax(0,1fr) auto; grid-template-areas:'clock' 'timer' 'controls'; align-content:stretch; gap:12px; --nav-bottom:max(64px,env(safe-area-inset-bottom,0px)); padding:calc(var(--nav-bottom) / 2 - 8px) calc(var(--nav-bottom) / 2) calc(var(--nav-bottom) + 16px); } .block-clock,.block-timer,.block-controls { border-radius:18px; } .block-clock { min-height:86px; padding:20px 22px; flex-direction:row; align-items:center; justify-content:space-between; gap:14px; } #lineNow { font-size:clamp(2.4rem,14vw,3.5rem); } .clock-meta { padding-left:10px; gap:3px; } #lineWeekday { font-size:.86rem; } #lineDate { font-size:.76rem; } .block-timer { min-height:0; padding:24px 12px; } #timer { font-size:clamp(3.8rem,19vw,6rem); } .progress-wrap { margin-top:16px; } .block-controls { min-height:0; padding:16px 20px; gap:10px; } .ctrl-row { gap:10px; } input { height:48px; font-size:.95rem; } button { height:48px; font-size:.8rem; } #targetTime { width:116px; } }
     @media (max-height:650px) and (max-width:650px) {
-      #barra { gap:8px; --nav-bottom:max(64px,env(safe-area-inset-bottom,0px)); padding:calc(var(--nav-bottom) / 2) calc(var(--nav-bottom) / 2) calc(var(--nav-bottom) + 16px); }
+      #barra { gap:8px; --nav-bottom:max(64px,env(safe-area-inset-bottom,0px)); padding:calc(var(--nav-bottom) / 2 - 8px) calc(var(--nav-bottom) / 2) calc(var(--nav-bottom) + 16px); }
       .block-clock { min-height:68px; padding:12px 16px; }
       #lineNow { font-size:clamp(1.8rem,10vw,2.6rem); }
       #lineWeekday { font-size:.72rem; } #lineDate { font-size:.65rem; }
@@ -126,11 +126,9 @@
     const now = new Date();
     const diff = targetDate - now;
 
-    const base = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 9, 0, 0);
-    if (base > targetDate) base.setDate(base.getDate() - 1);
-    const total = targetDate - base;
-    const elapsed = now - base;
-    const pct = Math.max(0, Math.min(100, (elapsed / total) * 100));
+    // A barra representa o minuto atual: começa no segundo 0 e termina no 59.
+    const secondOfMinute = now.getSeconds() + (now.getMilliseconds() / 1000);
+    const pct = Math.min(100, (secondOfMinute / 59) * 100);
     document.getElementById('progressBar').style.width = pct + '%';
 
     if (diff <= 0) {
