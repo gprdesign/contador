@@ -147,13 +147,17 @@
       #barra {
         grid-template-columns: 1fr 1fr;
         grid-template-areas:
-          "timer timer"
-          "clock controls";
-        gap: 28px;
+          "clock clock"
+          "timer controls";
+        gap: 24px 36px;
       }
 
       #timer {
         font-size: clamp(4rem, 14vw, 7rem);
+      }
+
+      .block-clock {
+        justify-content: center;
       }
 
       .block-controls {
@@ -176,18 +180,18 @@
         min-height: 100dvh;
         grid-template-columns: 1fr;
         grid-template-areas:
-          "timer"
           "clock"
+          "timer"
           "controls";
-        align-content: center;
-        gap: 28px;
-        padding: 24px 16px;
+        align-content: start;
+        gap: 18px;
+        padding: 28px 16px 20px;
       }
 
       #timer {
         width: 100%;
         text-align: center;
-        font-size: clamp(3.2rem, 18vw, 5rem);
+        font-size: clamp(3rem, 17vw, 5rem);
         letter-spacing: -0.07em;
       }
 
