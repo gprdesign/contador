@@ -135,7 +135,7 @@
       const previous = await registration.getNotifications({ tag: NOTIFICATION_TAG });
       previous.forEach((notification) => notification.close());
       const taskTitle = document.getElementById('taskName').value.trim();
-      const notificationTitle = taskTitle ? '⏱️ ' + taskTitle : '⏱️ Contador ativo';
+      const notificationTitle = taskTitle || 'Contador';
       await registration.showNotification(notificationTitle, {
         body: text,
         tag: NOTIFICATION_TAG,
