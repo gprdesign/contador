@@ -307,7 +307,12 @@
         const cacheNames = await caches.keys();
         await Promise.all(cacheNames.map((name) => caches.delete(name)));
       }
-    } finally { window.location.reload(); }
+    } finally {
+      // Reabre com um parâmetro único para ignorar HTML antigo do navegador/CDN.
+      const url = new URL(window.location.href);
+      url.searchParams.set('v', Date.now().toString());
+      window.location.replace(url.toString());
+    }
   }
 
   // Registra Service Worker para PWA
