@@ -69,6 +69,15 @@
     }
 
     @media (max-height:500px) and (min-width:651px) { #barra { padding:12px 20px; gap:12px; } .block-clock,.block-timer,.block-controls { min-height:0; padding:18px; } #timer { font-size:clamp(3rem,8vw,6rem); } }
+
+    @media (max-width:700px) {
+      .block-timer:fullscreen, .block-timer:-webkit-full-screen { grid-template-columns:1fr; grid-template-rows:auto minmax(0,1fr); gap:12px; padding:12px; }
+      .block-timer:fullscreen .fullscreen-side-panel, .block-timer:-webkit-full-screen .fullscreen-side-panel { grid-column:1; grid-row:1; min-height:0; padding:16px; gap:16px; border-radius:18px; }
+      .block-timer:fullscreen .fullscreen-timer-box, .block-timer:-webkit-full-screen .fullscreen-timer-box { grid-column:1; grid-row:2; min-height:0; padding:16px; border-radius:18px; }
+      .block-timer:fullscreen .fullscreen-clock, .block-timer:-webkit-full-screen .fullscreen-clock { padding-bottom:12px; gap:10px; }
+      .block-timer:fullscreen .fullscreen-clock-now, .block-timer:-webkit-full-screen .fullscreen-clock-now { font-size:clamp(1.5rem,8vw,2.4rem); }
+      .block-timer:fullscreen #fullscreenTaskName, .block-timer:-webkit-full-screen #fullscreenTaskName, .block-timer:fullscreen #fullscreenTargetTime, .block-timer:-webkit-full-screen #fullscreenTargetTime { font-size:clamp(1.2rem,6vw,2rem); }
+    }
   </style>
 </head>
 <body>
