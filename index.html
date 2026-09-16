@@ -35,7 +35,7 @@
     #fullscreenTask { display:none; max-width:min(90vw,1400px); flex-wrap:wrap; align-items:baseline; justify-content:center; gap:clamp(12px,2vw,30px); text-align:center; color:#f8fafc; line-height:1.1; font-weight:800; overflow-wrap:anywhere; text-shadow:0 2px 18px rgba(0,0,0,.35); }
     #fullscreenTaskName, #fullscreenTargetTime { width:100%; font-size:clamp(1.2rem,2.8vw,2.6rem); text-transform:uppercase; letter-spacing:.03em; text-align:center; }
     #fullscreenTargetTime { color:rgba(255,255,255,.55); font-weight:800; }
-    .fullscreen-timer-box { display:contents; } .block-timer:fullscreen .fullscreen-timer-box #timer, .block-timer:-webkit-full-screen .fullscreen-timer-box #timer { margin-top:auto; } .block-timer:fullscreen .fullscreen-timer-box #alarmMsg, .block-timer:-webkit-full-screen .fullscreen-timer-box #alarmMsg { margin-bottom:auto; }
+    .fullscreen-timer-box { display:contents; } .fullscreen-counter-content { display:contents; } .block-timer:fullscreen .fullscreen-counter-content, .block-timer:-webkit-full-screen .fullscreen-counter-content { display:flex; flex:1; width:100%; min-height:0; flex-direction:column; align-items:center; justify-content:center; }
     .block-timer:fullscreen .fullscreen-timer-box, .block-timer:-webkit-full-screen .fullscreen-timer-box { display:flex; grid-column:1 / span 2; min-width:0; min-height:0; flex-direction:column; align-items:center; justify-content:flex-start; background:var(--panel); border:1px solid rgba(56,189,248,.28); border-radius:24px; padding:clamp(24px,4vw,56px); box-shadow:0 30px 90px rgba(56,189,248,.11),inset 0 1px rgba(255,255,255,.1); }
     .fullscreen-exit { display:none; }
     .block-timer:fullscreen .fullscreen-exit, .block-timer:-webkit-full-screen .fullscreen-exit { display:block; width:100%; flex:0 0 auto; margin-bottom:clamp(18px,4vh,36px); }
@@ -103,9 +103,11 @@
     </div>
     <div class="fullscreen-timer-box">
       <button class="fullscreen-exit btn-refresh" type="button" onclick="toggleFullscreen()">⛶ SAIR DA TELA CHEIA</button>
-      <div id="timer">00:00:00</div>
-      <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
-      <div id="alarmMsg">⏰ TEMPO ESGOTADO!</div>
+      <div class="fullscreen-counter-content">
+        <div id="timer">00:00:00</div>
+        <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
+        <div id="alarmMsg">⏰ TEMPO ESGOTADO!</div>
+      </div>
     </div>
   </div>
 
