@@ -23,7 +23,7 @@
     #lineWeekday { font-size:1rem; font-weight:700; color:#e2e8f0; } #lineDate { font-size:.85rem; color:var(--muted); }
     .block-timer { grid-area:timer; min-width:0; position:relative; min-height:0; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:calc(clamp(24px,4vw,56px) + 56px) clamp(24px,4vw,56px) clamp(24px,4vw,56px); border-color:rgba(56,189,248,.28); background:linear-gradient(145deg,rgba(56,189,248,.13),rgba(129,140,248,.08) 55%,rgba(20,30,52,.62)); box-shadow:0 30px 90px rgba(56,189,248,.11),inset 0 1px rgba(255,255,255,.1); }
     #timer { width:100%; text-align:center; font-size:clamp(4rem,10vw,10rem); font-weight:900; line-height:.9; letter-spacing:-.025em; font-weight:750; font-variant-numeric:tabular-nums; text-shadow:0 0 18px rgba(56,189,248,.10); white-space:nowrap; }
-    .block-timer:fullscreen, .block-timer:-webkit-full-screen { overflow:hidden; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:minmax(0,1fr); align-items:stretch; gap:clamp(16px,2vw,28px); padding:calc(clamp(24px,4vw,60px) + 56px) clamp(24px,4vw,60px) clamp(24px,4vw,60px); border-radius:24px; }
+    .block-timer:fullscreen, .block-timer:-webkit-full-screen { overflow:hidden; display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); grid-template-rows:minmax(0,1fr); align-items:stretch; gap:clamp(16px,2vw,28px); padding:clamp(24px,4vw,60px); border-radius:24px; }
     .fullscreen-side-panel { display:none; }
     .block-timer:fullscreen .fullscreen-side-panel, .block-timer:-webkit-full-screen .fullscreen-side-panel { display:flex; grid-column:3; grid-row:1; min-width:0; min-height:0; flex-direction:column; align-items:stretch; justify-content:flex-start; gap:clamp(24px,5vh,60px); padding:clamp(22px,3vw,34px); background:var(--panel); border:1px solid var(--line); border-radius:24px; backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); box-shadow:0 24px 70px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.05); }
     .fullscreen-clock { display:none; width:100%; min-height:86px; background:var(--panel); border:1px solid var(--line); border-radius:24px; backdrop-filter:blur(22px); -webkit-backdrop-filter:blur(22px); box-shadow:0 24px 70px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.05); padding:clamp(22px,3vw,34px); }
@@ -35,10 +35,10 @@
     #fullscreenTask { display:none; max-width:min(90vw,1400px); flex-wrap:wrap; align-items:baseline; justify-content:center; gap:clamp(12px,2vw,30px); text-align:center; color:#f8fafc; line-height:1.1; font-weight:800; overflow-wrap:anywhere; text-shadow:0 2px 18px rgba(0,0,0,.35); }
     #fullscreenTaskName, #fullscreenTargetTime { width:100%; font-size:clamp(1.2rem,2.8vw,2.6rem); text-transform:uppercase; letter-spacing:.03em; text-align:center; }
     #fullscreenTargetTime { color:rgba(255,255,255,.55); font-weight:800; }
-    .fullscreen-timer-box { display:contents; }
-    .block-timer:fullscreen .fullscreen-timer-box, .block-timer:-webkit-full-screen .fullscreen-timer-box { display:flex; grid-column:1 / span 2; min-width:0; min-height:0; flex-direction:column; align-items:center; justify-content:center; background:var(--panel); border:1px solid rgba(56,189,248,.28); border-radius:24px; padding:clamp(24px,4vw,56px); box-shadow:0 30px 90px rgba(56,189,248,.11),inset 0 1px rgba(255,255,255,.1); }
+    .fullscreen-timer-box { display:contents; } .block-timer:fullscreen .fullscreen-timer-box #timer, .block-timer:-webkit-full-screen .fullscreen-timer-box #timer { margin-top:auto; } .block-timer:fullscreen .fullscreen-timer-box #alarmMsg, .block-timer:-webkit-full-screen .fullscreen-timer-box #alarmMsg { margin-bottom:auto; }
+    .block-timer:fullscreen .fullscreen-timer-box, .block-timer:-webkit-full-screen .fullscreen-timer-box { display:flex; grid-column:1 / span 2; min-width:0; min-height:0; flex-direction:column; align-items:center; justify-content:flex-start; background:var(--panel); border:1px solid rgba(56,189,248,.28); border-radius:24px; padding:clamp(24px,4vw,56px); box-shadow:0 30px 90px rgba(56,189,248,.11),inset 0 1px rgba(255,255,255,.1); }
     .fullscreen-exit { display:none; }
-    .block-timer:fullscreen .fullscreen-exit, .block-timer:-webkit-full-screen .fullscreen-exit { display:block; width:100%; flex:0 0 auto; }
+    .block-timer:fullscreen .fullscreen-exit, .block-timer:-webkit-full-screen .fullscreen-exit { display:block; width:100%; flex:0 0 auto; margin-bottom:clamp(18px,4vh,36px); }
     .block-timer:fullscreen .top-actions .btn-fullscreen, .block-timer:-webkit-full-screen .top-actions .btn-fullscreen { display:none; }
     .block-timer:fullscreen #fullscreenTask, .block-timer:-webkit-full-screen #fullscreenTask { display:flex; min-width:0; min-height:0; flex:1; margin:0; padding:clamp(18px,2.5vw,28px); background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.13); border-radius:18px; box-shadow:inset 0 1px rgba(255,255,255,.06); flex-direction:column; align-items:center; justify-content:center; }
  .block-timer:fullscreen .top-actions .btn-refresh, .block-timer:-webkit-full-screen .top-actions .btn-refresh { display:none; } .block-timer:fullscreen .top-actions, .block-timer:-webkit-full-screen .top-actions { justify-content:flex-end; } .block-timer:fullscreen .btn-fullscreen, .block-timer:-webkit-full-screen .btn-fullscreen { flex:0 0 auto; width:auto; }
@@ -92,7 +92,6 @@
       <button class="btn-refresh" type="button" onclick="refreshPage()">↻ ATUALIZAR PÁGINA</button>
     </div>
     <div class="fullscreen-side-panel">
-    <button class="fullscreen-exit btn-refresh" type="button" onclick="toggleFullscreen()">⛶ SAIR DA TELA CHEIA</button>
     <div class="fullscreen-clock" aria-hidden="true">
       <div id="fullscreenLineNow" class="fullscreen-clock-now"><span id="fullscreenLineNowValue">00:00</span><span id="fullscreenLineNowMeridiem" class="ampm">AM</span></div>
       <div class="fullscreen-clock-meta">
@@ -103,6 +102,7 @@
     <div id="fullscreenTask" aria-live="polite"><div id="fullscreenTaskName"></div><div id="fullscreenTargetTime"></div></div>
     </div>
     <div class="fullscreen-timer-box">
+      <button class="fullscreen-exit btn-refresh" type="button" onclick="toggleFullscreen()">⛶ SAIR DA TELA CHEIA</button>
       <div id="timer">00:00:00</div>
       <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
       <div id="alarmMsg">⏰ TEMPO ESGOTADO!</div>
