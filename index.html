@@ -21,8 +21,9 @@
     #lineNow { font-size:clamp(2.2rem,4vw,4.4rem); line-height:.95; font-weight:800; letter-spacing:-.07em; font-variant-numeric:tabular-nums; color:#f8fafc; }
     .clock-meta { display:flex; flex-direction:column; gap:5px; border-left:2px solid var(--cyan); padding-left:14px; line-height:1.2; }
     #lineWeekday { font-size:1rem; font-weight:700; color:#e2e8f0; } #lineDate { font-size:.85rem; color:var(--muted); }
-    .block-timer { grid-area:timer; min-width:0; min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:clamp(24px,4vw,56px); border-color:rgba(56,189,248,.28); background:linear-gradient(145deg,rgba(56,189,248,.13),rgba(129,140,248,.08) 55%,rgba(20,30,52,.62)); box-shadow:0 30px 90px rgba(56,189,248,.11),inset 0 1px rgba(255,255,255,.1); }
+    .block-timer { grid-area:timer; min-width:0; position:relative; min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:clamp(24px,4vw,56px); border-color:rgba(56,189,248,.28); background:linear-gradient(145deg,rgba(56,189,248,.13),rgba(129,140,248,.08) 55%,rgba(20,30,52,.62)); box-shadow:0 30px 90px rgba(56,189,248,.11),inset 0 1px rgba(255,255,255,.1); }
     #timer { width:100%; text-align:center; font-size:clamp(4rem,10vw,10rem); font-weight:900; line-height:.9; letter-spacing:-.025em; font-weight:750; font-variant-numeric:tabular-nums; text-shadow:0 0 18px rgba(56,189,248,.10); white-space:nowrap; }
+    .btn-fullscreen { position:absolute; top:16px; right:16px; height:34px; padding:0 11px; background:rgba(15,23,42,.45); color:#e2e8f0; border-color:rgba(255,255,255,.16); font-size:.68rem; z-index:3; } .btn-fullscreen:hover { background:rgba(56,189,248,.22); }
     .progress-wrap { width:min(100%,520px); height:6px; background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22); margin-top:22px; border-radius:99px; overflow:hidden; box-shadow:inset 0 0 4px rgba(255,255,255,.08); }
     .progress-bar { height:100%; width:0%; background:linear-gradient(90deg,var(--cyan),var(--violet)); box-shadow:0 0 18px rgba(56,189,248,.95); transition:width .5s ease; animation:progressPulse .8s ease-in-out infinite; }
     .block-controls { grid-area:controls; display:flex; flex-direction:column; align-items:stretch; justify-content:center; gap:14px; padding:clamp(22px,3vw,34px); }
@@ -66,7 +67,8 @@
   <div class="sep"></div>
 
   <!-- BLOCO 2 -->
-  <div class="block-timer">
+  <div id="blockTimer" class="block-timer">
+    <button id="btnFullscreen" class="btn-fullscreen" type="button" onclick="toggleFullscreen()" aria-label="Expandir contador em tela cheia">⛶ TELA CHEIA</button>
     <div id="timer">00:00:00</div>
     <div class="progress-wrap"><div id="progressBar" class="progress-bar"></div></div>
     <div id="alarmMsg">⏰ TEMPO ESGOTADO!</div>
@@ -92,6 +94,30 @@
 <audio id="alarmSound" src="https://www.soundjay.com/buttons/sounds/button-35.mp3"></audio>
 
 <script>
+  function updateFullscreenButton() {
+    const btn = document.getElementById('btnFullscreen');
+    const active = document.fullscreenElement || document.webkitFullscreenElement;
+    if (btn) btn.textContent = active ? '⛶ SAIR DA TELA CHEIA' : '⛶ TELA CHEIA';
+  }
+
+  async function toggleFullscreen() {
+    const frame = document.getElementById('blockTimer');
+    const active = document.fullscreenElement || document.webkitFullscreenElement;
+    try {
+      if (active) {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      } else if (frame.requestFullscreen) await frame.requestFullscreen();
+      else if (frame.webkitRequestFullscreen) frame.webkitRequestFullscreen();
+    } catch (error) {
+      console.warn('Tela cheia não disponível neste navegador.', error);
+    }
+    updateFullscreenButton();
+  }
+
+  document.addEventListener('fullscreenchange', updateFullscreenButton);
+  document.addEventListener('webkitfullscreenchange', updateFullscreenButton);
+
   function updateClock() {
     const now = new Date();
     document.getElementById('lineNow').textContent = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
