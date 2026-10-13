@@ -143,7 +143,11 @@
 <audio id="alarmSound" src="https://www.soundjay.com/buttons/sounds/button-35.mp3"></audio>
 
 <script>
-  let miniPlayerWindow = null;
+  let miniPlayerVideo = null;
+  let miniPlayerCanvas = null;
+  let miniPlayerContext = null;
+  let miniPlayerStream = null;
+  let miniPlayerInterval = null;
 
   function formatAmPm(timeValue) {
     if (!timeValue) return '';
@@ -166,7 +170,7 @@
     const timeLabel = document.getElementById('fullscreenTargetTime');
     if (nameLabel) nameLabel.textContent = input && input.value.trim() ? input.value.trim().toLocaleUpperCase('pt-BR') : 'CONTADOR';
     if (timeLabel) { const target = timeInput && timeInput.value ? formatAmPm(timeInput.value).split(' ') : []; timeLabel.innerHTML = target.length ? target[0] + '<span class=\"ampm\">' + target[1] + '</span>' : ''; }
-    syncMiniPlayer();
+    drawMiniPlayerFrame();
   }
 
   function updateFullscreenButton() {
@@ -178,88 +182,123 @@
   function updateMiniPlayerButton() {
     const button = document.getElementById('btnMiniPlayer');
     if (!button) return;
-    const isOpen = !!(miniPlayerWindow && !miniPlayerWindow.closed);
+    const isOpen = !!(miniPlayerVideo && document.pictureInPictureElement === miniPlayerVideo);
     button.textContent = isOpen ? '▣ FECHAR' : '▣ MINI PLAYER';
-    button.setAttribute('aria-label', isOpen ? 'Fechar janela flutuante' : 'Abrir contador em janela flutuante');
+    button.setAttribute('aria-label', isOpen ? 'Fechar janela PiP' : 'Abrir contador em Picture-in-Picture');
   }
 
-  function syncMiniPlayer() {
-    if (!miniPlayerWindow || miniPlayerWindow.closed) return;
-    const pipDocument = miniPlayerWindow.document;
-    const taskLabel = pipDocument.getElementById('miniTask');
-    const timerLabel = pipDocument.getElementById('miniTimer');
-    const targetLabel = pipDocument.getElementById('miniTarget');
-    const progress = pipDocument.getElementById('miniProgress');
-    const alarm = pipDocument.getElementById('miniAlarm');
-    const taskName = document.getElementById('taskName').value.trim() || 'CONTADOR';
+  function drawMiniPlayerFrame() {
+    if (!miniPlayerContext || !miniPlayerCanvas) return;
+    const context = miniPlayerContext;
+    const width = miniPlayerCanvas.width;
+    const height = miniPlayerCanvas.height;
+    const task = document.getElementById('taskName').value.trim() || 'CONTADOR';
+    const timer = document.getElementById('timer').textContent;
     const targetTime = document.getElementById('targetTime').value;
-    if (taskLabel) taskLabel.textContent = taskName.toLocaleUpperCase('pt-BR');
-    if (timerLabel) timerLabel.textContent = document.getElementById('timer').textContent;
-    if (targetLabel) targetLabel.textContent = targetTime ? 'ATÉ ' + formatAmPm(targetTime) : 'CONTADOR REGRESSIVO';
-    if (progress) progress.style.width = document.getElementById('progressBar').style.width || '0%';
-    if (alarm) alarm.hidden = document.getElementById('alarmMsg').style.display !== 'block';
+    const expired = document.getElementById('alarmMsg').style.display === 'block';
+    const warning = document.getElementById('barra').classList.contains('warning');
+    const overtime = document.getElementById('barra').classList.contains('overtime');
+
+    const background = context.createLinearGradient(0, 0, width, height);
+    background.addColorStop(0, '#0b1120');
+    background.addColorStop(1, '#111827');
+    context.fillStyle = background;
+    context.fillRect(0, 0, width, height);
+    context.fillStyle = 'rgba(20,30,52,.92)';
+    context.fillRect(18, 18, width - 36, height - 36);
+    context.lineWidth = 2;
+    context.strokeStyle = overtime ? 'rgba(239,68,68,.85)' : warning ? 'rgba(245,158,11,.82)' : 'rgba(56,189,248,.42)';
+    context.strokeRect(18, 18, width - 36, height - 36);
+
+    context.textAlign = 'left';
+    context.font = '800 24px system-ui, sans-serif';
+    context.fillStyle = '#94a3b8';
+    context.fillText(task.toLocaleUpperCase('pt-BR'), 52, 78, width - 104);
+
+    context.textAlign = 'center';
+    context.font = '900 94px system-ui, sans-serif';
+    context.fillStyle = overtime ? '#fca5a5' : warning ? '#fde68a' : '#f8fafc';
+    context.fillText(timer, width / 2, 204, width - 72);
+
+    context.fillStyle = 'rgba(255,255,255,.15)';
+    context.fillRect(52, 248, width - 104, 9);
+    const progressWidth = Math.max(0, Math.min(100, parseFloat(document.getElementById('progressBar').style.width) || 0));
+    context.fillStyle = 'rgba(56,189,248,.96)';
+    context.fillRect(52, 248, (width - 104) * progressWidth / 100, 9);
+
+    context.font = '800 22px system-ui, sans-serif';
+    context.fillStyle = expired ? '#fde68a' : '#94a3b8';
+    const footer = expired ? 'TEMPO ESGOTADO!' : targetTime ? 'ATÉ ' + formatAmPm(targetTime) : 'CONTADOR REGRESSIVO';
+    context.fillText(footer, width / 2, 305, width - 80);
+  }
+
+  function prepareMiniPlayerMedia() {
+    miniPlayerCanvas = document.createElement('canvas');
+    miniPlayerCanvas.width = 640;
+    miniPlayerCanvas.height = 360;
+    miniPlayerCanvas.setAttribute('aria-hidden', 'true');
+    miniPlayerCanvas.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;height:360px;pointer-events:none;';
+    document.body.appendChild(miniPlayerCanvas);
+    miniPlayerContext = miniPlayerCanvas.getContext('2d');
+    if (!miniPlayerContext) throw new Error('Canvas 2D indisponível');
+
+    drawMiniPlayerFrame();
+    miniPlayerStream = miniPlayerCanvas.captureStream(1);
+    miniPlayerVideo = document.createElement('video');
+    miniPlayerVideo.muted = true;
+    miniPlayerVideo.playsInline = true;
+    miniPlayerVideo.disablePictureInPicture = false;
+    miniPlayerVideo.setAttribute('aria-hidden', 'true');
+    miniPlayerVideo.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;height:360px;opacity:0;pointer-events:none;';
+    miniPlayerVideo.srcObject = miniPlayerStream;
+    document.body.appendChild(miniPlayerVideo);
+    miniPlayerVideo.addEventListener('enterpictureinpicture', () => {
+      if (!miniPlayerInterval) miniPlayerInterval = setInterval(drawMiniPlayerFrame, 1000);
+      updateMiniPlayerButton();
+    });
+    miniPlayerVideo.addEventListener('leavepictureinpicture', cleanupMiniPlayer, { once: true });
+  }
+
+  function cleanupMiniPlayer() {
+    if (miniPlayerInterval) clearInterval(miniPlayerInterval);
+    miniPlayerInterval = null;
+    if (miniPlayerStream) miniPlayerStream.getTracks().forEach((track) => track.stop());
+    if (miniPlayerVideo) {
+      miniPlayerVideo.pause();
+      miniPlayerVideo.srcObject = null;
+      miniPlayerVideo.remove();
+    }
+    if (miniPlayerCanvas) miniPlayerCanvas.remove();
+    miniPlayerVideo = null;
+    miniPlayerCanvas = null;
+    miniPlayerContext = null;
+    miniPlayerStream = null;
+    updateMiniPlayerButton();
   }
 
   async function toggleMiniPlayer() {
-    const pipApi = window.documentPictureInPicture;
-    if (!pipApi || typeof pipApi.requestWindow !== 'function') {
-      window.alert('A janela flutuante exige um navegador compatível, como Chrome ou Edge recente.');
+    if (!document.pictureInPictureEnabled || !HTMLVideoElement.prototype.requestPictureInPicture || !HTMLCanvasElement.prototype.captureStream) {
+      window.alert('Este navegador não oferece o Picture-in-Picture de vídeo necessário para o mini player.');
       return;
     }
-    const existingWindow = miniPlayerWindow || pipApi.window;
-    if (existingWindow && !existingWindow.closed) {
-      miniPlayerWindow = null;
-      existingWindow.close();
-      updateMiniPlayerButton();
+    if (document.pictureInPictureElement) {
+      if (document.pictureInPictureElement === miniPlayerVideo) await document.exitPictureInPicture();
+      else window.alert('Feche o PiP de outro vídeo antes de abrir o contador.');
       return;
     }
 
     try {
-      miniPlayerWindow = await pipApi.requestWindow({ width: 360, height: 220 });
-      const pipDocument = miniPlayerWindow.document;
-      pipDocument.title = 'Contador — mini player';
-      const style = pipDocument.createElement('style');
-      style.textContent = `
-        * { box-sizing: border-box; }
-        body { margin: 0; min-height: 100vh; padding: 10px; background: radial-gradient(ellipse at 15% 20%,rgba(56,189,248,.16),transparent 45%),linear-gradient(135deg,#0b1120,#111827); color: #f8fafc; font-family: Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
-        .mini-player { min-height: calc(100vh - 20px); display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 14px; border: 1px solid rgba(56,189,248,.32); border-radius: 16px; background: rgba(20,30,52,.82); box-shadow: 0 14px 40px rgba(0,0,0,.28); }
-        #miniTask { overflow: hidden; color: #94a3b8; font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-overflow: ellipsis; white-space: nowrap; }
-        #miniTimer { text-align: center; font-size: clamp(2.5rem,14vw,4rem); font-weight: 850; letter-spacing: -.04em; font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap; }
-        .mini-progress { height: 5px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.14); }
-        #miniProgress { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#38bdf8,#818cf8); transition: width .5s ease; }
-        #miniTarget, #miniAlarm { min-height: 1em; text-align: center; font-size: .68rem; font-weight: 800; color: #94a3b8; }
-        #miniAlarm { display: none; color: #fde68a; }
-        #miniAlarm:not([hidden]) { display: block; }
-        #miniReturn { align-self: flex-end; height: 32px; padding: 0 10px; border: 1px solid rgba(255,255,255,.16); border-radius: 9px; background: rgba(255,255,255,.08); color: #e2e8f0; font-size: .65rem; font-weight: 800; cursor: pointer; }
-      `;
-      pipDocument.head.appendChild(style);
-      pipDocument.body.innerHTML = `<main class="mini-player">
-        <div id="miniTask">CONTADOR</div>
-        <div id="miniTimer">00:00:00</div>
-        <div class="mini-progress"><div id="miniProgress"></div></div>
-        <div id="miniTarget">CONTADOR REGRESSIVO</div>
-        <div id="miniAlarm" hidden>⏰ TEMPO ESGOTADO!</div>
-        <button id="miniReturn" type="button">VOLTAR AO CONTADOR</button>
-      </main>`;
-      pipDocument.getElementById('miniReturn').addEventListener('click', () => {
-        const currentWindow = miniPlayerWindow;
-        miniPlayerWindow = null;
-        if (currentWindow && !currentWindow.closed) currentWindow.close();
-        updateMiniPlayerButton();
-        window.focus();
-      });
-      miniPlayerWindow.addEventListener('pagehide', () => {
-        miniPlayerWindow = null;
-        updateMiniPlayerButton();
-      }, { once: true });
-      syncMiniPlayer();
+      if (!miniPlayerVideo) prepareMiniPlayerMedia();
+      drawMiniPlayerFrame();
+      await miniPlayerVideo.play();
+      await miniPlayerVideo.requestPictureInPicture();
+      drawMiniPlayerFrame();
+      if (!miniPlayerInterval) miniPlayerInterval = setInterval(drawMiniPlayerFrame, 1000);
       updateMiniPlayerButton();
     } catch (error) {
-      if (miniPlayerWindow && !miniPlayerWindow.closed) miniPlayerWindow.close();
-      miniPlayerWindow = null;
-      updateMiniPlayerButton();
-      console.warn('Não foi possível abrir o mini player.', error);
-      window.alert('Não foi possível abrir a janela flutuante neste navegador.');
+      cleanupMiniPlayer();
+      console.warn('Não foi possível abrir o PiP nativo.', error);
+      window.alert('Não foi possível abrir o PiP. Tente novamente pelo botão do contador.');
     }
   }
 
@@ -385,7 +424,7 @@
       document.getElementById('timer').textContent = '00:00:00';
       document.getElementById('alarmMsg').style.display = 'block';
       barra.className = 'overtime';
-      syncMiniPlayer();
+      drawMiniPlayerFrame();
       if (playAlarm) document.getElementById('alarmSound').play();
       closeAndroidNotification();
       return;
@@ -408,7 +447,7 @@
       ? 'Restam ' + noticeHours + 'h' + (noticeMinutes ? ' ' + noticeMinutes + 'min' : '')
       : 'Restam ' + (noticeMinutes || 1) + 'min';
     updateAndroidNotification(noticeText);
-    syncMiniPlayer();
+    drawMiniPlayerFrame();
   }
 
   function finishTask() { resetTimer(); }
@@ -422,7 +461,7 @@
     document.getElementById('btnDone').style.display = 'none';
     document.getElementById('alarmMsg').style.display = 'none';
     barra.className = '';
-    syncMiniPlayer();
+    drawMiniPlayerFrame();
     localStorage.removeItem(TIMER_STORAGE_KEY);
     closeAndroidNotification();
   }
