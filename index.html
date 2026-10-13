@@ -51,6 +51,9 @@
     input:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(56,189,248,.12); } #targetTime { width:116px; flex-shrink:0; text-align:center; }
     button { height:44px; border-radius:12px; border:1px solid transparent; font-weight:800; cursor:pointer; padding:0 16px; font-size:.75rem; white-space:nowrap; transition:transform .2s,filter .2s; }
     button:hover { transform:translateY(-2px); filter:brightness(1.1); } .btn-start { flex:1; background:linear-gradient(135deg,#22c55e,#0ea5a4); color:#fff; } .btn-done { flex:1; background:linear-gradient(135deg,#38bdf8,#6366f1); color:#fff; display:none; } .btn-reset { background:rgba(255,255,255,.1); color:#fff; width:44px; padding:0; flex-shrink:0; border-color:rgba(255,255,255,.12); } .btn-refresh { width:auto; background:rgba(255,255,255,.06); color:#cbd5e1; border-color:rgba(255,255,255,.12); }
+    .btn-mini-player { background:rgba(56,189,248,.13); color:#e0f2fe; border-color:rgba(56,189,248,.28); }
+    .btn-mini-player:hover { background:rgba(56,189,248,.24); }
+    .block-timer:fullscreen .top-actions .btn-mini-player, .block-timer:-webkit-full-screen .top-actions .btn-mini-player { display:none; }
     .sep { display:none; } #alarmMsg { font-size:.75rem; font-weight:800; color:#fde68a; display:none; margin-top:12px; }
     #barra.warning .block-timer { border-color:rgba(245,158,11,.7); box-shadow:0 0 70px rgba(245,158,11,.14),inset 0 1px rgba(255,255,255,.1); } #barra.overtime .block-timer { border-color:rgba(239,68,68,.75); box-shadow:0 0 80px rgba(239,68,68,.2),inset 0 1px rgba(255,255,255,.1); animation:blink .5s infinite alternate; } @keyframes blink { from{opacity:1} to{opacity:.82} } @keyframes progressPulse { 0%,100%{opacity:.45;filter:brightness(.85);box-shadow:0 0 8px rgba(56,189,248,.45)} 50%{opacity:1;filter:brightness(1.55);box-shadow:0 0 24px rgba(56,189,248,1),0 0 42px rgba(129,140,248,.65)} }
     @media (max-width:1050px) { #barra { grid-template-columns:1.4fr 1fr; grid-template-areas:'timer controls'; } .block-clock { min-height:150px; flex-direction:row; align-items:center; justify-content:space-between; } .block-timer { min-height:300px; } #timer { font-size:clamp(4rem,11vw,7rem); } }
@@ -98,6 +101,7 @@
   <div id="blockTimer" class="block-timer">
     <div class="top-actions">
       <button id="btnFullscreen" class="btn-fullscreen" type="button" onclick="toggleFullscreen()" aria-label="Expandir contador em tela cheia">⛶ TELA CHEIA</button>
+      <button id="btnMiniPlayer" class="btn-mini-player" type="button" onclick="toggleMiniPlayer()" aria-label="Abrir contador em janela flutuante">▣ MINI PLAYER</button>
       <button class="btn-refresh" type="button" onclick="refreshPage()">↻ ATUALIZAR PÁGINA</button>
     </div>
     <div class="fullscreen-side-panel">
@@ -139,6 +143,8 @@
 <audio id="alarmSound" src="https://www.soundjay.com/buttons/sounds/button-35.mp3"></audio>
 
 <script>
+  let miniPlayerWindow = null;
+
   function formatAmPm(timeValue) {
     if (!timeValue) return '';
     const [hours, minutes] = timeValue.split(':').map(Number);
@@ -160,12 +166,93 @@
     const timeLabel = document.getElementById('fullscreenTargetTime');
     if (nameLabel) nameLabel.textContent = input && input.value.trim() ? input.value.trim().toLocaleUpperCase('pt-BR') : 'CONTADOR';
     if (timeLabel) { const target = timeInput && timeInput.value ? formatAmPm(timeInput.value).split(' ') : []; timeLabel.innerHTML = target.length ? target[0] + '<span class=\"ampm\">' + target[1] + '</span>' : ''; }
+    syncMiniPlayer();
   }
 
   function updateFullscreenButton() {
     const btn = document.getElementById('btnFullscreen');
     const active = document.fullscreenElement || document.webkitFullscreenElement;
     if (btn) btn.textContent = active ? '⛶ SAIR DA TELA CHEIA' : '⛶ TELA CHEIA';
+  }
+
+  function updateMiniPlayerButton() {
+    const button = document.getElementById('btnMiniPlayer');
+    if (!button) return;
+    const isOpen = !!(window.documentPictureInPicture && window.documentPictureInPicture.window);
+    button.textContent = isOpen ? '▣ FECHAR' : '▣ MINI PLAYER';
+    button.setAttribute('aria-label', isOpen ? 'Fechar janela flutuante' : 'Abrir contador em janela flutuante');
+  }
+
+  function syncMiniPlayer() {
+    if (!miniPlayerWindow || miniPlayerWindow.closed) return;
+    const pipDocument = miniPlayerWindow.document;
+    const taskLabel = pipDocument.getElementById('miniTask');
+    const timerLabel = pipDocument.getElementById('miniTimer');
+    const targetLabel = pipDocument.getElementById('miniTarget');
+    const progress = pipDocument.getElementById('miniProgress');
+    const alarm = pipDocument.getElementById('miniAlarm');
+    const taskName = document.getElementById('taskName').value.trim() || 'CONTADOR';
+    const targetTime = document.getElementById('targetTime').value;
+    if (taskLabel) taskLabel.textContent = taskName.toLocaleUpperCase('pt-BR');
+    if (timerLabel) timerLabel.textContent = document.getElementById('timer').textContent;
+    if (targetLabel) targetLabel.textContent = targetTime ? 'ATÉ ' + formatAmPm(targetTime) : 'CONTADOR REGRESSIVO';
+    if (progress) progress.style.width = document.getElementById('progressBar').style.width || '0%';
+    if (alarm) alarm.hidden = document.getElementById('alarmMsg').style.display !== 'block';
+  }
+
+  async function toggleMiniPlayer() {
+    const pipApi = window.documentPictureInPicture;
+    if (!pipApi || typeof pipApi.requestWindow !== 'function') {
+      window.alert('A janela flutuante exige um navegador compatível, como Chrome ou Edge recente.');
+      return;
+    }
+    if (pipApi.window) {
+      pipApi.window.close();
+      return;
+    }
+
+    try {
+      miniPlayerWindow = await pipApi.requestWindow({ width: 360, height: 220 });
+      const pipDocument = miniPlayerWindow.document;
+      pipDocument.title = 'Contador — mini player';
+      const style = pipDocument.createElement('style');
+      style.textContent = `
+        * { box-sizing: border-box; }
+        body { margin: 0; min-height: 100vh; padding: 10px; background: radial-gradient(ellipse at 15% 20%,rgba(56,189,248,.16),transparent 45%),linear-gradient(135deg,#0b1120,#111827); color: #f8fafc; font-family: Inter,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; }
+        .mini-player { min-height: calc(100vh - 20px); display: flex; flex-direction: column; justify-content: center; gap: 8px; padding: 14px; border: 1px solid rgba(56,189,248,.32); border-radius: 16px; background: rgba(20,30,52,.82); box-shadow: 0 14px 40px rgba(0,0,0,.28); }
+        #miniTask { overflow: hidden; color: #94a3b8; font-size: .7rem; font-weight: 800; letter-spacing: .08em; text-overflow: ellipsis; white-space: nowrap; }
+        #miniTimer { text-align: center; font-size: clamp(2.5rem,14vw,4rem); font-weight: 850; letter-spacing: -.04em; font-variant-numeric: tabular-nums; line-height: 1; white-space: nowrap; }
+        .mini-progress { height: 5px; overflow: hidden; border-radius: 99px; background: rgba(255,255,255,.14); }
+        #miniProgress { width: 0; height: 100%; border-radius: inherit; background: linear-gradient(90deg,#38bdf8,#818cf8); transition: width .5s ease; }
+        #miniTarget, #miniAlarm { min-height: 1em; text-align: center; font-size: .68rem; font-weight: 800; color: #94a3b8; }
+        #miniAlarm { display: none; color: #fde68a; }
+        #miniAlarm:not([hidden]) { display: block; }
+        #miniReturn { align-self: flex-end; height: 32px; padding: 0 10px; border: 1px solid rgba(255,255,255,.16); border-radius: 9px; background: rgba(255,255,255,.08); color: #e2e8f0; font-size: .65rem; font-weight: 800; cursor: pointer; }
+      `;
+      pipDocument.head.appendChild(style);
+      pipDocument.body.innerHTML = `<main class="mini-player">
+        <div id="miniTask">CONTADOR</div>
+        <div id="miniTimer">00:00:00</div>
+        <div class="mini-progress"><div id="miniProgress"></div></div>
+        <div id="miniTarget">CONTADOR REGRESSIVO</div>
+        <div id="miniAlarm" hidden>⏰ TEMPO ESGOTADO!</div>
+        <button id="miniReturn" type="button">VOLTAR AO CONTADOR</button>
+      </main>`;
+      pipDocument.getElementById('miniReturn').addEventListener('click', () => {
+        window.focus();
+        miniPlayerWindow.close();
+      });
+      miniPlayerWindow.addEventListener('pagehide', () => {
+        miniPlayerWindow = null;
+        updateMiniPlayerButton();
+      }, { once: true });
+      syncMiniPlayer();
+      updateMiniPlayerButton();
+    } catch (error) {
+      miniPlayerWindow = null;
+      console.warn('Não foi possível abrir o mini player.', error);
+      window.alert('Não foi possível abrir a janela flutuante neste navegador.');
+    }
   }
 
   async function toggleFullscreen() {
@@ -290,6 +377,7 @@
       document.getElementById('timer').textContent = '00:00:00';
       document.getElementById('alarmMsg').style.display = 'block';
       barra.className = 'overtime';
+      syncMiniPlayer();
       if (playAlarm) document.getElementById('alarmSound').play();
       closeAndroidNotification();
       return;
@@ -312,6 +400,7 @@
       ? 'Restam ' + noticeHours + 'h' + (noticeMinutes ? ' ' + noticeMinutes + 'min' : '')
       : 'Restam ' + (noticeMinutes || 1) + 'min';
     updateAndroidNotification(noticeText);
+    syncMiniPlayer();
   }
 
   function finishTask() { resetTimer(); }
@@ -325,6 +414,7 @@
     document.getElementById('btnDone').style.display = 'none';
     document.getElementById('alarmMsg').style.display = 'none';
     barra.className = '';
+    syncMiniPlayer();
     localStorage.removeItem(TIMER_STORAGE_KEY);
     closeAndroidNotification();
   }
