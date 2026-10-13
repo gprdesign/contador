@@ -178,7 +178,7 @@
   function updateMiniPlayerButton() {
     const button = document.getElementById('btnMiniPlayer');
     if (!button) return;
-    const isOpen = !!(window.documentPictureInPicture && window.documentPictureInPicture.window);
+    const isOpen = !!(miniPlayerWindow && !miniPlayerWindow.closed);
     button.textContent = isOpen ? '▣ FECHAR' : '▣ MINI PLAYER';
     button.setAttribute('aria-label', isOpen ? 'Fechar janela flutuante' : 'Abrir contador em janela flutuante');
   }
@@ -206,8 +206,11 @@
       window.alert('A janela flutuante exige um navegador compatível, como Chrome ou Edge recente.');
       return;
     }
-    if (pipApi.window) {
-      pipApi.window.close();
+    const existingWindow = miniPlayerWindow || pipApi.window;
+    if (existingWindow && !existingWindow.closed) {
+      miniPlayerWindow = null;
+      existingWindow.close();
+      updateMiniPlayerButton();
       return;
     }
 
@@ -239,8 +242,11 @@
         <button id="miniReturn" type="button">VOLTAR AO CONTADOR</button>
       </main>`;
       pipDocument.getElementById('miniReturn').addEventListener('click', () => {
+        const currentWindow = miniPlayerWindow;
+        miniPlayerWindow = null;
+        if (currentWindow && !currentWindow.closed) currentWindow.close();
+        updateMiniPlayerButton();
         window.focus();
-        miniPlayerWindow.close();
       });
       miniPlayerWindow.addEventListener('pagehide', () => {
         miniPlayerWindow = null;
@@ -249,7 +255,9 @@
       syncMiniPlayer();
       updateMiniPlayerButton();
     } catch (error) {
+      if (miniPlayerWindow && !miniPlayerWindow.closed) miniPlayerWindow.close();
       miniPlayerWindow = null;
+      updateMiniPlayerButton();
       console.warn('Não foi possível abrir o mini player.', error);
       window.alert('Não foi possível abrir a janela flutuante neste navegador.');
     }
