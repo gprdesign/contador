@@ -338,12 +338,128 @@
   setInterval(updateClock, 1000); updateClock();
 
   let interval, targetDate;
+  let tickAudioContext = null;
+  let tickAudioBuffer = null;
+  let tickAudioSource = null;
+  let tickAudioGain = null;
+  let tickAudioResumePending = false;
+  let tickAudioResumeHandler = null;
   const TIMER_STORAGE_KEY = 'contador-active-timer';
   let notificationEnabled = false;
   const NOTIFICATION_TAG = 'contador-ativo';
   let lastNotificationMinute = -1;
   let notificationUpdateInFlight = false;
   const barra = document.getElementById('barra');
+
+  function createTickTockBuffer(context) {
+    const sampleRate = context.sampleRate;
+    const buffer = context.createBuffer(1, sampleRate * 2, sampleRate);
+    const samples = buffer.getChannelData(0);
+    const clicks = [
+      { offset: 0, frequency: 1900, strength: 0.76 },
+      { offset: sampleRate, frequency: 1450, strength: 0.68 }
+    ];
+    const clickLength = Math.floor(sampleRate * 0.032);
+
+    clicks.forEach((click) => {
+      for (let i = 0; i < clickLength; i++) {
+        const elapsed = i / sampleRate;
+        const envelope = Math.exp(-elapsed / 0.0055) * (1 - i / clickLength);
+        const transient = (Math.random() * 2 - 1) * Math.exp(-elapsed / 0.0009) * 0.22;
+        const tone = Math.sin(2 * Math.PI * click.frequency * elapsed)
+          + 0.16 * Math.sin(2 * Math.PI * click.frequency * 2.25 * elapsed);
+        samples[click.offset + i] = (tone * 0.72 + transient) * envelope * click.strength;
+      }
+    });
+    return buffer;
+  }
+
+  function clearTickTockResume() {
+    tickAudioResumePending = false;
+    if (tickAudioResumeHandler) {
+      document.removeEventListener('pointerdown', tickAudioResumeHandler);
+      tickAudioResumeHandler = null;
+    }
+  }
+
+  function waitForTickTockGesture() {
+    tickAudioResumePending = true;
+    if (tickAudioResumeHandler) return;
+    tickAudioResumeHandler = () => {
+      const handler = tickAudioResumeHandler;
+      tickAudioResumeHandler = null;
+      if (handler) document.removeEventListener('pointerdown', handler);
+      if (!tickAudioResumePending) return;
+      tickAudioResumePending = false;
+      if (targetDate && targetDate > new Date()) startTickTock(targetDate.getTime() - Date.now());
+    };
+    document.addEventListener('pointerdown', tickAudioResumeHandler, { once: true });
+  }
+
+  function startTickTock(remainingMs) {
+    if (!Number.isFinite(remainingMs) || remainingMs <= 0 || !targetDate || targetDate <= new Date()) return;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    try {
+      if (!tickAudioContext) tickAudioContext = new AudioContextClass();
+      const context = tickAudioContext;
+      const startLoop = () => {
+        if (!targetDate || targetDate <= new Date()) {
+          stopTickTock();
+          return;
+        }
+        if (context.state !== 'running' || tickAudioSource) {
+          if (context.state !== 'running') waitForTickTockGesture();
+          return;
+        }
+        clearTickTockResume();
+        if (!tickAudioBuffer) tickAudioBuffer = createTickTockBuffer(context);
+
+        const source = context.createBufferSource();
+        const gain = context.createGain();
+        source.buffer = tickAudioBuffer;
+        source.loop = true;
+        source.loopStart = 0;
+        source.loopEnd = tickAudioBuffer.duration;
+        gain.gain.setValueAtTime(0.22, context.currentTime);
+        source.connect(gain);
+        gain.connect(context.destination);
+        source.onended = () => {
+          if (tickAudioSource === source) {
+            tickAudioSource = null;
+            tickAudioGain = null;
+          }
+        };
+        tickAudioSource = source;
+        tickAudioGain = gain;
+        source.start();
+        const secondsRemaining = (targetDate.getTime() - Date.now()) / 1000;
+        if (secondsRemaining > 0) source.stop(context.currentTime + secondsRemaining);
+        else stopTickTock();
+      };
+
+      if (tickAudioContext.state === 'running') startLoop();
+      else tickAudioContext.resume().then(startLoop).catch(() => waitForTickTockGesture());
+    } catch (error) {
+      console.warn('Não foi possível iniciar o tique-taque.', error);
+    }
+  }
+
+  function stopTickTock() {
+    clearTickTockResume();
+    if (!tickAudioSource) return;
+    const source = tickAudioSource;
+    tickAudioSource = null;
+    try {
+      if (tickAudioGain && tickAudioContext && tickAudioContext.state === 'running') {
+        tickAudioGain.gain.cancelScheduledValues(tickAudioContext.currentTime);
+        tickAudioGain.gain.setValueAtTime(0, tickAudioContext.currentTime);
+      }
+      source.stop();
+    } catch (error) {}
+    tickAudioGain = null;
+  }
 
   async function requestNotificationPermission() {
     if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
@@ -405,6 +521,7 @@
     document.getElementById('btnStart').style.display = 'none';
     document.getElementById('btnDone').style.display = 'block';
     saveTimerState();
+    startTickTock(targetDate.getTime() - Date.now());
     requestNotificationPermission();
     clearInterval(interval);
     interval = setInterval(tick, 1000); tick();
@@ -421,6 +538,7 @@
 
     if (diff <= 0) {
       clearInterval(interval);
+      stopTickTock();
       document.getElementById('timer').textContent = '00:00:00';
       document.getElementById('alarmMsg').style.display = 'block';
       barra.className = 'overtime';
@@ -454,6 +572,8 @@
 
   function resetTimer() {
     clearInterval(interval);
+    stopTickTock();
+    targetDate = null;
     document.getElementById('alarmSound').pause();
     document.getElementById('timer').textContent = '00:00:00';
     document.getElementById('progressBar').style.width = '0%';
@@ -488,7 +608,10 @@
       document.getElementById('btnDone').style.display = 'block';
       notificationEnabled = 'Notification' in window && Notification.permission === 'granted';
       tick(false);
-      if (targetDate > new Date()) interval = setInterval(() => tick(false), 1000);
+      if (targetDate > new Date()) {
+        interval = setInterval(() => tick(false), 1000);
+        startTickTock(targetDate.getTime() - Date.now());
+      }
     } catch (error) {
       localStorage.removeItem(TIMER_STORAGE_KEY);
     }
@@ -498,6 +621,16 @@
   document.getElementById('targetTime').addEventListener('change', saveTimerState);
   restoreTimerState();
   updateFullscreenTask();
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState !== 'visible' || !targetDate) return;
+    if (targetDate <= new Date()) {
+      stopTickTock();
+      return;
+    }
+    if (tickAudioSource) stopTickTock();
+    startTickTock(targetDate.getTime() - Date.now());
+  });
 
   function refreshPage() {
     // Recarrega sem apagar o cache/PWA, evitando o salto de layout no Galaxy S24.
