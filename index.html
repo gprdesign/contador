@@ -49,6 +49,9 @@
     .ctrl-row { display:flex; align-items:center; gap:8px; width:100%; }
     input { width:100%; height:44px; background:rgba(15,23,42,.65); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:12px; padding:0 12px; outline:none; font:inherit; font-size:.82rem; }
     input:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(56,189,248,.12); } #targetTime { width:116px; flex-shrink:0; text-align:center; }
+    select { flex:1; min-width:0; height:44px; background:rgba(15,23,42,.65); border:1px solid rgba(255,255,255,.12); color:#fff; border-radius:12px; padding:0 12px; outline:none; font:inherit; font-size:.82rem; }
+    select:focus { border-color:var(--cyan); box-shadow:0 0 0 3px rgba(56,189,248,.12); } select option { color:#0f172a; }
+    .btn-tick-mute { flex:0 0 auto; min-width:106px; background:rgba(250,204,21,.12); color:#fef3c7; border-color:rgba(250,204,21,.32); } .btn-tick-mute:hover { background:rgba(250,204,21,.22); }
     button { height:44px; border-radius:12px; border:1px solid transparent; font-weight:800; cursor:pointer; padding:0 16px; font-size:.75rem; white-space:nowrap; transition:transform .2s,filter .2s; }
     button:hover { transform:translateY(-2px); filter:brightness(1.1); } .btn-start { flex:1; background:linear-gradient(135deg,#22c55e,#0ea5a4); color:#fff; } .btn-done { flex:1; background:linear-gradient(135deg,#38bdf8,#6366f1); color:#fff; display:none; } .btn-reset { background:rgba(255,255,255,.1); color:#fff; width:44px; padding:0; flex-shrink:0; border-color:rgba(255,255,255,.12); } .btn-refresh { width:auto; background:rgba(255,255,255,.06); color:#cbd5e1; border-color:rgba(255,255,255,.12); }
     .btn-mini-player { background:rgba(56,189,248,.13); color:#e0f2fe; border-color:rgba(56,189,248,.28); }
@@ -57,7 +60,7 @@
     .sep { display:none; } #alarmMsg { font-size:.75rem; font-weight:800; color:#fde68a; display:none; margin-top:12px; }
     #barra.warning .block-timer { border-color:rgba(245,158,11,.7); box-shadow:0 0 70px rgba(245,158,11,.14),inset 0 1px rgba(255,255,255,.1); } #barra.overtime .block-timer { border-color:rgba(239,68,68,.75); box-shadow:0 0 80px rgba(239,68,68,.2),inset 0 1px rgba(255,255,255,.1); animation:blink .5s infinite alternate; } @keyframes blink { from{opacity:1} to{opacity:.82} } @keyframes progressPulse { 0%,100%{opacity:.45;filter:brightness(.85);box-shadow:0 0 8px rgba(56,189,248,.45)} 50%{opacity:1;filter:brightness(1.55);box-shadow:0 0 24px rgba(56,189,248,1),0 0 42px rgba(129,140,248,.65)} }
     @media (max-width:1050px) { #barra { grid-template-columns:1.4fr 1fr; grid-template-areas:'timer controls'; } .block-clock { min-height:150px; flex-direction:row; align-items:center; justify-content:space-between; } .block-timer { min-height:300px; } #timer { font-size:clamp(4rem,11vw,7rem); } }
-    @media (max-width:650px) { #barra { height:100svh; max-height:100svh; min-height:100svh; grid-template-columns:1fr; grid-template-rows:minmax(0,1fr) auto; grid-template-areas:'timer' 'controls'; align-content:stretch; gap:12px; --nav-bottom:0px; padding:12px; overflow:hidden; } .block-clock,.block-timer,.block-controls { border-radius:18px; } .block-clock { min-height:86px; padding:20px 22px; flex-direction:row; align-items:center; justify-content:space-between; gap:14px; } #lineNow { font-size:clamp(2.4rem,14vw,3.5rem); } .clock-meta { padding-left:10px; gap:3px; } #lineWeekday { font-size:.86rem; } #lineDate { font-size:.76rem; } .block-timer { min-height:0; padding:80px 12px 24px; } .top-actions { top:24px; padding:0 12px; } #timer { font-size:clamp(3.8rem,19vw,6rem); } .progress-wrap { margin-top:16px; } .block-controls { min-height:0; padding:16px 20px; gap:10px; } .ctrl-row { gap:10px; } input { height:48px; font-size:.95rem; } button { height:48px; font-size:.8rem; } #targetTime { width:116px; } }
+    @media (max-width:650px) { #barra { height:100svh; max-height:100svh; min-height:100svh; grid-template-columns:1fr; grid-template-rows:minmax(0,1fr) auto; grid-template-areas:'timer' 'controls'; align-content:stretch; gap:12px; --nav-bottom:0px; padding:12px; overflow:hidden; } .block-clock,.block-timer,.block-controls { border-radius:18px; } .block-clock { min-height:86px; padding:20px 22px; flex-direction:row; align-items:center; justify-content:space-between; gap:14px; } #lineNow { font-size:clamp(2.4rem,14vw,3.5rem); } .clock-meta { padding-left:10px; gap:3px; } #lineWeekday { font-size:.86rem; } #lineDate { font-size:.76rem; } .block-timer { min-height:0; padding:80px 12px 24px; } .top-actions { top:24px; padding:0 12px; } #timer { font-size:clamp(3.8rem,19vw,6rem); } .progress-wrap { margin-top:16px; } .block-controls { min-height:0; padding:16px 20px; gap:10px; } .ctrl-row { gap:10px; } input { height:48px; font-size:.95rem; } select { height:48px; font-size:.9rem; } button { height:48px; font-size:.8rem; } #targetTime { width:116px; } }
     @media (max-height:650px) and (max-width:650px) {
       #barra { gap:8px; --nav-bottom:max(64px,env(safe-area-inset-bottom,0px)); padding:calc(var(--nav-bottom) / 2 - 8px) calc(var(--nav-bottom) / 2) calc(var(--nav-bottom) + 16px); }
       .block-clock { min-height:68px; padding:12px 16px; }
@@ -67,7 +70,7 @@
       #timer { font-size:clamp(2.8rem,16vw,4.4rem); }
       .progress-wrap { margin-top:10px; }
       .block-controls { min-height:0; padding:8px 12px; gap:6px; }
-      input,button { height:34px; font-size:.68rem; }
+      input,button { height:34px; font-size:.68rem; } select { height:34px; font-size:.68rem; }
       #targetTime { width:100px; }
     }
 
@@ -136,6 +139,15 @@
       <button id="btnStart" class="btn-start" onclick="startTimer()">INICIAR</button>
       <button id="btnDone" class="btn-done" onclick="finishTask()">CONCLUIR</button>
       <button class="btn-reset" onclick="resetTimer()">↺</button>
+    </div>
+    <div class="ctrl-row sound-row">
+      <select id="tickSoundStyle" aria-label="Estilo do tique-taque">
+        <option value="classic">Clássico</option>
+        <option value="soft">Suave</option>
+        <option value="wood">Madeira</option>
+        <option value="deep">Grave</option>
+      </select>
+      <button id="btnTickMute" class="btn-tick-mute" type="button" aria-label="Mutar tique-taque">MUTAR TICK</button>
     </div>
   </div>
 </div>
@@ -210,10 +222,30 @@
     context.strokeStyle = overtime ? 'rgba(239,68,68,.85)' : warning ? 'rgba(245,158,11,.82)' : 'rgba(56,189,248,.42)';
     context.strokeRect(18, 18, width - 36, height - 36);
 
+    const currentTime = currentTimeParts(new Date());
+    const clockLabel = currentTime.value + ' ' + currentTime.meridiem;
+    context.font = '800 24px system-ui, sans-serif';
+    const clockBoxWidth = Math.ceil(context.measureText(clockLabel).width + 20);
+    const clockBoxHeight = 42;
+    const clockBoxX = width - 52 - clockBoxWidth;
+    const clockBoxY = 48;
+    context.fillStyle = 'rgba(250,204,21,.5)';
+    context.fillRect(clockBoxX, clockBoxY, clockBoxWidth, clockBoxHeight);
+    context.lineWidth = 2;
+    context.strokeStyle = 'rgba(250,204,21,.9)';
+    context.strokeRect(clockBoxX, clockBoxY, clockBoxWidth, clockBoxHeight);
+    context.textAlign = 'center';
+    context.textBaseline = 'middle';
+    context.font = '800 24px system-ui, sans-serif';
+    context.fillStyle = '#0b1120';
+    context.fillText(clockLabel, clockBoxX + clockBoxWidth / 2, clockBoxY + clockBoxHeight / 2);
+    context.textBaseline = 'alphabetic';
+
     context.textAlign = 'left';
     context.font = '800 24px system-ui, sans-serif';
     context.fillStyle = '#94a3b8';
-    context.fillText(task.toLocaleUpperCase('pt-BR'), 52, 78, width - 104);
+    const titleMaxWidth = Math.max(80, clockBoxX - 52 - 16);
+    context.fillText(task.toLocaleUpperCase('pt-BR'), 52, 78, titleMaxWidth);
 
     context.textAlign = 'center';
     context.font = '900 94px system-ui, sans-serif';
@@ -339,7 +371,17 @@
 
   let interval, targetDate;
   let tickAudioContext = null;
-  let tickAudioBuffer = null;
+  let tickAudioBuffers = Object.create(null);
+  let tickSoundStyle = 'classic';
+  let tickTockMuted = false;
+  const TICK_SOUND_STYLE_KEY = 'contador-tick-style';
+  const TICK_SOUND_MUTED_KEY = 'contador-tick-muted';
+  const TICK_SOUND_PRESETS = {
+    classic: { first: 1900, second: 1450, firstStrength: 0.76, secondStrength: 0.68, gain: 0.22, transient: 0.22, decay: 0.0055, transientDecay: 0.0009, harmonic: 0.16 },
+    soft: { first: 1550, second: 1180, firstStrength: 0.62, secondStrength: 0.56, gain: 0.14, transient: 0.10, decay: 0.0048, transientDecay: 0.0008, harmonic: 0.08 },
+    wood: { first: 1180, second: 920, firstStrength: 0.82, secondStrength: 0.76, gain: 0.22, transient: 0.36, decay: 0.008, transientDecay: 0.0012, harmonic: 0.24 },
+    deep: { first: 850, second: 680, firstStrength: 0.86, secondStrength: 0.80, gain: 0.22, transient: 0.12, decay: 0.009, transientDecay: 0.001, harmonic: 0.12 }
+  };
   let tickAudioSource = null;
   let tickAudioGain = null;
   let tickAudioResumePending = false;
@@ -351,27 +393,63 @@
   let notificationUpdateInFlight = false;
   const barra = document.getElementById('barra');
 
-  function createTickTockBuffer(context) {
+  function createTickTockBuffer(context, style) {
+    const preset = TICK_SOUND_PRESETS[style] || TICK_SOUND_PRESETS.classic;
     const sampleRate = context.sampleRate;
     const buffer = context.createBuffer(1, sampleRate * 2, sampleRate);
     const samples = buffer.getChannelData(0);
     const clicks = [
-      { offset: 0, frequency: 1900, strength: 0.76 },
-      { offset: sampleRate, frequency: 1450, strength: 0.68 }
+      { offset: 0, frequency: preset.first, strength: preset.firstStrength },
+      { offset: sampleRate, frequency: preset.second, strength: preset.secondStrength }
     ];
     const clickLength = Math.floor(sampleRate * 0.032);
 
     clicks.forEach((click) => {
       for (let i = 0; i < clickLength; i++) {
         const elapsed = i / sampleRate;
-        const envelope = Math.exp(-elapsed / 0.0055) * (1 - i / clickLength);
-        const transient = (Math.random() * 2 - 1) * Math.exp(-elapsed / 0.0009) * 0.22;
+        const envelope = Math.exp(-elapsed / preset.decay) * (1 - i / clickLength);
+        const transient = (Math.random() * 2 - 1) * Math.exp(-elapsed / preset.transientDecay) * preset.transient;
         const tone = Math.sin(2 * Math.PI * click.frequency * elapsed)
-          + 0.16 * Math.sin(2 * Math.PI * click.frequency * 2.25 * elapsed);
+          + preset.harmonic * Math.sin(2 * Math.PI * click.frequency * 2.25 * elapsed);
         samples[click.offset + i] = (tone * 0.72 + transient) * envelope * click.strength;
       }
     });
     return buffer;
+  }
+
+  function updateTickSoundControls() {
+    const selector = document.getElementById('tickSoundStyle');
+    const muteButton = document.getElementById('btnTickMute');
+    if (selector) selector.value = tickSoundStyle;
+    if (muteButton) {
+      muteButton.textContent = tickTockMuted ? 'ATIVAR TICK' : 'MUTAR TICK';
+      muteButton.setAttribute('aria-pressed', String(tickTockMuted));
+      muteButton.setAttribute('aria-label', tickTockMuted ? 'Ativar tique-taque' : 'Mutar tique-taque');
+    }
+  }
+
+  function loadTickSoundSettings() {
+    const savedStyle = localStorage.getItem(TICK_SOUND_STYLE_KEY);
+    tickSoundStyle = Object.prototype.hasOwnProperty.call(TICK_SOUND_PRESETS, savedStyle) ? savedStyle : 'classic';
+    tickTockMuted = localStorage.getItem(TICK_SOUND_MUTED_KEY) === 'true';
+    updateTickSoundControls();
+  }
+
+  function changeTickSoundStyle() {
+    const selector = document.getElementById('tickSoundStyle');
+    if (!selector || !Object.prototype.hasOwnProperty.call(TICK_SOUND_PRESETS, selector.value)) return;
+    tickSoundStyle = selector.value;
+    localStorage.setItem(TICK_SOUND_STYLE_KEY, tickSoundStyle);
+    stopTickTock();
+    if (!tickTockMuted && targetDate && targetDate > new Date()) startTickTock(targetDate.getTime() - Date.now());
+  }
+
+  function toggleTickMute() {
+    tickTockMuted = !tickTockMuted;
+    localStorage.setItem(TICK_SOUND_MUTED_KEY, String(tickTockMuted));
+    updateTickSoundControls();
+    if (tickTockMuted) stopTickTock();
+    else if (targetDate && targetDate > new Date()) startTickTock(targetDate.getTime() - Date.now());
   }
 
   function clearTickTockResume() {
@@ -391,13 +469,13 @@
       if (handler) document.removeEventListener('pointerdown', handler);
       if (!tickAudioResumePending) return;
       tickAudioResumePending = false;
-      if (targetDate && targetDate > new Date()) startTickTock(targetDate.getTime() - Date.now());
+      if (!tickTockMuted && targetDate && targetDate > new Date()) startTickTock(targetDate.getTime() - Date.now());
     };
     document.addEventListener('pointerdown', tickAudioResumeHandler, { once: true });
   }
 
   function startTickTock(remainingMs) {
-    if (!Number.isFinite(remainingMs) || remainingMs <= 0 || !targetDate || targetDate <= new Date()) return;
+    if (tickTockMuted || !Number.isFinite(remainingMs) || remainingMs <= 0 || !targetDate || targetDate <= new Date()) return;
     const AudioContextClass = window.AudioContext || window.webkitAudioContext;
     if (!AudioContextClass) return;
 
@@ -414,15 +492,16 @@
           return;
         }
         clearTickTockResume();
-        if (!tickAudioBuffer) tickAudioBuffer = createTickTockBuffer(context);
+        const selectedStyle = Object.prototype.hasOwnProperty.call(TICK_SOUND_PRESETS, tickSoundStyle) ? tickSoundStyle : 'classic';
+        if (!tickAudioBuffers[selectedStyle]) tickAudioBuffers[selectedStyle] = createTickTockBuffer(context, selectedStyle);
 
         const source = context.createBufferSource();
         const gain = context.createGain();
-        source.buffer = tickAudioBuffer;
+        source.buffer = tickAudioBuffers[selectedStyle];
         source.loop = true;
         source.loopStart = 0;
-        source.loopEnd = tickAudioBuffer.duration;
-        gain.gain.setValueAtTime(0.22, context.currentTime);
+        source.loopEnd = tickAudioBuffers[selectedStyle].duration;
+        gain.gain.setValueAtTime(TICK_SOUND_PRESETS[selectedStyle].gain, context.currentTime);
         source.connect(gain);
         gain.connect(context.destination);
         source.onended = () => {
@@ -619,6 +698,9 @@
 
   document.getElementById('taskName').addEventListener('input', saveTimerState);
   document.getElementById('targetTime').addEventListener('change', saveTimerState);
+  document.getElementById('tickSoundStyle').addEventListener('change', changeTickSoundStyle);
+  document.getElementById('btnTickMute').addEventListener('click', toggleTickMute);
+  loadTickSoundSettings();
   restoreTimerState();
   updateFullscreenTask();
 
