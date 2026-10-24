@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Contador</title>
   <link rel="manifest" href="manifest.json">
   <meta name="theme-color" content="#111111">
@@ -83,6 +83,19 @@
       .block-timer:fullscreen .fullscreen-clock, .block-timer:-webkit-full-screen .fullscreen-clock { padding-bottom:12px; gap:10px; }
       .block-timer:fullscreen .fullscreen-clock-now, .block-timer:-webkit-full-screen .fullscreen-clock-now { font-size:clamp(1.5rem,8vw,2.4rem); }
       .block-timer:fullscreen #fullscreenTaskName, .block-timer:-webkit-full-screen #fullscreenTaskName, .block-timer:fullscreen #fullscreenTargetTime, .block-timer:-webkit-full-screen #fullscreenTargetTime { font-size:clamp(1.2rem,6vw,2rem); }
+    }
+
+    /* Mobile portrait: fit button labels and follow the browser's visible viewport. */
+    @media (max-width:650px) {
+      html,body { height:100%; max-height:none; }
+      body { height:100dvh; min-height:100dvh; max-height:100dvh; }
+      #barra { height:100dvh; min-height:100dvh; max-height:100dvh; padding:12px; padding-top:max(12px,env(safe-area-inset-top,0px)); padding-bottom:max(12px,env(safe-area-inset-bottom,0px)); }
+      .top-actions { gap:6px; padding:0 10px; }
+      .top-actions button { height:44px; padding:3px 4px; font-size:clamp(.56rem,2.5vw,.72rem); line-height:1.1; white-space:normal; overflow-wrap:anywhere; }
+      .block-timer { padding:72px 12px 18px; }
+      #timer { font-size:clamp(3.1rem,17vw,5.2rem); }
+      .block-controls { padding:12px 14px; gap:8px; }
+      .ctrl-row { gap:8px; }
     }
   </style>
 </head>
@@ -724,7 +737,7 @@
   // Registra Service Worker para PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(err => console.log('SW error:', err));
+      navigator.serviceWorker.register('sw.js?v=3').catch(err => console.log('SW error:', err));
     });
   }
 </script>

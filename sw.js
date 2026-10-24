@@ -1,4 +1,4 @@
-const CACHE_NAME = 'contador-v2';
+const CACHE_NAME = 'contador-v3';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
@@ -24,7 +24,6 @@ self.addEventListener('fetch', (event) => {
     }).catch(() => caches.match(event.request))
   );
 });
-
 
 self.addEventListener('notificationclick', (event) => {
   event.waitUntil(
