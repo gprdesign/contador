@@ -423,31 +423,31 @@
     context.fillText(footer, width / 2, 292, width - 80);
 
     context.textAlign = 'left';
-    context.font = '900 20px system-ui, sans-serif';
+    context.font = '900 22px system-ui, sans-serif';
     context.fillStyle = '#e2e8f0';
-    context.fillText('TAREFAS DO DIA', 52, 334);
+    context.fillText('TAREFAS DO DIA', 52, 326);
     context.textAlign = 'right';
-    context.font = '700 16px system-ui, sans-serif';
+    context.font = '700 18px system-ui, sans-serif';
     context.fillStyle = '#94a3b8';
-    context.fillText(`${dailyTasks.filter(item => item.done).length}/${dailyTasks.length}`, width - 52, 334);
+    context.fillText(`${dailyTasks.filter(item => item.done).length}/${dailyTasks.length}`, width - 52, 326);
     context.textAlign = 'left';
-    context.font = '600 17px system-ui, sans-serif';
+    context.font = '700 22px system-ui, sans-serif';
     context.fillStyle = '#cbd5e1';
     if (!dailyTasks.length) {
-      context.fillText('Nenhuma tarefa adicionada', 52, 370, width - 104);
+      context.fillText('Nenhuma tarefa adicionada', 52, 366, width - 104);
     } else {
-      dailyTasks.slice(0, 4).forEach((item, index) => {
-        const y = 366 + index * 27;
+      dailyTasks.slice(0, 3).forEach((item, index) => {
+        const y = 362 + index * 31;
         context.fillStyle = item.done ? '#86efac' : '#cbd5e1';
         context.fillText(item.done ? '✓' : '○', 54, y);
         context.fillStyle = item.done ? '#94a3b8' : '#e2e8f0';
         const label = item.done ? `${item.name} · FEITA` : item.name;
         context.fillText(label, 84, y, width - 138);
       });
-      if (dailyTasks.length > 4) {
-        context.font = '600 14px system-ui, sans-serif';
+      if (dailyTasks.length > 3) {
+        context.font = '700 16px system-ui, sans-serif';
         context.fillStyle = '#94a3b8';
-        context.fillText(`+${dailyTasks.length - 4} na lista do dia`, 84, 470, width - 138);
+        context.fillText(`+${dailyTasks.length - 3} na lista do dia`, 84, 449, width - 138);
       }
     }
   }
@@ -455,9 +455,9 @@
   function prepareMiniPlayerMedia() {
     miniPlayerCanvas = document.createElement('canvas');
     miniPlayerCanvas.width = 640;
-    miniPlayerCanvas.height = 540;
+    miniPlayerCanvas.height = 470;
     miniPlayerCanvas.setAttribute('aria-hidden', 'true');
-    miniPlayerCanvas.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;height:540px;pointer-events:none;';
+    miniPlayerCanvas.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;height:470px;pointer-events:none;';
     document.body.appendChild(miniPlayerCanvas);
     miniPlayerContext = miniPlayerCanvas.getContext('2d');
     if (!miniPlayerContext) throw new Error('Canvas 2D indisponível');
@@ -469,7 +469,7 @@
     miniPlayerVideo.playsInline = true;
     miniPlayerVideo.disablePictureInPicture = false;
     miniPlayerVideo.setAttribute('aria-hidden', 'true');
-    miniPlayerVideo.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;height:540px;opacity:0;pointer-events:none;';
+    miniPlayerVideo.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;height:470px;opacity:0;pointer-events:none;';
     miniPlayerVideo.srcObject = miniPlayerStream;
     document.body.appendChild(miniPlayerVideo);
     miniPlayerVideo.addEventListener('enterpictureinpicture', () => {
@@ -912,7 +912,7 @@
   // Registra Service Worker para PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=5').catch(err => console.log('SW error:', err));
+      navigator.serviceWorker.register('sw.js?v=6').catch(err => console.log('SW error:', err));
     });
   }
 </script>
