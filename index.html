@@ -63,6 +63,10 @@
     .daily-task-form button { flex:none; height:38px; padding:0 12px; background:rgba(56,189,248,.15); color:#e0f2fe; border:1px solid rgba(56,189,248,.3); }
     .daily-task-list { display:grid; gap:5px; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
     .daily-task-row { display:flex; align-items:center; gap:8px; min-height:34px; padding:3px 7px; border:1px solid rgba(255,255,255,.09); border-radius:9px; background:rgba(15,23,42,.44); }
+    .daily-task-drag { flex:none; width:28px; height:28px; padding:0; border:0; background:transparent; color:#94a3b8; font-size:1.2rem; cursor:grab; touch-action:none; user-select:none; }
+    .daily-task-drag:active { cursor:grabbing; }
+    .daily-task-row.is-dragging { opacity:.45; border-color:rgba(56,189,248,.8); }
+    .daily-task-row.is-drop-target { outline:2px solid rgba(56,189,248,.55); }
     .daily-task-toggle { flex:none; width:28px; height:28px; padding:0; border:1px solid rgba(148,163,184,.42); background:transparent; color:#86efac; }
     .daily-task-toggle[aria-pressed="true"] { border-color:rgba(34,197,94,.5); background:rgba(34,197,94,.15); }
     .daily-task-name { flex:1; min-width:0; overflow-wrap:anywhere; color:#f1f5f9; font-size:.78rem; line-height:1.25; }
@@ -269,12 +273,53 @@
     if (!list || !progress) return;
     const done = dailyTaskItems.filter(item => item.done).length;
     progress.textContent = `${done}/${dailyTaskItems.length} concluídas`;
-    list.innerHTML = dailyTaskItems.length ? dailyTaskItems.map(item => `<div class="daily-task-row${item.done ? ' is-done' : ''}" data-daily-task-id="${escapeHtml(item.id)}"><button type="button" class="daily-task-toggle" data-daily-task-toggle="${escapeHtml(item.id)}" aria-pressed="${item.done}" aria-label="${item.done ? 'Desmarcar' : 'Concluir'} ${escapeHtml(item.name)}">${item.done ? '✓' : ''}</button><span class="daily-task-name">${escapeHtml(item.name)}</span><button type="button" class="daily-task-delete" data-daily-task-delete="${escapeHtml(item.id)}" aria-label="Excluir ${escapeHtml(item.name)}">×</button></div>`).join('') : '<div class="daily-task-empty">Adicione as tarefas que quer concluir antes do fim do contador.</div>';
+    list.innerHTML = dailyTaskItems.length ? dailyTaskItems.map(item => `<div class="daily-task-row${item.done ? ' is-done' : ''}" data-daily-task-id="${escapeHtml(item.id)}"><button type="button" class="daily-task-drag" data-daily-task-drag="${escapeHtml(item.id)}" aria-label="Arrastar para reordenar ${escapeHtml(item.name)}" title="Arraste para reordenar">⠿</button><button type="button" class="daily-task-toggle" data-daily-task-toggle="${escapeHtml(item.id)}" aria-pressed="${item.done}" aria-label="${item.done ? 'Desmarcar' : 'Concluir'} ${escapeHtml(item.name)}">${item.done ? '✓' : ''}</button><span class="daily-task-name">${escapeHtml(item.name)}</span><button type="button" class="daily-task-delete" data-daily-task-delete="${escapeHtml(item.id)}" aria-label="Excluir ${escapeHtml(item.name)}">×</button></div>`).join('') : '<div class="daily-task-empty">Adicione as tarefas que quer concluir antes do fim do contador.</div>';
     drawMiniPlayerFrame();
   }
 
   function escapeHtml(value) {
     return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
+  }
+
+  let activeDailyTaskDrag = null;
+
+  function startDailyTaskReorder(event) {
+    const handle = event.target.closest('[data-daily-task-drag]');
+    if (!handle || event.button !== undefined && event.button !== 0) return;
+    const row = handle.closest('[data-daily-task-id]');
+    if (!row) return;
+    event.preventDefault();
+    activeDailyTaskDrag = { id: row.dataset.dailyTaskId, pointerId: event.pointerId, list: document.getElementById('dailyTaskList'), handle };
+    row.classList.add('is-dragging');
+    try { handle.setPointerCapture(event.pointerId); } catch {}
+  }
+
+  function moveDailyTaskReorder(event) {
+    if (!activeDailyTaskDrag || activeDailyTaskDrag.pointerId !== event.pointerId) return;
+    event.preventDefault();
+    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.daily-task-row');
+    activeDailyTaskDrag.list.querySelectorAll('.is-drop-target').forEach(node => node.classList.remove('is-drop-target'));
+    if (!target || target.dataset.dailyTaskId === activeDailyTaskDrag.id) return;
+    target.classList.add('is-drop-target');
+    const rect = target.getBoundingClientRect();
+    const after = event.clientY > rect.top + rect.height / 2;
+    activeDailyTaskDrag.list.insertBefore(activeDailyTaskDrag.list.querySelector(`[data-daily-task-id="${CSS.escape(activeDailyTaskDrag.id)}"]`), after ? target.nextSibling : target);
+  }
+
+  function finishDailyTaskReorder(event) {
+    if (!activeDailyTaskDrag || activeDailyTaskDrag.pointerId !== event.pointerId) return;
+    const { list, id, handle } = activeDailyTaskDrag;
+    list.querySelectorAll('.is-dragging,.is-drop-target').forEach(node => node.classList.remove('is-dragging','is-drop-target'));
+    try { handle.releasePointerCapture(event.pointerId); } catch {}
+    activeDailyTaskDrag = null;
+    const order = Array.from(list.querySelectorAll('.daily-task-row')).map(node => node.dataset.dailyTaskId);
+    const byId = new Map(dailyTaskItems.map(item => [item.id, item]));
+    const reordered = order.map(itemId => byId.get(itemId)).filter(Boolean);
+    if (reordered.length === dailyTaskItems.length && reordered.some((item, index) => item.id !== dailyTaskItems[index]?.id)) {
+      dailyTaskItems = reordered;
+      saveDailyTasks();
+      drawMiniPlayerFrame();
+    }
   }
 
   function handleDailyTaskAction(event) {
@@ -296,7 +341,12 @@
     const id = window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
     dailyTaskItems.push({ id, name, done: false }); input.value = ''; saveDailyTasks(); renderDailyTasks(); input.focus();
   });
-  document.getElementById('dailyTaskList').addEventListener('click', handleDailyTaskAction);
+  const dailyTaskList = document.getElementById('dailyTaskList');
+  dailyTaskList.addEventListener('click', handleDailyTaskAction);
+  dailyTaskList.addEventListener('pointerdown', startDailyTaskReorder);
+  dailyTaskList.addEventListener('pointermove', moveDailyTaskReorder);
+  dailyTaskList.addEventListener('pointerup', finishDailyTaskReorder);
+  dailyTaskList.addEventListener('pointercancel', finishDailyTaskReorder);
   renderDailyTasks();
 
   function updateMiniPlayerButton() {
@@ -862,7 +912,7 @@
   // Registra Service Worker para PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=4').catch(err => console.log('SW error:', err));
+      navigator.serviceWorker.register('sw.js?v=5').catch(err => console.log('SW error:', err));
     });
   }
 </script>
