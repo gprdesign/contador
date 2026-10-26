@@ -226,8 +226,8 @@
   }
 
   const DAILY_TASKS_KEY = 'contador-daily-tasks-v1';
-  let dailyTaskItems = loadDailyTasks();
   let dailyTasksDate = localDayKey();
+  let dailyTaskItems = loadDailyTasks();
 
   function ensureDailyTasksDate() {
     const today = localDayKey();
