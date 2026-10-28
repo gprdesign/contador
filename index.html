@@ -195,9 +195,9 @@
     </div>
     <section class="calendar-events-panel" aria-label="Próximos eventos do Google Calendar">
       <div class="calendar-events-heading">PRÓXIMOS COMPROMISSOS DE HOJE</div>
-      <div class="calendar-oauth-row"><input id="calendarClientId" type="text" autocomplete="off" aria-label="ID do cliente OAuth do Google" hidden><button id="calendarConnectBtn" type="button">CONECTAR AGENDA</button></div>
+      <div class="calendar-oauth-row"><input id="calendarClientId" type="text" autocomplete="off" aria-label="ID do cliente OAuth do Google" hidden><button id="calendarConnectBtn" type="button" hidden>CONECTAR AGENDA</button></div>
       <button id="calendarRefreshBtn" class="calendar-fetch-btn" type="button" hidden>ATUALIZAR EVENTOS</button>
-      <div id="calendarEventStatus" class="calendar-event-status" aria-live="polite">Conecte sua conta uma vez; os eventos de hoje aparecerão aqui automaticamente.</div>
+      <div id="calendarEventStatus" class="calendar-event-status" aria-live="polite">Reconectando sua Agenda…</div>
       <div id="calendarEventList" class="calendar-event-list" aria-live="polite"></div>
     </section>
     <div class="ctrl-row sound-row">
@@ -219,6 +219,7 @@
   const GOOGLE_OAUTH_CLIENT_ID = '701619070988-5k5nasa85q4slf476n38s9q8prpr0i7h.apps.googleusercontent.com';
   let calendarTokenClient = null;
   let calendarAccessToken = null;
+  let calendarRestoreAttempted = false;
   let miniPlayerVideo = null;
   let miniPlayerCanvas = null;
   let miniPlayerContext = null;
@@ -714,34 +715,36 @@
       availableCalendars = calendars.filter((calendar) => ['owner','writer','reader'].includes(calendar.accessRole));
       await loadTodayCalendarEvents();
     } catch (error) {
-      const message = error.message === 'HTTP 401'
-        ? 'A autorização expirou. Toque em CONECTAR AGENDA novamente.'
-        : error.message === 'HTTP 403'
-          ? 'O Google precisa de nova autorização para mostrar eventos de todas as agendas. Toque em CONECTAR AGENDA.'
-          : 'Não consegui carregar suas agendas. Tente atualizar.';
-      setCalendarStatus(message);
+      if (error.message === 'HTTP 401') {
+        calendarAccessToken = null;
+        document.getElementById('calendarConnectBtn').hidden = false;
+        setCalendarStatus('Sua sessão da Agenda expirou. Toque em CONECTAR AGENDA uma vez para renovar.');
+      } else if (error.message === 'HTTP 403') {
+        document.getElementById('calendarConnectBtn').hidden = false;
+        setCalendarStatus('O Google precisa autorizar o acesso às outras agendas. Toque em CONECTAR AGENDA uma vez.');
+      } else {
+        setCalendarStatus('Não consegui carregar suas agendas. Tente atualizar.');
+      }
     }
   }
 
-  function connectGoogleCalendar() {
+  function beginCalendarAuthorization(prompt = 'none') {
     const input = document.getElementById('calendarClientId');
     const clientId = (input.value || GOOGLE_OAUTH_CLIENT_ID).trim();
-    if (!clientId) {
-      setCalendarStatus('Cole o ID do cliente OAuth do Google para autorizar acesso somente de leitura.');
-      input.focus();
-      return;
-    }
+    if (!clientId || !window.google?.accounts?.oauth2) return false;
     localStorage.setItem(CALENDAR_CLIENT_ID_KEY, clientId);
-    if (!window.google?.accounts?.oauth2) {
-      setCalendarStatus('Carregando a conexão segura do Google. Tente novamente em instantes.');
-      return;
-    }
     calendarTokenClient = window.google.accounts.oauth2.initTokenClient({
-      client_id: clientId,
-      scope: GOOGLE_CALENDAR_SCOPE,
-      callback: async (response) => {
+      client_id:clientId,
+      scope:GOOGLE_CALENDAR_SCOPE,
+      callback:async (response) => {
         if (response.error || !response.access_token) {
-          setCalendarStatus('A autorização não foi concluída. Confira o cliente OAuth e tente novamente.');
+          if (prompt === 'none') {
+            document.getElementById('calendarConnectBtn').hidden = false;
+            setCalendarStatus('Toque em CONECTAR AGENDA uma vez para autorizar a sessão. Depois ela será restaurada automaticamente.');
+          } else {
+            document.getElementById('calendarConnectBtn').hidden = false;
+            setCalendarStatus('A autorização não foi concluída. Toque novamente em CONECTAR AGENDA.');
+          }
           return;
         }
         calendarAccessToken = response.access_token;
@@ -750,9 +753,51 @@
         document.getElementById('calendarRefreshBtn').hidden = false;
         await loadAvailableCalendars();
       },
-      error_callback: (error) => setCalendarStatus(error?.type === 'popup_closed' ? 'Janela de autorização fechada. Toque em CONECTAR para tentar novamente.' : 'Não foi possível abrir a autorização do Google neste navegador.')
+      error_callback:(error) => {
+        if (prompt === 'none') {
+          document.getElementById('calendarConnectBtn').hidden = false;
+          setCalendarStatus('Toque em CONECTAR AGENDA uma vez para autorizar; depois a sessão será restaurada automaticamente.');
+        } else {
+          document.getElementById('calendarConnectBtn').hidden = false;
+          setCalendarStatus(error?.type === 'popup_closed' ? 'Janela de autorização fechada. Toque em CONECTAR AGENDA para tentar novamente.' : 'Não foi possível abrir a autorização do Google neste navegador.');
+        }
+      }
     });
-    calendarTokenClient.requestAccessToken({ prompt: 'consent' });
+    calendarTokenClient.requestAccessToken({prompt});
+    return true;
+  }
+
+  function connectGoogleCalendar() {
+    if (!window.google?.accounts?.oauth2) {
+      setCalendarStatus('Carregando a conexão segura do Google. Tente novamente em instantes.');
+      return;
+    }
+    beginCalendarAuthorization('consent');
+  }
+
+  function restoreCalendarSession() {
+    if (calendarRestoreAttempted) return;
+    calendarRestoreAttempted = true;
+    if (window.google?.accounts?.oauth2) {
+      if (!beginCalendarAuthorization('none')) {
+        document.getElementById('calendarConnectBtn').hidden = false;
+        setCalendarStatus('Toque em CONECTAR AGENDA uma vez para autorizar a sessão.');
+      }
+      return;
+    }
+    const gisScript = document.querySelector('script[src*="accounts.google.com/gsi/client"]');
+    if (gisScript) {
+      gisScript.addEventListener('load', () => beginCalendarAuthorization('none'), {once:true});
+      window.setTimeout(() => {
+        if (document.getElementById('calendarRefreshBtn').hidden) {
+          document.getElementById('calendarConnectBtn').hidden = false;
+          setCalendarStatus('Não consegui restaurar a sessão automaticamente. Toque em CONECTAR AGENDA uma vez.');
+        }
+      }, 7000);
+    } else {
+      document.getElementById('calendarConnectBtn').hidden = false;
+      setCalendarStatus('A conexão segura do Google não carregou. Toque em CONECTAR AGENDA para tentar de novo.');
+    }
   }
 
   async function loadTodayCalendarEvents() {
@@ -781,7 +826,13 @@
       renderCalendarEvents(events);
       setCalendarStatus(events.length ? 'Toque em um evento para iniciar 25 minutos antes.' : '');
     } catch (error) {
-      setCalendarStatus(error.message === 'HTTP 401' ? 'A autorização expirou. Toque em CONECTAR para autorizar novamente.' : 'Não consegui carregar todas as agendas selecionadas. Tente atualizar.');
+      if (error.message === 'HTTP 401') {
+        calendarAccessToken = null;
+        document.getElementById('calendarConnectBtn').hidden = false;
+        setCalendarStatus('Sua sessão da Agenda expirou. Toque em CONECTAR AGENDA uma vez para renovar.');
+      } else {
+        setCalendarStatus('Não consegui carregar os eventos de hoje. Tente atualizar.');
+      }
     }
   }
 
@@ -814,6 +865,7 @@
   document.getElementById('calendarRefreshBtn').addEventListener('click', loadCalendarData);
   const savedCalendarClientId = localStorage.getItem(CALENDAR_CLIENT_ID_KEY) || GOOGLE_OAUTH_CLIENT_ID;
   if (savedCalendarClientId) document.getElementById('calendarClientId').value = savedCalendarClientId;
+  window.addEventListener('load', restoreCalendarSession, { once:true });
 
   function startTimer() {
     updateFullscreenTask();
@@ -951,7 +1003,7 @@
   // Registra Service Worker para PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=10').catch(err => console.log('SW error:', err));
+      navigator.serviceWorker.register('sw.js?v=11').catch(err => console.log('SW error:', err));
     });
   }
 </script>
