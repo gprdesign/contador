@@ -227,7 +227,7 @@
   const GOOGLE_OAUTH_CLIENT_ID = '701619070988-5k5nasa85q4slf476n38s9q8prpr0i7h.apps.googleusercontent.com';
   let calendarTokenClient = null;
   let calendarAccessToken = null;
-  let calendarRestoreAttempted = false;
+  const CALENDAR_SESSION_KEY = 'contador-google-calendar-session';
   let miniPlayerVideo = null;
   let miniPlayerCanvas = null;
   let miniPlayerContext = null;
@@ -725,8 +725,10 @@
     } catch (error) {
       if (error.message === 'HTTP 401') {
         calendarAccessToken = null;
+        sessionStorage.removeItem(CALENDAR_SESSION_KEY);
+        document.getElementById('calendarRefreshBtn').hidden = true;
         document.getElementById('calendarConnectBtn').hidden = false;
-        setCalendarStatus('Sua sessão da Agenda expirou. Toque em CONECTAR AGENDA uma vez para renovar.');
+        setCalendarStatus('Sua sessão da Agenda expirou. Toque em CONECTAR AGENDA para renovar.');
       } else if (error.message === 'HTTP 403') {
         document.getElementById('calendarConnectBtn').hidden = false;
         setCalendarStatus('O Google precisa autorizar o acesso às outras agendas. Toque em CONECTAR AGENDA uma vez.');
@@ -748,7 +750,7 @@
         if (response.error || !response.access_token) {
           if (prompt === 'none') {
             document.getElementById('calendarConnectBtn').hidden = false;
-            setCalendarStatus('Toque em CONECTAR AGENDA uma vez para autorizar a sessão. Depois ela será restaurada automaticamente.');
+            setCalendarStatus('Toque em CONECTAR AGENDA para autorizar e carregar seus eventos.');
           } else {
             document.getElementById('calendarConnectBtn').hidden = false;
             setCalendarStatus('A autorização não foi concluída. Toque novamente em CONECTAR AGENDA.');
@@ -756,6 +758,7 @@
           return;
         }
         calendarAccessToken = response.access_token;
+        sessionStorage.setItem(CALENDAR_SESSION_KEY, JSON.stringify({ token:calendarAccessToken, savedAt:Date.now() }));
         document.getElementById('calendarClientId').hidden = true;
         document.getElementById('calendarConnectBtn').hidden = true;
         document.getElementById('calendarRefreshBtn').hidden = false;
@@ -764,7 +767,7 @@
       error_callback:(error) => {
         if (prompt === 'none') {
           document.getElementById('calendarConnectBtn').hidden = false;
-          setCalendarStatus('Toque em CONECTAR AGENDA uma vez para autorizar; depois a sessão será restaurada automaticamente.');
+          setCalendarStatus('Toque em CONECTAR AGENDA para autorizar e carregar seus eventos.');
         } else {
           document.getElementById('calendarConnectBtn').hidden = false;
           setCalendarStatus(error?.type === 'popup_closed' ? 'Janela de autorização fechada. Toque em CONECTAR AGENDA para tentar novamente.' : 'Não foi possível abrir a autorização do Google neste navegador.');
@@ -784,28 +787,20 @@
   }
 
   function restoreCalendarSession() {
-    if (calendarRestoreAttempted) return;
-    calendarRestoreAttempted = true;
-    if (window.google?.accounts?.oauth2) {
-      if (!beginCalendarAuthorization('none')) {
-        document.getElementById('calendarConnectBtn').hidden = false;
-        setCalendarStatus('Toque em CONECTAR AGENDA uma vez para autorizar a sessão.');
-      }
+    document.getElementById('calendarClientId').value = localStorage.getItem(CALENDAR_CLIENT_ID_KEY) || GOOGLE_OAUTH_CLIENT_ID;
+    let stored = null;
+    try { stored = JSON.parse(sessionStorage.getItem(CALENDAR_SESSION_KEY) || 'null'); } catch {}
+    const lifetimeMs = 50 * 60 * 1000;
+    if (stored?.token && Number.isFinite(stored.savedAt) && Date.now() - stored.savedAt < lifetimeMs) {
+      calendarAccessToken = stored.token;
+      document.getElementById('calendarConnectBtn').hidden = true;
+      document.getElementById('calendarRefreshBtn').hidden = false;
+      loadAvailableCalendars();
       return;
     }
-    const gisScript = document.querySelector('script[src*="accounts.google.com/gsi/client"]');
-    if (gisScript) {
-      gisScript.addEventListener('load', () => beginCalendarAuthorization('none'), {once:true});
-      window.setTimeout(() => {
-        if (document.getElementById('calendarRefreshBtn').hidden) {
-          document.getElementById('calendarConnectBtn').hidden = false;
-          setCalendarStatus('Não consegui restaurar a sessão automaticamente. Toque em CONECTAR AGENDA uma vez.');
-        }
-      }, 7000);
-    } else {
-      document.getElementById('calendarConnectBtn').hidden = false;
-      setCalendarStatus('A conexão segura do Google não carregou. Toque em CONECTAR AGENDA para tentar de novo.');
-    }
+    sessionStorage.removeItem(CALENDAR_SESSION_KEY);
+    document.getElementById('calendarConnectBtn').hidden = false;
+    setCalendarStatus('Conecte sua Agenda para carregar os eventos de hoje.');
   }
 
   async function loadTodayCalendarEvents() {
@@ -836,8 +831,10 @@
     } catch (error) {
       if (error.message === 'HTTP 401') {
         calendarAccessToken = null;
+        sessionStorage.removeItem(CALENDAR_SESSION_KEY);
+        document.getElementById('calendarRefreshBtn').hidden = true;
         document.getElementById('calendarConnectBtn').hidden = false;
-        setCalendarStatus('Sua sessão da Agenda expirou. Toque em CONECTAR AGENDA uma vez para renovar.');
+        setCalendarStatus('Sua sessão da Agenda expirou. Toque em CONECTAR AGENDA para renovar.');
       } else {
         setCalendarStatus('Não consegui carregar os eventos de hoje. Tente atualizar.');
       }
@@ -1011,7 +1008,7 @@
   // Registra Service Worker para PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=12').catch(err => console.log('SW error:', err));
+      navigator.serviceWorker.register('sw.js?v=13').catch(err => console.log('SW error:', err));
     });
   }
 </script>
