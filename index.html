@@ -60,6 +60,11 @@
     .calendar-oauth-row { display:flex; gap:6px; width:100%; }
     .calendar-oauth-row input { flex:1; min-width:0; height:32px; font-size:.68rem; }
     .calendar-oauth-row button,.calendar-fetch-btn { flex:none; height:32px; padding:0 10px; background:rgba(56,189,248,.15); color:#e0f2fe; border:1px solid rgba(56,189,248,.3); font-size:.64rem; }
+    .calendar-selector { min-width:0; max-height:112px; overflow:auto; padding:5px 7px; border:1px solid rgba(255,255,255,.12); border-radius:9px; }
+    .calendar-selector legend { padding:0 4px; color:#cbd5e1; font-size:.62rem; font-weight:800; }
+    .calendar-checkbox-list { display:grid; gap:3px; }
+    .calendar-checkbox-row { display:flex; align-items:center; gap:6px; color:#e2e8f0; font-size:.66rem; line-height:1.2; }
+    .calendar-checkbox-row input { flex:none; width:15px; height:15px; margin:0; accent-color:#38bdf8; }
     .calendar-event-list { display:grid; gap:5px; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
     .calendar-event-button { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; height:auto; min-height:34px; padding:6px 9px; border:1px solid rgba(255,255,255,.12); border-radius:9px; background:rgba(15,23,42,.58); color:#f8fafc; text-align:left; white-space:normal; }
     .calendar-event-button:disabled { opacity:.5; cursor:not-allowed; }
@@ -209,8 +214,9 @@
     <section class="calendar-events-panel" aria-label="Próximos eventos do Google Calendar">
       <div class="calendar-events-heading">PRÓXIMOS COMPROMISSOS DE HOJE</div>
       <div class="calendar-oauth-row"><label class="sr-only" for="calendarClientId">ID do cliente OAuth do Google</label><input id="calendarClientId" type="text" autocomplete="off" placeholder="ID do cliente OAuth do Google"><button id="calendarConnectBtn" type="button">CONECTAR</button></div>
-      <button id="calendarRefreshBtn" class="calendar-fetch-btn" type="button" hidden>ATUALIZAR EVENTOS</button>
-      <div id="calendarEventStatus" class="calendar-event-status" aria-live="polite">Conecte sua Agenda para carregar os eventos.</div>
+      <button id="calendarRefreshBtn" class="calendar-fetch-btn" type="button" hidden>ATUALIZAR AGENDAS E EVENTOS</button>
+      <div id="calendarEventStatus" class="calendar-event-status" aria-live="polite">Conecte e autorize a leitura das suas agendas para escolher quais entram no contador.</div>
+      <fieldset id="calendarSelector" class="calendar-selector" hidden><legend>Agendas incluídas</legend><div id="calendarCheckboxList" class="calendar-checkbox-list"></div></fieldset>
       <div id="calendarEventList" class="calendar-event-list" aria-live="polite"></div>
     </section>
     <div class="ctrl-row sound-row">
@@ -817,7 +823,11 @@
   }
 
   const CALENDAR_CLIENT_ID_KEY = 'contador-google-oauth-client-id';
-  const GOOGLE_CALENDAR_EVENTS_URL = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+  const GOOGLE_CALENDAR_LIST_URL = 'https://www.googleapis.com/calendar/v3/users/me/calendarList';
+  const GOOGLE_CALENDAR_EVENTS_URL = 'https://www.googleapis.com/calendar/v3/calendars';
+  const GOOGLE_CALENDAR_SCOPE = 'https://www.googleapis.com/auth/calendar.readonly';
+  const CALENDAR_SELECTION_KEY = 'contador-google-calendar-selection';
+  let availableCalendars = [];
 
   function setCalendarStatus(message) {
     document.getElementById('calendarEventStatus').textContent = message;
@@ -839,7 +849,7 @@
       button.className = 'calendar-event-button';
       const title = document.createElement('span');
       title.className = 'calendar-event-name';
-      title.textContent = event.summary || '(Sem título)';
+      title.textContent = (event.calendarName ? event.calendarName + ' · ' : '') + (event.summary || '(Sem título)');
       const time = document.createElement('span');
       time.className = 'calendar-event-time';
       time.textContent = new Intl.DateTimeFormat('pt-BR', { hour:'2-digit', minute:'2-digit' }).format(new Date(event.start.dateTime));
@@ -847,6 +857,65 @@
       button.addEventListener('click', () => startTimerForCalendarEvent(event));
       list.appendChild(button);
     });
+  }
+
+  function selectedCalendarIds() {
+    return [...document.querySelectorAll('#calendarCheckboxList input[type="checkbox"]:checked')].map((input) => input.value);
+  }
+
+  function renderCalendarSelectors() {
+    const host = document.getElementById('calendarCheckboxList');
+    const selector = document.getElementById('calendarSelector');
+    host.replaceChildren();
+    if (!availableCalendars.length) { selector.hidden = true; return; }
+    selector.hidden = false;
+    const saved = new Set(JSON.parse(localStorage.getItem(CALENDAR_SELECTION_KEY) || '[]'));
+    const hasSaved = localStorage.getItem(CALENDAR_SELECTION_KEY) !== null;
+    availableCalendars.forEach((calendar) => {
+      const label = document.createElement('label');
+      label.className = 'calendar-checkbox-row';
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.value = calendar.id;
+      checkbox.checked = hasSaved ? saved.has(calendar.id) : (calendar.primary === true || calendar.selected !== false);
+      checkbox.addEventListener('change', () => {
+        localStorage.setItem(CALENDAR_SELECTION_KEY, JSON.stringify(selectedCalendarIds()));
+        loadTodayCalendarEvents();
+      });
+      const text = document.createElement('span');
+      text.textContent = calendar.summary + (calendar.primary ? ' (principal)' : '');
+      label.append(checkbox, text);
+      host.appendChild(label);
+    });
+    localStorage.setItem(CALENDAR_SELECTION_KEY, JSON.stringify(selectedCalendarIds()));
+  }
+
+  async function loadAvailableCalendars() {
+    if (!calendarAccessToken) return;
+    setCalendarStatus('Carregando todas as suas agendas…');
+    try {
+      let pageToken = '';
+      const calendars = [];
+      do {
+        const url = new URL(GOOGLE_CALENDAR_LIST_URL);
+        const params = new URLSearchParams({ maxResults:'250', showDeleted:'false' });
+        if (pageToken) params.set('pageToken', pageToken);
+        url.search = params.toString();
+        const response = await fetch(url, { headers:{ Authorization:'Bearer ' + calendarAccessToken } });
+        if (!response.ok) {
+          if (response.status === 401) calendarAccessToken = null;
+          throw new Error('HTTP ' + response.status);
+        }
+        const data = await response.json();
+        calendars.push(...(data.items || []));
+        pageToken = data.nextPageToken || '';
+      } while (pageToken);
+      availableCalendars = calendars.filter((calendar) => ['owner','writer','reader'].includes(calendar.accessRole));
+      renderCalendarSelectors();
+      await loadTodayCalendarEvents();
+    } catch (error) {
+      setCalendarStatus(error.message === 'HTTP 401' ? 'A autorização expirou. Toque em CONECTAR para autorizar novamente.' : 'Não consegui carregar suas agendas. Verifique a autorização do Google.');
+    }
   }
 
   function connectGoogleCalendar() {
@@ -864,7 +933,7 @@
     }
     calendarTokenClient = window.google.accounts.oauth2.initTokenClient({
       client_id: clientId,
-      scope: 'https://www.googleapis.com/auth/calendar.events.readonly',
+      scope: GOOGLE_CALENDAR_SCOPE,
       callback: async (response) => {
         if (response.error || !response.access_token) {
           setCalendarStatus('A autorização não foi concluída. Confira o cliente OAuth e tente novamente.');
@@ -874,7 +943,7 @@
         document.getElementById('calendarClientId').hidden = true;
         document.getElementById('calendarConnectBtn').hidden = true;
         document.getElementById('calendarRefreshBtn').hidden = false;
-        await loadTodayCalendarEvents();
+        await loadAvailableCalendars();
       },
       error_callback: (error) => setCalendarStatus(error?.type === 'popup_closed' ? 'Janela de autorização fechada. Toque em CONECTAR para tentar novamente.' : 'Não foi possível abrir a autorização do Google neste navegador.')
     });
@@ -883,28 +952,37 @@
 
   async function loadTodayCalendarEvents() {
     if (!calendarAccessToken) return;
-    setCalendarStatus('Buscando seus compromissos de hoje…');
+    const selectedIds = selectedCalendarIds();
+    if (!selectedIds.length) {
+      renderCalendarEvents([]);
+      setCalendarStatus('Marque pelo menos uma agenda para ver os compromissos.');
+      return;
+    }
+    setCalendarStatus('Buscando compromissos de todas as agendas selecionadas…');
     const now = new Date();
     const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
     const dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
-    const url = new URL(GOOGLE_CALENDAR_EVENTS_URL);
-    url.search = new URLSearchParams({
-      timeMin: dayStart.toISOString(), timeMax: dayEnd.toISOString(),
-      singleEvents: 'true', orderBy: 'startTime', maxResults: '50'
-    }).toString();
     try {
-      const response = await fetch(url, { headers: { Authorization: 'Bearer ' + calendarAccessToken } });
-      if (!response.ok) {
-        if (response.status === 401) calendarAccessToken = null;
-        throw new Error('HTTP ' + response.status);
-      }
-      const data = await response.json();
-      const events = (data.items || []).filter((event) => event.status !== 'cancelled' && event.start?.dateTime && new Date(event.start.dateTime) > new Date());
+      const results = await Promise.all(selectedIds.map(async (calendarId) => {
+        const url = new URL('https://www.googleapis.com/calendar/v3/calendars/' + encodeURIComponent(calendarId) + '/events');
+        url.search = new URLSearchParams({ timeMin:dayStart.toISOString(), timeMax:dayEnd.toISOString(), singleEvents:'true', orderBy:'startTime', maxResults:'50' }).toString();
+        const response = await fetch(url, { headers:{ Authorization:'Bearer ' + calendarAccessToken } });
+        if (!response.ok) { if (response.status === 401) calendarAccessToken = null; throw new Error('HTTP ' + response.status); }
+        const data = await response.json();
+        const calendar = availableCalendars.find((item) => item.id === calendarId);
+        return (data.items || []).filter((event) => event.status !== 'cancelled' && event.start?.dateTime && new Date(event.start.dateTime) > new Date()).map((event) => ({ ...event, calendarName:calendar?.summary || '' }));
+      }));
+      const events = results.flat().sort((a,b) => new Date(a.start.dateTime) - new Date(b.start.dateTime));
       renderCalendarEvents(events);
       setCalendarStatus(events.length ? 'Toque em um evento para iniciar 25 minutos antes.' : '');
     } catch (error) {
-      setCalendarStatus(error.message === 'HTTP 401' ? 'A autorização expirou. Toque em CONECTAR para autorizar novamente.' : 'Não consegui carregar a agenda. Tente atualizar os eventos.');
+      setCalendarStatus(error.message === 'HTTP 401' ? 'A autorização expirou. Toque em CONECTAR para autorizar novamente.' : 'Não consegui carregar todas as agendas selecionadas. Tente atualizar.');
     }
+  }
+
+  async function loadCalendarData() {
+    if (!calendarAccessToken) return;
+    await loadAvailableCalendars();
   }
 
   function startTimerForCalendarEvent(event) {
@@ -928,7 +1006,7 @@
   }
 
   document.getElementById('calendarConnectBtn').addEventListener('click', connectGoogleCalendar);
-  document.getElementById('calendarRefreshBtn').addEventListener('click', loadTodayCalendarEvents);
+  document.getElementById('calendarRefreshBtn').addEventListener('click', loadCalendarData);
   const savedCalendarClientId = localStorage.getItem(CALENDAR_CLIENT_ID_KEY) || GOOGLE_OAUTH_CLIENT_ID;
   if (savedCalendarClientId) document.getElementById('calendarClientId').value = savedCalendarClientId;
 
@@ -1068,7 +1146,7 @@
   // Registra Service Worker para PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=8').catch(err => console.log('SW error:', err));
+      navigator.serviceWorker.register('sw.js?v=9').catch(err => console.log('SW error:', err));
     });
   }
 </script>
