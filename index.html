@@ -66,24 +66,7 @@
     .calendar-event-name { min-width:0; overflow:hidden; font-size:.72rem; font-weight:750; text-overflow:ellipsis; }
     .calendar-event-time { flex:none; color:#bae6fd; font-size:.68rem; font-variant-numeric:tabular-nums; }
     .calendar-event-status,.calendar-event-empty { color:var(--muted); font-size:.66rem; line-height:1.3; }
-    .daily-task-panel { width:100%; min-height:0; max-height:min(34vh,220px); display:flex; flex-direction:column; gap:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.1); }
-    .daily-task-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; color:#e2e8f0; font-size:.72rem; font-weight:850; letter-spacing:.05em; }
-    .daily-task-heading span { color:var(--muted); font-size:.68rem; letter-spacing:0; }
-    .daily-task-form { display:flex; gap:7px; }
-    .daily-task-form input { flex:1; min-width:0; height:38px; }
-    .daily-task-form button { flex:none; height:38px; padding:0 12px; background:rgba(56,189,248,.15); color:#e0f2fe; border:1px solid rgba(56,189,248,.3); }
-    .daily-task-list { display:grid; gap:5px; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
-    .daily-task-row { display:flex; align-items:center; gap:8px; min-height:34px; padding:3px 7px; border:1px solid rgba(255,255,255,.09); border-radius:9px; background:rgba(15,23,42,.44); }
-    .daily-task-drag { flex:none; width:28px; height:28px; padding:0; border:0; background:transparent; color:#94a3b8; font-size:1.2rem; cursor:grab; touch-action:none; user-select:none; }
-    .daily-task-drag:active { cursor:grabbing; }
-    .daily-task-row.is-dragging { opacity:.45; border-color:rgba(56,189,248,.8); }
-    .daily-task-row.is-drop-target { outline:2px solid rgba(56,189,248,.55); }
-    .daily-task-toggle { flex:none; width:28px; height:28px; padding:0; border:1px solid rgba(148,163,184,.42); background:transparent; color:#86efac; }
-    .daily-task-toggle[aria-pressed="true"] { border-color:rgba(34,197,94,.5); background:rgba(34,197,94,.15); }
-    .daily-task-name { flex:1; min-width:0; overflow-wrap:anywhere; color:#f1f5f9; font-size:.78rem; line-height:1.25; }
-    .daily-task-row.is-done .daily-task-name { color:#94a3b8; text-decoration:line-through; }
-    .daily-task-delete { flex:none; width:28px; height:28px; padding:0; background:transparent; color:#94a3b8; }
-    .daily-task-empty { padding:5px 3px; color:#94a3b8; font-size:.72rem; }
+
     .pip-task-label { color:#cbd5e1; }
     .btn-mini-player { background:rgba(56,189,248,.13); color:#e0f2fe; border-color:rgba(56,189,248,.28); }
     .btn-mini-player:hover { background:rgba(56,189,248,.24); }
@@ -91,7 +74,7 @@
     .sep { display:none; } #alarmMsg { font-size:.75rem; font-weight:800; color:#fde68a; display:none; margin-top:12px; }
     #barra.warning .block-timer { border-color:rgba(245,158,11,.7); box-shadow:0 0 70px rgba(245,158,11,.14),inset 0 1px rgba(255,255,255,.1); } #barra.overtime .block-timer { border-color:rgba(239,68,68,.75); box-shadow:0 0 80px rgba(239,68,68,.2),inset 0 1px rgba(255,255,255,.1); animation:blink .5s infinite alternate; } @keyframes blink { from{opacity:1} to{opacity:.82} } @keyframes progressPulse { 0%,100%{opacity:.45;filter:brightness(.85);box-shadow:0 0 8px rgba(56,189,248,.45)} 50%{opacity:1;filter:brightness(1.55);box-shadow:0 0 24px rgba(56,189,248,1),0 0 42px rgba(129,140,248,.65)} }
     @media (max-width:1050px) { #barra { grid-template-columns:1.4fr 1fr; grid-template-areas:'timer controls'; } .block-clock { min-height:150px; flex-direction:row; align-items:center; justify-content:space-between; } .block-timer { min-height:300px; } #timer { font-size:clamp(4rem,11vw,7rem); } }
-    @media (max-width:650px) { #barra { height:100svh; max-height:100svh; min-height:100svh; grid-template-columns:1fr; grid-template-rows:minmax(0,1fr) auto; grid-template-areas:'timer' 'controls'; align-content:stretch; gap:12px; --nav-bottom:0px; padding:12px; overflow:hidden; } .block-clock,.block-timer,.block-controls { border-radius:18px; } .block-clock { min-height:86px; padding:20px 22px; flex-direction:row; align-items:center; justify-content:space-between; gap:14px; } #lineNow { font-size:clamp(2.4rem,14vw,3.5rem); } .clock-meta { padding-left:10px; gap:3px; } #lineWeekday { font-size:.86rem; } #lineDate { font-size:.76rem; } .block-timer { min-height:0; padding:80px 12px 24px; } .top-actions { top:24px; padding:0 12px; } #timer { font-size:clamp(3.8rem,19vw,6rem); } .progress-wrap { margin-top:16px; } .block-controls { min-height:0; padding:16px 20px; gap:10px; } .ctrl-row { gap:10px; } input { height:48px; font-size:.95rem; } select { height:48px; font-size:.9rem; } button { height:48px; font-size:.8rem; } #targetTime { width:116px; } .daily-task-panel { max-height:28vh; } .daily-task-form input,.daily-task-form button { height:42px; } }
+    @media (max-width:650px) { #barra { height:100svh; max-height:100svh; min-height:100svh; grid-template-columns:1fr; grid-template-rows:minmax(0,1fr) auto; grid-template-areas:'timer' 'controls'; align-content:stretch; gap:12px; --nav-bottom:0px; padding:12px; overflow:hidden; } .block-clock,.block-timer,.block-controls { border-radius:18px; } .block-clock { min-height:86px; padding:20px 22px; flex-direction:row; align-items:center; justify-content:space-between; gap:14px; } #lineNow { font-size:clamp(2.4rem,14vw,3.5rem); } .clock-meta { padding-left:10px; gap:3px; } #lineWeekday { font-size:.86rem; } #lineDate { font-size:.76rem; } .block-timer { min-height:0; padding:80px 12px 24px; } .top-actions { top:24px; padding:0 12px; } #timer { font-size:clamp(3.8rem,19vw,6rem); } .progress-wrap { margin-top:16px; } .block-controls { min-height:0; padding:16px 20px; gap:10px; } .ctrl-row { gap:10px; } input { height:48px; font-size:.95rem; } select { height:48px; font-size:.9rem; } button { height:48px; font-size:.8rem; } #targetTime { width:116px; } }
     @media (max-height:650px) and (max-width:650px) {
       #barra { gap:8px; --nav-bottom:0px; padding:8px 12px max(8px,env(safe-area-inset-bottom,0px)); }
       .block-clock { min-height:68px; padding:12px 16px; }
@@ -103,10 +86,6 @@
       .block-controls { min-height:0; padding:8px 12px; gap:6px; }
       input,button { height:34px; font-size:.68rem; } select { height:34px; font-size:.68rem; }
       #targetTime { width:100px; }
-      .daily-task-panel { max-height:23vh; gap:5px; padding-top:5px; }
-      .daily-task-form input,.daily-task-form button { height:32px; }
-      .daily-task-row { min-height:30px; }
-      .daily-task-toggle,.daily-task-delete { width:26px; height:26px; }
     }
 
     @media (max-height:500px) and (min-width:651px) { #barra { padding:12px 20px; gap:12px; } .block-clock,.block-timer,.block-controls { min-height:0; padding:18px; } #timer { font-size:clamp(3rem,8vw,6rem); } }
@@ -145,7 +124,6 @@
       .calendar-oauth-row button,.calendar-fetch-btn { white-space:normal; padding:4px 8px; }
       .calendar-event-list { flex:1 1 auto; width:100%; max-height:110px; overflow-y:auto; }
       .ctrl-row { gap:8px; }
-      .daily-task-panel { flex:none; max-height:220px; }
     }
     @media (max-width:650px) and (max-height:850px) and (min-height:501px) {
       #barra { grid-template-rows:minmax(230px,34dvh) minmax(0,1fr); }
@@ -231,7 +209,6 @@
       </select>
       <button id="btnTickMute" class="btn-tick-mute" type="button" aria-label="Mutar tique-taque">MUTAR TICK</button>
     </div>
-    <section class="daily-task-panel" aria-label="Tarefas do dia"><div class="daily-task-heading">TAREFAS DO DIA <span id="dailyTaskProgress">0/0 concluídas</span></div><form id="dailyTaskForm" class="daily-task-form"><label class="sr-only" for="dailyTaskInput">Adicionar tarefa do dia</label><input id="dailyTaskInput" type="text" maxlength="100" placeholder="Tarefa para concluir hoje…" required><button type="submit">＋ ADICIONAR</button></form><div id="dailyTaskList" class="daily-task-list" aria-live="polite"></div></section>
   </div>
 </div>
 
@@ -278,126 +255,6 @@
     if (btn) btn.textContent = active ? '⛶ SAIR DA TELA CHEIA' : '⛶ TELA CHEIA';
   }
 
-  const DAILY_TASKS_KEY = 'contador-daily-tasks-v1';
-  let dailyTasksDate = localDayKey();
-  let dailyTaskItems = loadDailyTasks();
-
-  function ensureDailyTasksDate() {
-    const today = localDayKey();
-    if (today === dailyTasksDate) return false;
-    dailyTasksDate = today;
-    dailyTaskItems = loadDailyTasks();
-    return true;
-  }
-
-  function localDayKey(date = new Date()) {
-    return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
-  }
-
-  function loadDailyTasks() {
-    try {
-      const stored = JSON.parse(localStorage.getItem(DAILY_TASKS_KEY) || '{}');
-      const today = localDayKey();
-      const byDate = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
-      const items = Array.isArray(byDate[today]) ? byDate[today] : [];
-      return items.filter(item => item && typeof item.name === 'string').map(item => ({ id: String(item.id || ''), name: item.name.trim().slice(0, 100), done: Boolean(item.done) })).filter(item => item.id && item.name).slice(0, 30);
-    } catch { return []; }
-  }
-
-  function saveDailyTasks() {
-    ensureDailyTasksDate();
-    try {
-      const stored = JSON.parse(localStorage.getItem(DAILY_TASKS_KEY) || '{}');
-      const byDate = stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
-      byDate[localDayKey()] = dailyTaskItems;
-      const keep = Object.keys(byDate).sort().slice(-60);
-      localStorage.setItem(DAILY_TASKS_KEY, JSON.stringify(Object.fromEntries(keep.map(key => [key, byDate[key]]))));
-    } catch { /* Keep the current list usable for this session if storage is unavailable. */ }
-  }
-
-  function renderDailyTasks() {
-    ensureDailyTasksDate();
-    const list = document.getElementById('dailyTaskList');
-    const progress = document.getElementById('dailyTaskProgress');
-    if (!list || !progress) return;
-    const done = dailyTaskItems.filter(item => item.done).length;
-    progress.textContent = `${done}/${dailyTaskItems.length} concluídas`;
-    list.innerHTML = dailyTaskItems.length ? dailyTaskItems.map(item => `<div class="daily-task-row${item.done ? ' is-done' : ''}" data-daily-task-id="${escapeHtml(item.id)}"><button type="button" class="daily-task-drag" data-daily-task-drag="${escapeHtml(item.id)}" aria-label="Arrastar para reordenar ${escapeHtml(item.name)}" title="Arraste para reordenar">⠿</button><button type="button" class="daily-task-toggle" data-daily-task-toggle="${escapeHtml(item.id)}" aria-pressed="${item.done}" aria-label="${item.done ? 'Desmarcar' : 'Concluir'} ${escapeHtml(item.name)}">${item.done ? '✓' : ''}</button><span class="daily-task-name">${escapeHtml(item.name)}</span><button type="button" class="daily-task-delete" data-daily-task-delete="${escapeHtml(item.id)}" aria-label="Excluir ${escapeHtml(item.name)}">×</button></div>`).join('') : '<div class="daily-task-empty">Adicione as tarefas que quer concluir antes do fim do contador.</div>';
-    drawMiniPlayerFrame();
-  }
-
-  function escapeHtml(value) {
-    return String(value).replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
-  }
-
-  let activeDailyTaskDrag = null;
-
-  function startDailyTaskReorder(event) {
-    const handle = event.target.closest('[data-daily-task-drag]');
-    if (!handle || event.button !== undefined && event.button !== 0) return;
-    const row = handle.closest('[data-daily-task-id]');
-    if (!row) return;
-    event.preventDefault();
-    activeDailyTaskDrag = { id: row.dataset.dailyTaskId, pointerId: event.pointerId, list: document.getElementById('dailyTaskList'), handle };
-    row.classList.add('is-dragging');
-    try { handle.setPointerCapture(event.pointerId); } catch {}
-  }
-
-  function moveDailyTaskReorder(event) {
-    if (!activeDailyTaskDrag || activeDailyTaskDrag.pointerId !== event.pointerId) return;
-    event.preventDefault();
-    const target = document.elementFromPoint(event.clientX, event.clientY)?.closest('.daily-task-row');
-    activeDailyTaskDrag.list.querySelectorAll('.is-drop-target').forEach(node => node.classList.remove('is-drop-target'));
-    if (!target || target.dataset.dailyTaskId === activeDailyTaskDrag.id) return;
-    target.classList.add('is-drop-target');
-    const rect = target.getBoundingClientRect();
-    const after = event.clientY > rect.top + rect.height / 2;
-    activeDailyTaskDrag.list.insertBefore(activeDailyTaskDrag.list.querySelector(`[data-daily-task-id="${CSS.escape(activeDailyTaskDrag.id)}"]`), after ? target.nextSibling : target);
-  }
-
-  function finishDailyTaskReorder(event) {
-    if (!activeDailyTaskDrag || activeDailyTaskDrag.pointerId !== event.pointerId) return;
-    const { list, id, handle } = activeDailyTaskDrag;
-    list.querySelectorAll('.is-dragging,.is-drop-target').forEach(node => node.classList.remove('is-dragging','is-drop-target'));
-    try { handle.releasePointerCapture(event.pointerId); } catch {}
-    activeDailyTaskDrag = null;
-    const order = Array.from(list.querySelectorAll('.daily-task-row')).map(node => node.dataset.dailyTaskId);
-    const byId = new Map(dailyTaskItems.map(item => [item.id, item]));
-    const reordered = order.map(itemId => byId.get(itemId)).filter(Boolean);
-    if (reordered.length === dailyTaskItems.length && reordered.some((item, index) => item.id !== dailyTaskItems[index]?.id)) {
-      dailyTaskItems = reordered;
-      saveDailyTasks();
-      drawMiniPlayerFrame();
-    }
-  }
-
-  function handleDailyTaskAction(event) {
-    const toggle = event.target.closest('[data-daily-task-toggle]');
-    const remove = event.target.closest('[data-daily-task-delete]');
-    if (!toggle && !remove) return;
-    const id = (toggle || remove).dataset.dailyTaskToggle || (toggle || remove).dataset.dailyTaskDelete;
-    if (remove) dailyTaskItems = dailyTaskItems.filter(item => item.id !== id);
-    else dailyTaskItems = dailyTaskItems.map(item => item.id === id ? { ...item, done: !item.done } : item);
-    saveDailyTasks(); renderDailyTasks();
-  }
-
-  document.getElementById('dailyTaskForm').addEventListener('submit', event => {
-    event.preventDefault();
-    const input = document.getElementById('dailyTaskInput');
-    const name = input.value.trim().replace(/\\s+/g, ' ').slice(0, 100);
-    if (!name || dailyTaskItems.length >= 30) return;
-    if (dailyTaskItems.some(item => item.name.toLocaleLowerCase('pt-BR') === name.toLocaleLowerCase('pt-BR'))) { input.value = ''; return; }
-    const id = window.crypto?.randomUUID ? window.crypto.randomUUID() : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
-    dailyTaskItems.push({ id, name, done: false }); input.value = ''; saveDailyTasks(); renderDailyTasks(); input.focus();
-  });
-  const dailyTaskList = document.getElementById('dailyTaskList');
-  dailyTaskList.addEventListener('click', handleDailyTaskAction);
-  dailyTaskList.addEventListener('pointerdown', startDailyTaskReorder);
-  dailyTaskList.addEventListener('pointermove', moveDailyTaskReorder);
-  dailyTaskList.addEventListener('pointerup', finishDailyTaskReorder);
-  dailyTaskList.addEventListener('pointercancel', finishDailyTaskReorder);
-  renderDailyTasks();
-
   function updateMiniPlayerButton() {
     const button = document.getElementById('btnMiniPlayer');
     if (!button) return;
@@ -415,7 +272,6 @@
     const timer = document.getElementById('timer').textContent;
     const targetTime = document.getElementById('targetTime').value;
     const expired = document.getElementById('alarmMsg').style.display === 'block';
-    const dailyTasks = loadDailyTasks();
     const warning = document.getElementById('barra').classList.contains('warning');
     const overtime = document.getElementById('barra').classList.contains('overtime');
 
@@ -471,42 +327,15 @@
     const footer = expired ? 'TEMPO ESGOTADO!' : targetTime ? 'ATÉ ' + formatAmPm(targetTime) : 'CONTADOR REGRESSIVO';
     context.fillText(footer, width / 2, 292, width - 80);
 
-    context.textAlign = 'left';
-    context.font = '900 22px system-ui, sans-serif';
-    context.fillStyle = '#e2e8f0';
-    context.fillText('TAREFAS DO DIA', 52, 326);
-    context.textAlign = 'right';
-    context.font = '700 18px system-ui, sans-serif';
-    context.fillStyle = '#94a3b8';
-    context.fillText(`${dailyTasks.filter(item => item.done).length}/${dailyTasks.length}`, width - 52, 326);
-    context.textAlign = 'left';
-    context.font = '700 22px system-ui, sans-serif';
-    context.fillStyle = '#cbd5e1';
-    if (!dailyTasks.length) {
-      context.fillText('Nenhuma tarefa adicionada', 52, 366, width - 104);
-    } else {
-      dailyTasks.slice(0, 3).forEach((item, index) => {
-        const y = 362 + index * 31;
-        context.fillStyle = item.done ? '#86efac' : '#cbd5e1';
-        context.fillText(item.done ? '✓' : '○', 54, y);
-        context.fillStyle = item.done ? '#94a3b8' : '#e2e8f0';
-        const label = item.done ? `${item.name} · FEITA` : item.name;
-        context.fillText(label, 84, y, width - 138);
-      });
-      if (dailyTasks.length > 3) {
-        context.font = '700 16px system-ui, sans-serif';
-        context.fillStyle = '#94a3b8';
-        context.fillText(`+${dailyTasks.length - 3} na lista do dia`, 84, 449, width - 138);
-      }
-    }
+
   }
 
   function prepareMiniPlayerMedia() {
     miniPlayerCanvas = document.createElement('canvas');
     miniPlayerCanvas.width = 640;
-    miniPlayerCanvas.height = 470;
+    miniPlayerCanvas.height = 330;
     miniPlayerCanvas.setAttribute('aria-hidden', 'true');
-    miniPlayerCanvas.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;height:470px;pointer-events:none;';
+    miniPlayerCanvas.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;height:330px;pointer-events:none;';
     document.body.appendChild(miniPlayerCanvas);
     miniPlayerContext = miniPlayerCanvas.getContext('2d');
     if (!miniPlayerContext) throw new Error('Canvas 2D indisponível');
@@ -518,7 +347,7 @@
     miniPlayerVideo.playsInline = true;
     miniPlayerVideo.disablePictureInPicture = false;
     miniPlayerVideo.setAttribute('aria-hidden', 'true');
-    miniPlayerVideo.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;height:470px;opacity:0;pointer-events:none;';
+    miniPlayerVideo.style.cssText = 'position:fixed;left:-10000px;top:0;width:640px;height:330px;opacity:0;pointer-events:none;';
     miniPlayerVideo.srcObject = miniPlayerStream;
     document.body.appendChild(miniPlayerVideo);
     miniPlayerVideo.addEventListener('enterpictureinpicture', () => {
@@ -1122,7 +951,7 @@
   // Registra Service Worker para PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=9').catch(err => console.log('SW error:', err));
+      navigator.serviceWorker.register('sw.js?v=10').catch(err => console.log('SW error:', err));
     });
   }
 </script>
