@@ -55,6 +55,17 @@
     button { height:44px; border-radius:12px; border:1px solid transparent; font-weight:800; cursor:pointer; padding:0 16px; font-size:.75rem; white-space:nowrap; transition:transform .2s,filter .2s; }
     button:hover { transform:translateY(-2px); filter:brightness(1.1); } .btn-start { flex:1; background:linear-gradient(135deg,#22c55e,#0ea5a4); color:#fff; } .btn-done { flex:1; background:linear-gradient(135deg,#38bdf8,#6366f1); color:#fff; display:none; } .btn-reset { background:rgba(255,255,255,.1); color:#fff; width:44px; padding:0; flex-shrink:0; border-color:rgba(255,255,255,.12); } .btn-refresh { width:auto; background:rgba(255,255,255,.06); color:#cbd5e1; border-color:rgba(255,255,255,.12); }
     .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+    .calendar-events-panel { width:100%; min-height:0; max-height:min(22vh,170px); display:flex; flex-direction:column; gap:6px; padding:8px 0 0; border-top:1px solid rgba(255,255,255,.1); }
+    .calendar-events-heading { color:#e2e8f0; font-size:.7rem; font-weight:850; letter-spacing:.04em; }
+    .calendar-oauth-row { display:flex; gap:6px; width:100%; }
+    .calendar-oauth-row input { flex:1; min-width:0; height:32px; font-size:.68rem; }
+    .calendar-oauth-row button,.calendar-fetch-btn { flex:none; height:32px; padding:0 10px; background:rgba(56,189,248,.15); color:#e0f2fe; border:1px solid rgba(56,189,248,.3); font-size:.64rem; }
+    .calendar-event-list { display:grid; gap:5px; min-height:0; overflow-y:auto; overscroll-behavior:contain; }
+    .calendar-event-button { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; height:auto; min-height:34px; padding:6px 9px; border:1px solid rgba(255,255,255,.12); border-radius:9px; background:rgba(15,23,42,.58); color:#f8fafc; text-align:left; white-space:normal; }
+    .calendar-event-button:disabled { opacity:.5; cursor:not-allowed; }
+    .calendar-event-name { min-width:0; overflow:hidden; font-size:.72rem; font-weight:750; text-overflow:ellipsis; }
+    .calendar-event-time { flex:none; color:#bae6fd; font-size:.68rem; font-variant-numeric:tabular-nums; }
+    .calendar-event-status,.calendar-event-empty { color:var(--muted); font-size:.66rem; line-height:1.3; }
     .daily-task-panel { width:100%; min-height:0; max-height:min(34vh,220px); display:flex; flex-direction:column; gap:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.1); }
     .daily-task-heading { display:flex; align-items:center; justify-content:space-between; gap:8px; color:#e2e8f0; font-size:.72rem; font-weight:850; letter-spacing:.05em; }
     .daily-task-heading span { color:var(--muted); font-size:.68rem; letter-spacing:0; }
@@ -195,6 +206,13 @@
       <button id="btnDone" class="btn-done" onclick="finishTask()">CONCLUIR</button>
       <button class="btn-reset" onclick="resetTimer()">↺</button>
     </div>
+    <section class="calendar-events-panel" aria-label="Próximos eventos do Google Calendar">
+      <div class="calendar-events-heading">PRÓXIMOS COMPROMISSOS DE HOJE</div>
+      <div class="calendar-oauth-row"><label class="sr-only" for="calendarClientId">ID do cliente OAuth do Google</label><input id="calendarClientId" type="text" autocomplete="off" placeholder="ID do cliente OAuth do Google"><button id="calendarConnectBtn" type="button">CONECTAR</button></div>
+      <button id="calendarRefreshBtn" class="calendar-fetch-btn" type="button" hidden>ATUALIZAR EVENTOS</button>
+      <div id="calendarEventStatus" class="calendar-event-status" aria-live="polite">Conecte sua Agenda para carregar os eventos.</div>
+      <div id="calendarEventList" class="calendar-event-list" aria-live="polite"></div>
+    </section>
     <div class="ctrl-row sound-row">
       <select id="tickSoundStyle" aria-label="Estilo do tique-taque">
         <option value="classic">Clássico</option>
@@ -210,7 +228,11 @@
 
 <audio id="alarmSound" src="https://www.soundjay.com/buttons/sounds/button-35.mp3"></audio>
 
+<script async src="https://accounts.google.com/gsi/client"></script>
 <script>
+  const GOOGLE_OAUTH_CLIENT_ID = '701619070988-5k5nasa85q4slf476n38s9q8prpr0i7h.apps.googleusercontent.com';
+  let calendarTokenClient = null;
+  let calendarAccessToken = null;
   let miniPlayerVideo = null;
   let miniPlayerCanvas = null;
   let miniPlayerContext = null;
@@ -793,6 +815,122 @@
       notifications.forEach((notification) => notification.close());
     } catch (error) {}
   }
+
+  const CALENDAR_CLIENT_ID_KEY = 'contador-google-oauth-client-id';
+  const GOOGLE_CALENDAR_EVENTS_URL = 'https://www.googleapis.com/calendar/v3/calendars/primary/events';
+
+  function setCalendarStatus(message) {
+    document.getElementById('calendarEventStatus').textContent = message;
+  }
+
+  function renderCalendarEvents(events) {
+    const list = document.getElementById('calendarEventList');
+    list.replaceChildren();
+    if (!events.length) {
+      const empty = document.createElement('div');
+      empty.className = 'calendar-event-empty';
+      empty.textContent = 'Nenhum compromisso futuro hoje.';
+      list.appendChild(empty);
+      return;
+    }
+    events.forEach((event) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'calendar-event-button';
+      const title = document.createElement('span');
+      title.className = 'calendar-event-name';
+      title.textContent = event.summary || '(Sem título)';
+      const time = document.createElement('span');
+      time.className = 'calendar-event-time';
+      time.textContent = new Intl.DateTimeFormat('pt-BR', { hour:'2-digit', minute:'2-digit' }).format(new Date(event.start.dateTime));
+      button.append(title, time);
+      button.addEventListener('click', () => startTimerForCalendarEvent(event));
+      list.appendChild(button);
+    });
+  }
+
+  function connectGoogleCalendar() {
+    const input = document.getElementById('calendarClientId');
+    const clientId = (input.value || GOOGLE_OAUTH_CLIENT_ID).trim();
+    if (!clientId) {
+      setCalendarStatus('Cole o ID do cliente OAuth do Google para autorizar acesso somente de leitura.');
+      input.focus();
+      return;
+    }
+    localStorage.setItem(CALENDAR_CLIENT_ID_KEY, clientId);
+    if (!window.google?.accounts?.oauth2) {
+      setCalendarStatus('Carregando a conexão segura do Google. Tente novamente em instantes.');
+      return;
+    }
+    calendarTokenClient = window.google.accounts.oauth2.initTokenClient({
+      client_id: clientId,
+      scope: 'https://www.googleapis.com/auth/calendar.events.readonly',
+      callback: async (response) => {
+        if (response.error || !response.access_token) {
+          setCalendarStatus('A autorização não foi concluída. Confira o cliente OAuth e tente novamente.');
+          return;
+        }
+        calendarAccessToken = response.access_token;
+        document.getElementById('calendarClientId').hidden = true;
+        document.getElementById('calendarConnectBtn').hidden = true;
+        document.getElementById('calendarRefreshBtn').hidden = false;
+        await loadTodayCalendarEvents();
+      },
+      error_callback: (error) => setCalendarStatus(error?.type === 'popup_closed' ? 'Janela de autorização fechada. Toque em CONECTAR para tentar novamente.' : 'Não foi possível abrir a autorização do Google neste navegador.')
+    });
+    calendarTokenClient.requestAccessToken({ prompt: calendarAccessToken ? '' : 'consent' });
+  }
+
+  async function loadTodayCalendarEvents() {
+    if (!calendarAccessToken) return;
+    setCalendarStatus('Buscando seus compromissos de hoje…');
+    const now = new Date();
+    const dayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const dayEnd = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+    const url = new URL(GOOGLE_CALENDAR_EVENTS_URL);
+    url.search = new URLSearchParams({
+      timeMin: dayStart.toISOString(), timeMax: dayEnd.toISOString(),
+      singleEvents: 'true', orderBy: 'startTime', maxResults: '50'
+    }).toString();
+    try {
+      const response = await fetch(url, { headers: { Authorization: 'Bearer ' + calendarAccessToken } });
+      if (!response.ok) {
+        if (response.status === 401) calendarAccessToken = null;
+        throw new Error('HTTP ' + response.status);
+      }
+      const data = await response.json();
+      const events = (data.items || []).filter((event) => event.status !== 'cancelled' && event.start?.dateTime && new Date(event.start.dateTime) > new Date());
+      renderCalendarEvents(events);
+      setCalendarStatus(events.length ? 'Toque em um evento para iniciar 25 minutos antes.' : '');
+    } catch (error) {
+      setCalendarStatus(error.message === 'HTTP 401' ? 'A autorização expirou. Toque em CONECTAR para autorizar novamente.' : 'Não consegui carregar a agenda. Tente atualizar os eventos.');
+    }
+  }
+
+  function startTimerForCalendarEvent(event) {
+    const eventStart = new Date(event.start.dateTime);
+    if (!Number.isFinite(eventStart.getTime())) return;
+    targetDate = new Date(eventStart.getTime() - 25 * 60 * 1000);
+    const localTarget = new Date(targetDate.getTime() - targetDate.getTimezoneOffset() * 60000).toISOString().slice(11, 16);
+    document.getElementById('targetTime').value = localTarget;
+    document.getElementById('taskName').value = event.summary || 'Compromisso';
+    updateFullscreenTask();
+    document.getElementById('btnStart').style.display = 'none';
+    document.getElementById('btnDone').style.display = 'block';
+    saveTimerState();
+    if (targetDate > new Date()) startTickTock(targetDate.getTime() - Date.now());
+    else stopTickTock();
+    requestNotificationPermission();
+    clearInterval(interval);
+    interval = setInterval(tick, 1000);
+    tick();
+    setCalendarStatus('Contador iniciado para ' + (event.summary || 'compromisso') + ' — 25 min antes.');
+  }
+
+  document.getElementById('calendarConnectBtn').addEventListener('click', connectGoogleCalendar);
+  document.getElementById('calendarRefreshBtn').addEventListener('click', loadTodayCalendarEvents);
+  const savedCalendarClientId = localStorage.getItem(CALENDAR_CLIENT_ID_KEY) || GOOGLE_OAUTH_CLIENT_ID;
+  if (savedCalendarClientId) document.getElementById('calendarClientId').value = savedCalendarClientId;
 
   function startTimer() {
     updateFullscreenTask();
