@@ -132,6 +132,13 @@
       .block-controls { padding:12px 14px; gap:8px; }
       .ctrl-row { gap:8px; }
     }
+
+    /* Keep the countdown group truly centered after the general mobile rules. */
+    @media (max-width:600px) and (max-height:320px) and (min-aspect-ratio:17/10) {
+      #barra { padding:0 !important; }
+      .block-timer { padding:0 6vw !important; }
+      .fullscreen-timer-box,.fullscreen-counter-content { justify-content:center !important; }
+    }
   </style>
 </head>
 <body>
