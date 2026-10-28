@@ -1,4 +1,4 @@
-const CACHE_NAME = 'contador-v12';
+const CACHE_NAME = 'contador-v13';
 const ASSETS = ['./', './index.html', './manifest.json'];
 
 self.addEventListener('install', (event) => {
