@@ -213,7 +213,7 @@
     </div>
     <section class="calendar-events-panel" aria-label="Próximos eventos do Google Calendar">
       <div class="calendar-events-heading">PRÓXIMOS COMPROMISSOS DE HOJE</div>
-      <div class="calendar-oauth-row"><label class="sr-only" for="calendarClientId">ID do cliente OAuth do Google</label><input id="calendarClientId" type="text" autocomplete="off" placeholder="ID do cliente OAuth do Google"><button id="calendarConnectBtn" type="button">CONECTAR</button></div>
+      <div class="calendar-oauth-row"><input id="calendarClientId" type="text" autocomplete="off" aria-label="ID do cliente OAuth do Google" hidden><button id="calendarConnectBtn" type="button">CONECTAR AGENDA</button></div>
       <button id="calendarRefreshBtn" class="calendar-fetch-btn" type="button" hidden>ATUALIZAR AGENDAS E EVENTOS</button>
       <div id="calendarEventStatus" class="calendar-event-status" aria-live="polite">Conecte e autorize a leitura das suas agendas para escolher quais entram no contador.</div>
       <fieldset id="calendarSelector" class="calendar-selector" hidden><legend>Agendas incluídas</legend><div id="calendarCheckboxList" class="calendar-checkbox-list"></div></fieldset>
