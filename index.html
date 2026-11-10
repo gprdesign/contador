@@ -233,6 +233,7 @@
   let miniPlayerContext = null;
   let miniPlayerStream = null;
   let miniPlayerInterval = null;
+  let miniPlayerFrameCallback = null;
 
   function formatAmPm(timeValue) {
     if (!timeValue) return '';
@@ -278,11 +279,19 @@
     const width = miniPlayerCanvas.width;
     const height = miniPlayerCanvas.height;
     const task = document.getElementById('taskName').value.trim() || 'CONTADOR';
-    const timer = document.getElementById('timer').textContent;
     const targetTime = document.getElementById('targetTime').value;
-    const expired = document.getElementById('alarmMsg').style.display === 'block';
-    const warning = document.getElementById('barra').classList.contains('warning');
-    const overtime = document.getElementById('barra').classList.contains('overtime');
+    const remainingMs = targetDate instanceof Date ? targetDate.getTime() - Date.now() : null;
+    const expired = remainingMs !== null && remainingMs <= 0;
+    const warning = remainingMs !== null && remainingMs > 0 && remainingMs <= 30 * 60 * 1000;
+    const overtime = expired;
+    let timer = document.getElementById('timer').textContent;
+    if (remainingMs !== null) {
+      const safeRemainingMs = Math.max(0, remainingMs);
+      const hours = Math.floor(safeRemainingMs / 3600000);
+      const minutes = Math.floor((safeRemainingMs % 3600000) / 60000);
+      const seconds = String(Math.floor((safeRemainingMs % 60000) / 1000)).padStart(2, '0');
+      timer = hours > 0 ? String(hours).padStart(2, '0') + ':' + String(minutes).padStart(2, '0') + ':' + seconds : String(minutes) + ':' + seconds;
+    }
 
     const background = context.createLinearGradient(0, 0, width, height);
     background.addColorStop(0, '#0b1120');
@@ -327,7 +336,8 @@
 
     context.fillStyle = 'rgba(255,255,255,.15)';
     context.fillRect(52, 244, width - 104, 9);
-    const progressWidth = Math.max(0, Math.min(100, parseFloat(document.getElementById('progressBar').style.width) || 0));
+    const nowForProgress = new Date();
+    const progressWidth = Math.max(0, Math.min(100, ((nowForProgress.getSeconds() + nowForProgress.getMilliseconds() / 1000) / 59) * 100));
     context.fillStyle = 'rgba(56,189,248,.96)';
     context.fillRect(52, 244, (width - 104) * progressWidth / 100, 9);
 
@@ -335,8 +345,19 @@
     context.fillStyle = expired ? '#fde68a' : '#94a3b8';
     const footer = expired ? 'TEMPO ESGOTADO!' : targetTime ? 'ATÉ ' + formatAmPm(targetTime) : 'CONTADOR REGRESSIVO';
     context.fillText(footer, width / 2, 292, width - 80);
+  }
 
-
+  function scheduleMiniPlayerFrame() {
+    if (!miniPlayerVideo || document.pictureInPictureElement !== miniPlayerVideo || miniPlayerFrameCallback !== null) return;
+    if (typeof miniPlayerVideo.requestVideoFrameCallback === 'function') {
+      miniPlayerFrameCallback = miniPlayerVideo.requestVideoFrameCallback(() => {
+        miniPlayerFrameCallback = null;
+        drawMiniPlayerFrame();
+        scheduleMiniPlayerFrame();
+      });
+      return;
+    }
+    if (!miniPlayerInterval) miniPlayerInterval = setInterval(drawMiniPlayerFrame, 250);
   }
 
   function prepareMiniPlayerMedia() {
@@ -350,7 +371,7 @@
     if (!miniPlayerContext) throw new Error('Canvas 2D indisponível');
 
     drawMiniPlayerFrame();
-    miniPlayerStream = miniPlayerCanvas.captureStream(1);
+    miniPlayerStream = miniPlayerCanvas.captureStream(2); // Mantém o PiP gerando quadros sem depender do relógio da página.
     miniPlayerVideo = document.createElement('video');
     miniPlayerVideo.muted = true;
     miniPlayerVideo.playsInline = true;
@@ -360,13 +381,17 @@
     miniPlayerVideo.srcObject = miniPlayerStream;
     document.body.appendChild(miniPlayerVideo);
     miniPlayerVideo.addEventListener('enterpictureinpicture', () => {
-      if (!miniPlayerInterval) miniPlayerInterval = setInterval(drawMiniPlayerFrame, 1000);
+      scheduleMiniPlayerFrame();
       updateMiniPlayerButton();
     });
     miniPlayerVideo.addEventListener('leavepictureinpicture', cleanupMiniPlayer, { once: true });
   }
 
   function cleanupMiniPlayer() {
+    if (miniPlayerFrameCallback !== null && miniPlayerVideo && typeof miniPlayerVideo.cancelVideoFrameCallback === 'function') {
+      miniPlayerVideo.cancelVideoFrameCallback(miniPlayerFrameCallback);
+    }
+    miniPlayerFrameCallback = null;
     if (miniPlayerInterval) clearInterval(miniPlayerInterval);
     miniPlayerInterval = null;
     if (miniPlayerStream) miniPlayerStream.getTracks().forEach((track) => track.stop());
@@ -400,7 +425,7 @@
       await miniPlayerVideo.play();
       await miniPlayerVideo.requestPictureInPicture();
       drawMiniPlayerFrame();
-      if (!miniPlayerInterval) miniPlayerInterval = setInterval(drawMiniPlayerFrame, 1000);
+      if (document.pictureInPictureElement === miniPlayerVideo) scheduleMiniPlayerFrame();
       updateMiniPlayerButton();
     } catch (error) {
       cleanupMiniPlayer();
