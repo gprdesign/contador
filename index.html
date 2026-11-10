@@ -233,7 +233,7 @@
   let miniPlayerContext = null;
   let miniPlayerStream = null;
   let miniPlayerInterval = null;
-  let miniPlayerFrameCallback = null;
+  let miniPlayerTrack = null;
 
   function formatAmPm(timeValue) {
     if (!timeValue) return '';
@@ -345,19 +345,15 @@
     context.fillStyle = expired ? '#fde68a' : '#94a3b8';
     const footer = expired ? 'TEMPO ESGOTADO!' : targetTime ? 'ATÉ ' + formatAmPm(targetTime) : 'CONTADOR REGRESSIVO';
     context.fillText(footer, width / 2, 292, width - 80);
+    if (miniPlayerTrack && miniPlayerTrack.readyState === 'live' && document.pictureInPictureElement === miniPlayerVideo) {
+      miniPlayerTrack.requestFrame();
+    }
   }
 
   function scheduleMiniPlayerFrame() {
-    if (!miniPlayerVideo || document.pictureInPictureElement !== miniPlayerVideo || miniPlayerFrameCallback !== null) return;
-    if (typeof miniPlayerVideo.requestVideoFrameCallback === 'function') {
-      miniPlayerFrameCallback = miniPlayerVideo.requestVideoFrameCallback(() => {
-        miniPlayerFrameCallback = null;
-        drawMiniPlayerFrame();
-        scheduleMiniPlayerFrame();
-      });
-      return;
-    }
-    if (!miniPlayerInterval) miniPlayerInterval = setInterval(drawMiniPlayerFrame, 250);
+    if (!miniPlayerVideo || document.pictureInPictureElement !== miniPlayerVideo || miniPlayerInterval) return;
+    drawMiniPlayerFrame();
+    miniPlayerInterval = setInterval(drawMiniPlayerFrame, 250);
   }
 
   function prepareMiniPlayerMedia() {
@@ -371,7 +367,8 @@
     if (!miniPlayerContext) throw new Error('Canvas 2D indisponível');
 
     drawMiniPlayerFrame();
-    miniPlayerStream = miniPlayerCanvas.captureStream(2); // Mantém o PiP gerando quadros sem depender do relógio da página.
+    miniPlayerStream = miniPlayerCanvas.captureStream(0);
+    miniPlayerTrack = miniPlayerStream.getVideoTracks()[0] || null;
     miniPlayerVideo = document.createElement('video');
     miniPlayerVideo.muted = true;
     miniPlayerVideo.playsInline = true;
@@ -388,10 +385,6 @@
   }
 
   function cleanupMiniPlayer() {
-    if (miniPlayerFrameCallback !== null && miniPlayerVideo && typeof miniPlayerVideo.cancelVideoFrameCallback === 'function') {
-      miniPlayerVideo.cancelVideoFrameCallback(miniPlayerFrameCallback);
-    }
-    miniPlayerFrameCallback = null;
     if (miniPlayerInterval) clearInterval(miniPlayerInterval);
     miniPlayerInterval = null;
     if (miniPlayerStream) miniPlayerStream.getTracks().forEach((track) => track.stop());
@@ -405,6 +398,7 @@
     miniPlayerCanvas = null;
     miniPlayerContext = null;
     miniPlayerStream = null;
+    miniPlayerTrack = null;
     updateMiniPlayerButton();
   }
 
@@ -1033,7 +1027,7 @@
   // Registra Service Worker para PWA
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js?v=13').catch(err => console.log('SW error:', err));
+      navigator.serviceWorker.register('sw.js?v=14').catch(err => console.log('SW error:', err));
     });
   }
 </script>
